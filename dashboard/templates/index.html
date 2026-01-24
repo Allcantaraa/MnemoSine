@@ -1,0 +1,7 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+    {% for cliente in clientes %}
+        <h1>{{ cliente.name }}</h1>
+    {% endfor %}
+{% endblock content %}
