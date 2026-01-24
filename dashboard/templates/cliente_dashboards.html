@@ -1,0 +1,24 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+    {% if dashboards %}
+        {% for dashboard in dashboards %}
+            <div class="card">
+                <div class="header"></div>
+                <div class="info">
+                <p class="title">{{ dashboard.title  }}</p>
+                <p>{{ dashboard.status }}</p>
+                </div>
+                <div class="footer">
+                <p class="tag">Categoria:  {{ dashboard.category}}</p>
+                <p class="tag">Criado em: {{ dashboard.created_at|date:"d/m/Y" }}</p>
+                <p class="tag">Atualizado em: {{ dashboard.updated_at|date:"d/m/Y, H:i"}} </p>
+                <a href="{% url "detalhes_dashboard" dashboard.slug %}" class="action">Ver dashboard </a>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+            <p>Este cliente não tem dashboards</p>
+    {% endif %}
+
+{% endblock content %}

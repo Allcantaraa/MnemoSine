@@ -1,7 +1,27 @@
 {% extends "global/base.html" %}
 
 {% block content %}
+    
+    <button class='button'>
+        <a href="{% url "criar_cliente" %}" class="add_client"> Adicionar cliente
+        </a>
+    </button>
+
     {% for cliente in clientes %}
-        <h1>{{ cliente.name }}</h1>
+        <div class="card">
+        <div class="header"></div>
+        <div class="info">
+        <p class="title">{{ cliente.name }}</p>
+        <p>{{ cliente.description }}</p>
+        </div>
+        <div class="footer">
+        <p class="tag">Criado em: {{ cliente.created_at|date:"d/m/Y" }}
+        <p class="tag">É VIP? {{ cliente.is_vip }}
+        <p class="tag">Atualizado em: {{ cliente.updated_at|date:"d/m/Y, H:i"}} </p>
+        <a href="{% url "cliente_dashboard" cliente.slug %}" class="action">Ver dashboards </a>
+        <a href="{% url "atualizar_cliente" cliente.slug %}" class="action-update">Editar </a>
+        <a href="{% url "deletar_cliente" cliente.slug %}" class="action-delete">Apagar </a>
+        </div>
+        </div>
     {% endfor %}
 {% endblock content %}

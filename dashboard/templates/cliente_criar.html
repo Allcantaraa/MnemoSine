@@ -1,0 +1,26 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <form action="{{ form_action }}" enctype="multipart/form-data" method='POST'>
+            <div class="mb-3">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                {% if form.non_field_errors %}
+                    <p>{{ non_field_error }}</p>
+                {% endif %}
+
+                {% if form_action == 'criar_cliente' %}
+                    <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Criar Cliente</button>
+                    {% else %}
+                        <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Atualizar Cliente</button>
+                {% endif %}
+            </div>
+    </form>
+    </div>
+</div>
+
+{% endblock content %}
