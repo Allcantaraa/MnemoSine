@@ -1,6 +1,16 @@
 {% extends "global/base.html" %}
 
 {% block content %}
+
+    <a href="{% url "criar_categoria" client_slug %}" class="button add_client"> Adicionar categoria
+    </a>
+
+    {% include "modals/categoria_listar.html" %}
+
+    <h1>Dashboards</h1>
+
+    <a href="#" class="button add_client"> Adicionar Dashboards
+    </a>
     {% if dashboards %}
         {% for dashboard in dashboards %}
             <div class="card">

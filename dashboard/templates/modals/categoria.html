@@ -1,4 +1,21 @@
 {% extends "global/base.html" %}
 
 {% block content %}
+    <h1>Criar categoria</h1>
+    <form action="{{ form_action }}" method='POST'>
+        <div class="mb-3">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            {% if form.non_field_errors %}
+                <p>{{ non_field_error }}</p>
+            {% endif %}
+
+            {% if form_action == 'criar_cliente' %}
+                <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Criar Categoria</button>
+                {% else %}
+                    <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Atualizar Categoria</button>
+            {% endif %}
+        </div>
+    </form>
 {% endblock content %}

@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from dashboard.models import Cliente
+from dashboard.models import Cliente, Categoria
 
 class ClienteForm(forms.ModelForm) :
     
@@ -22,3 +22,9 @@ class ClienteForm(forms.ModelForm) :
                 'help_text': 'O cliente é vip?'
             })
         }
+
+class CategoriaForm(forms.ModelForm) :
+    class Meta :
+        model = Categoria
+        fields = ('name', )
+        
