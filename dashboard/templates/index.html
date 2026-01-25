@@ -7,25 +7,29 @@
         </a>
     </button>
 
-    {% for cliente in clientes %}
-        <div class="card">
-        {% if cliente.is_vip %}
-            <div class="header-vip"></div>
-        {% else %}
-            <div class="header"></div>
-        {% endif %}
-        <div class="info">
-        <p class="title">{{ cliente.name }}</p>
-        <p>{{ cliente.description }}</p>
-        </div>
-        <div class="footer">
-        <p class="tag">Criado em: {{ cliente.created_at|date:"d/m/Y" }}
-        <p class="tag">É VIP? {{ cliente.is_vip|yesno:'VIP, Nao e vip' }}
-        <p class="tag">Atualizado em: {{ cliente.updated_at|date:"d/m/Y, H:i"}} </p>
-        <a href="{% url "cliente_dashboard" cliente.slug %}" class="action">Ver dashboards </a>
-        <a href="{% url "atualizar_cliente" cliente.slug %}" class="action-update">Editar </a>
-        <a href="{% url "deletar_cliente" cliente.slug %}" class="action-delete">Apagar </a>
-        </div>
-        </div>
-    {% endfor %}
+    {% if clientes %}
+        {% for cliente in clientes %}
+            <div class="card">
+            {% if cliente.is_vip %}
+                <div class="header-vip"></div>
+            {% else %}
+                <div class="header"></div>
+            {% endif %}
+            <div class="info">
+            <p class="title">{{ cliente.name }}</p>
+            <p>{{ cliente.description }}</p>
+            </div>
+            <div class="footer">
+            <p class="tag">Criado em: {{ cliente.created_at|date:"d/m/Y" }}
+            <p class="tag">É VIP? {{ cliente.is_vip|yesno:'VIP, Nao e vip' }}
+            <p class="tag">Atualizado em: {{ cliente.updated_at|date:"d/m/Y, H:i"}} </p>
+            <a href="{% url "cliente_dashboard" cliente.slug %}" class="action">Ver dashboards </a>
+            <a href="{% url "atualizar_cliente" cliente.slug %}" class="action-update">Editar </a>
+            <a href="{% url "deletar_cliente" cliente.slug %}" class="action-delete">Apagar </a>
+            </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Voce não tem nenhum cliente ainda</p>
+    {% endif %}
 {% endblock content %}

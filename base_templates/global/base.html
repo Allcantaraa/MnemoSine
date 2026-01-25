@@ -1,7 +1,16 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+    <head>
+        {% include "global/partials/_head.html" %}
+    </head>
+    
 <body>
-    {% include "global/partials/_head.html" %}
+    {% if user.is_authenticated %}
+        <header>
+            {% include "global/partials/_header.html" %}
+        </header>
+    {% endif %}
+    
     {% block content %}{% endblock content %}
 </body>
 </html>

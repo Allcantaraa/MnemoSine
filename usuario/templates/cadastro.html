@@ -1,0 +1,22 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+
+<div class="card">
+    <div class="card-body">
+        <form action="{% url "cadastro" %}" method='POST'>
+            <div class="mb-3">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                {% if form.non_field_errors %}
+                    <p>{{ non_field_error }}</p>
+                {% endif %}
+                <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Cadastrar</button>
+            </div>
+        </form>
+        <a href="{% url "login" %}" class='card-link mx-auto d-block text-center'>Já tem uma conta? Faça login</a>
+    </div>
+</div>
+    
+{% endblock content %}

@@ -5,23 +5,28 @@ from django.contrib import messages
 from dashboard.forms import ClienteForm, CategoriaForm
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
+@login_required()
 def index(request) :
-    clientes = Cliente.objects.all().order_by('-is_vip')
+    clientes = Cliente.objects.filter(owner=request.user).order_by('-is_vip')
     return render(request, 'index.html', {'clientes': clientes})
 
+@login_required()
 def dashboards(request, slug) :
-    categorias = Categoria.objects.all()
-    cliente = get_object_or_404(Cliente, slug=slug)
-    dashboards = Dashboard.objects.filter(client__slug=slug)
+    cliente = get_object_or_404(Cliente, slug=slug, owner=request.user)
+    dashboards = Dashboard.objects.filter(client=cliente)
+    categorias = Categoria.objects.filter(owner=request.user)
     
     return render(request, 'cliente_dashboards.html', {'dashboards': dashboards, 'client_slug': slug, 'categorias': categorias})
 
+@login_required()
 def dashboard(request, slug) :
     dashboard = get_object_or_404(Dashboard, slug=slug)
     
     return render(request, 'detalhes_dashboard.html', {'dashboard': dashboard})
 
+@login_required()
 def criar_cliente(request) :
     
     form_action = reverse('criar_cliente')
@@ -30,7 +35,8 @@ def criar_cliente(request) :
         form = ClienteForm(request.POST, request.FILES)
         
         if form.is_valid() :
-            cliente_criado = form.save()
+            cliente_criado = form.save(commit=False)
+            cliente_criado.owner = request.user
             cliente_criado.save()
             messages.success(request, 'Cliente criado com sucesso')
             return redirect('index')
@@ -40,7 +46,7 @@ def criar_cliente(request) :
     
     return render(request, 'cliente_criar.html', {'form': ClienteForm(), 'form_action': form_action})
     
-
+@login_required()
 def atualizar_cliente(request, slug) :
     cliente = get_object_or_404(Cliente, slug=slug)
     
@@ -58,6 +64,7 @@ def atualizar_cliente(request, slug) :
     
     return render(request, 'cliente_criar.html', {'form': ClienteForm(instance=cliente), 'form_action': form_action})
 
+@login_required()
 def deletar_cliente(request, slug) :
     cliente = get_object_or_404(Cliente, slug=slug)
     
@@ -69,6 +76,7 @@ def deletar_cliente(request, slug) :
     
     return render(request, 'modals/deletar_cliente.html', {'cliente': cliente, 'confirmation': confirmation})
 
+@login_required()
 def criar_categoria(request, client_slug) :
     form_action = reverse('criar_categoria', args=(client_slug, ))
     
@@ -76,7 +84,9 @@ def criar_categoria(request, client_slug) :
         form = CategoriaForm(request.POST)
         
         if form.is_valid() :
-            form.save()
+            categoria_criada = form.save(commit=False)
+            categoria_criada.owner = request.user
+            categoria_criada.save()
             messages.success(request, 'Categoria criada com sucesso')
             return redirect('cliente_dashboard', slug=client_slug)
         
@@ -85,6 +95,7 @@ def criar_categoria(request, client_slug) :
     
     return render(request, 'modals/categoria.html', {'form': CategoriaForm(), 'form_action': form_action})
 
+@login_required()
 def atualizar_categoria(request, categoria_slug,client_slug) :
     categoria = get_object_or_404(Categoria, slug=categoria_slug)
     form_action = reverse('atualizar_categoria', args=(client_slug, categoria_slug))
@@ -102,6 +113,7 @@ def atualizar_categoria(request, categoria_slug,client_slug) :
     
     return render(request, 'modals/categoria.html', {'form': CategoriaForm(instance=categoria), 'form_action': form_action})
 
+@login_required()
 def deletar_categoria(request, client_slug, categoria_slug) :
     categoria = get_object_or_404(Categoria, slug=categoria_slug)
     

@@ -1,18 +1,14 @@
-{% extends "global/base.html" %}
-
-{% block content %}
-    <h1>Categorias</h1>
-    <div class="card-container">
-        {% for categoria in categorias %}
-        <div class="card-category">
-             <div class="info">
-                <p class="title">{{ categoria.name  }}</p>
-            </div>
-            <div class="footer">
-                <a href="{% url "atualizar_categoria" client_slug categoria.slug  %}" class="action-update">Editar </a>
-                <a href="{% url "deletar_categoria" client_slug categoria.slug  %}" class="action-delete">Apagar </a>
-            </div>
+<h1>Categorias</h1>
+<div class="card-container">
+    {% for categoria in categorias %}
+    <div class="card-category">
+            <div class="info">
+            <p class="title">{{ categoria.name  }}</p>
         </div>
-    {% endfor %}
+        <div class="footer">
+            <a href="{% url "atualizar_categoria" client_slug categoria.slug  %}" class="action-update">Editar </a>
+            <a href="{% url "deletar_categoria" client_slug categoria.slug  %}" class="action-delete">Apagar </a>
+        </div>
     </div>
-{% endblock content %}
+{% endfor %}
+</div>

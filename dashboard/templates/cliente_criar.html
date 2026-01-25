@@ -13,7 +13,7 @@
                     <p>{{ non_field_error }}</p>
                 {% endif %}
 
-                {% if form_action == 'criar_cliente' %}
+                {% if 'criar' in form_action %}
                     <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Criar Cliente</button>
                     {% else %}
                         <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Atualizar Cliente</button>

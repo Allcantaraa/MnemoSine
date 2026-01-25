@@ -7,6 +7,7 @@ class Cliente(models.Model) :
         verbose_name = 'Cliente'
         verbose_name_plural = 'Clientes'
     
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=255,blank=False, null=False)
     logo = models.ImageField(upload_to='pictures/%Y/%m/', blank=True)
     description = models.TextField(max_length=100,blank=True, null=True)
@@ -28,7 +29,8 @@ class Categoria(models.Model) :
     class Meta :
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
-        
+    
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=255, blank=False, null=False)
     slug = models.SlugField(
         unique=True,
@@ -65,7 +67,8 @@ class Dashboard(models.Model) :
     class Meta :
         verbose_name = 'Dashboard'
         verbose_name_plural = 'Dashboards'
-        
+    
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     client = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, blank=False, null=False)
     category = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)

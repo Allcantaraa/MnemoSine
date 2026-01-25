@@ -4,6 +4,13 @@
     padding: 0;
 }
 
+.navbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
 /* From Uiverse.io by Yaya12085 */ 
 .card {
   display: flex;
