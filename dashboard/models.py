@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from utils.slugs import new_slugify
+from django.core.exceptions import ValidationError
 
 class Cliente(models.Model) :
     class Meta :
@@ -92,6 +93,11 @@ class Dashboard(models.Model) :
         max_length=255
     )
     
+    def clean(self) :
+        if self.status == 'cn' :
+                if not self.json :
+                    raise ValidationError('O arquivo JSON é obrigatório para conclusão.')
+    
     def save(self, *args, **kwargs) :
         if not self.slug :
             self.slug = new_slugify(self.title)
@@ -101,6 +107,6 @@ class Dashboard(models.Model) :
         return f"{self.client.name} - {self.title}"
     
 class DashboardImage(models.Model) :
-    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, related_name='images')
+    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, related_name='dashboard_images')
     images = models.ImageField(upload_to='dashboards/images/%Y/%m/', blank=True, null=True) 
     description = models.TextField(max_length=100,blank=True, null=True)

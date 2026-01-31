@@ -11,10 +11,13 @@
 
     <a href="#" class="button add_client"> Adicionar Dashboards
     </a>
+    
     {% if dashboards %}
         {% for dashboard in dashboards %}
             <div class="card">
-                <div class="header"></div>
+                {% with first_image=dashboard.dashboard_images.first %}
+                    <div class="header"> <img src="{{ first_image.images.url }}" alt="">  </div>
+                {% endwith %}
                 <div class="info">
                 <p class="title">{{ dashboard.title  }}</p>
                 <p>{{ dashboard.status }}</p>
