@@ -53,8 +53,8 @@ class Dashboard(models.Model) :
     
     class Status(models.TextChoices) :
         NOVO = 'nv', 'Novo'
-        EM_EXECUCAO = 'ex', 'EM_EXECUCAO'
-        CONCLUIDO = 'cn', 'CONCLUIDO'
+        EM_EXECUCAO = 'ex', 'Em Execução'
+        CONCLUIDO = 'cn', 'Concluido'
         
     class PublicoAlvo(models.TextChoices) :
         GESTORES = 'ges', 'Gestores'
@@ -97,6 +97,9 @@ class Dashboard(models.Model) :
         if self.status == 'cn' :
                 if not self.json :
                     raise ValidationError('O arquivo JSON é obrigatório para conclusão.')
+                
+                if not str(self.json).endswith('.json') :
+                    raise ValidationError('É necessário que o arquivo seja um JSON')
     
     def save(self, *args, **kwargs) :
         if not self.slug :

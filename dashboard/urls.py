@@ -11,5 +11,9 @@ urlpatterns = [
     path('categoria/<slug:client_slug>/atualizar/<slug:categoria_slug>', views.atualizar_categoria, name='atualizar_categoria'),
     path('categoria/<slug:client_slug>/deletar/<slug:categoria_slug>', views.deletar_categoria, name='deletar_categoria'),
     
+    path('clientes/<slug:client_slug>/dashboard/criar', views.criar_dashboard, name='criar_dashboard'),
+    path('clientes/<slug:client_slug>/dashboard/editar/<slug:slug>', views.atualizar_dashboard, name='atualizar_dashboard'),
+    path('clientes/<slug:client_slug>/dashboard/deletar/<slug:dashboard_slug>', views.deletar_dashboard, name='deletar_dashboard'),
+    
     path('dashboard/<slug:slug>/', views.dashboard, name='detalhes_dashboard'),
 ]

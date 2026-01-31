@@ -1,0 +1,17 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+    <form action="{% url 'deletar_dashboard' client_slug dashboard.slug %}" method='POST'>
+        {% csrf_token %}
+        
+        <div class="card">
+            <h2>Tem certeza que deseja deletar o dashboard "{{ dashboard.title }}"?</h2>
+            
+            {% if confirmation == 'no' %}
+                <input type="hidden" name='confirmation' value='yes'>
+                <button type='submit' class='btn btn-danger'>Sim, confirmar exclusão</button>
+                <a href="{% url 'cliente_dashboard' client_slug %}" class="btn btn-secondary">Cancelar</a>
+            {% endif %}
+        </div>
+    </form>
+{% endblock content %}

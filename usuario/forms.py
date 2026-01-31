@@ -33,6 +33,11 @@ class RegisterUpdateForm(forms.ModelForm) :
                 )
 
         return email
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['profile_image'].label = "Imagem de Perfil"
 
 class Login_Form(AuthenticationForm) :
         
@@ -84,6 +89,11 @@ class CadastroForm(UserCreationForm) :
     class Meta :
         model = User
         fields = ('username', 'email', 'profile_image','password1', 'password2')
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        self.fields['profile_image'].label = "Imagem de Perfil"
         
     def save(self, commit=True):
         cleaned_data = self.cleaned_data

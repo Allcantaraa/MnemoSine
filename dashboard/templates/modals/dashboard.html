@@ -1,0 +1,24 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+    <form method="POST" enctype="multipart/form-data" action="{{ form_action }}">
+    {% csrf_token %}
+    
+    <h3>Dados do Dashboard</h3>
+    {{ form.as_p }}
+
+    <hr>
+    <h3>Imagens do Briefing</h3>
+    {{ formset.management_form }}
+    
+    {% for image_form in formset %}
+        <div class="image-form-row" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem;">
+            {{ image_form.as_p }}
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">
+        {% if is_updating %} Salvar Alterações {% else %} Criar Dashboard {% endif %}
+    </button>
+</form>
+{% endblock content %}

@@ -9,7 +9,7 @@
 
     <h1>Dashboards</h1>
 
-    <a href="#" class="button add_client"> Adicionar Dashboards
+    <a href="{% url "criar_dashboard" client_slug %}" class="button add_client"> Adicionar Dashboards
     </a>
     
     {% if dashboards %}
@@ -20,7 +20,7 @@
                 {% endwith %}
                 <div class="info">
                 <p class="title">{{ dashboard.title  }}</p>
-                <p>{{ dashboard.status }}</p>
+                <p>{{ dashboard.get_status_display }}</p>
                 </div>
                 <div class="footer">
                 <p class="tag">Categoria:  {{ dashboard.category}}</p>
