@@ -3,6 +3,12 @@ from dashboard import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('clientes/<slug:slug>/', views.dashboards, name='cliente_dashboard'),
+    
+    #filtros
+    path('clientes/<slug:slug>/em_execucao', views.dashboards_em_execucao, name='dashboards_em_execucao'),
+    path('clientes/<slug:slug>/novos', views.dashboards_novos, name='dashboards_novos'),
+    path('clientes/<slug:slug>/concluidos', views.dashboards_concluidos, name='dashboards_concluidos'),
+    
     path('clientes/criar', views.criar_cliente, name='criar_cliente'),
     path('clientes/<slug:slug>/atualizar/', views.atualizar_cliente, name='atualizar_cliente'),
     path('clientes/<slug:slug>/deletar/', views.deletar_cliente, name='deletar_cliente'),

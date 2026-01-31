@@ -22,6 +22,30 @@ def dashboards(request, slug) :
     return render(request, 'cliente_dashboards.html', {'dashboards': dashboards, 'client_slug': slug, 'categorias': categorias})
 
 @login_required()
+def dashboards_em_execucao(request, slug) :
+    cliente = get_object_or_404(Cliente, slug=slug, owner=request.user)
+    dashboards = Dashboard.objects.filter(client=cliente).filter(status='ex')
+    categorias = Categoria.objects.filter(owner=request.user)
+    
+    return render(request, 'cliente_dashboards.html', {'dashboards': dashboards, 'client_slug': slug, 'categorias': categorias})
+
+@login_required()
+def dashboards_novos(request, slug) :
+    cliente = get_object_or_404(Cliente, slug=slug, owner=request.user)
+    dashboards = Dashboard.objects.filter(client=cliente).filter(status='nv')
+    categorias = Categoria.objects.filter(owner=request.user)
+    
+    return render(request, 'cliente_dashboards.html', {'dashboards': dashboards, 'client_slug': slug, 'categorias': categorias})
+
+@login_required()
+def dashboards_concluidos(request, slug) :
+    cliente = get_object_or_404(Cliente, slug=slug, owner=request.user)
+    dashboards = Dashboard.objects.filter(client=cliente).filter(status='cn')
+    categorias = Categoria.objects.filter(owner=request.user)
+    
+    return render(request, 'cliente_dashboards.html', {'dashboards': dashboards, 'client_slug': slug, 'categorias': categorias})
+
+@login_required()
 def dashboard(request, slug):
     dashboard_obj = get_object_or_404(Dashboard, slug=slug, owner=request.user)
     cliente_slug = dashboard_obj.client.slug
@@ -139,7 +163,7 @@ def criar_dashboard(request, client_slug) :
     form_action = reverse('criar_dashboard', args=(client_slug, ))
     
     if request.method == 'POST' :
-        form = DashboardForm(request.POST)
+        form = DashboardForm(request.POST, request.FILES)
         formset = DashboardImageFormSet(request.POST, request.FILES)
         
         if form.is_valid() and formset.is_valid() :

@@ -11,6 +11,15 @@
 
     <a href="{% url "criar_dashboard" client_slug %}" class="button add_client"> Adicionar Dashboards
     </a>
+
+    <a href="{% url "cliente_dashboard" client_slug %}" class="button"> Todos
+    </a>
+    <a href="{% url "dashboards_em_execucao" client_slug %}" class="button"> Dashboards em execução
+    </a>
+    <a href="{% url "dashboards_novos" client_slug %}" class="button"> Dashboards Novos
+    </a>
+    <a href="{% url "dashboards_concluidos" client_slug %}" class="button"> Dashboards Concluidos
+    </a>
     
     {% if dashboards %}
         {% for dashboard in dashboards %}

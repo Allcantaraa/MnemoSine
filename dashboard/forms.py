@@ -63,5 +63,5 @@ class DashboardForm(forms.ModelForm) :
     
 
 DashboardImageFormSet = inlineformset_factory(
-    Dashboard, DashboardImage, fields=('images',), extra=1
+    Dashboard, DashboardImage, fields=('images',), extra=5
 )
