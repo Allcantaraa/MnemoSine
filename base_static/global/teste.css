@@ -1,4 +1,102 @@
+html {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background-color: #dbdbdb;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 .teste-login {
-    font-family: 'Roboto', sans-serif;
-    font-size: 42px;
+  font-family: "Roboto", sans-serif;
+  font-size: clamp(28px, 4vw, 42px);
+  color: #000000;
+  text-align: center;
+  font-weight: 800;
+  margin: 0 0 20rem 0;
+}
+
+form {
+  display: flex;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(1000px, 90%);
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.card-left,
+.card-right {
+  flex: 1 1 300px;
+  min-width: 260px;
+  padding: 20px;
+  border: none;
+  box-sizing: border-box;
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-wrap: break-word;
+}
+
+.card-left {
+  background-color: rgba(234, 240, 240, 0.6);
+  color: #000;
+}
+
+.card-right {
+  background-color: #00fa9a;
+  padding: 24px;
+  text-align: center;
+  color: #fff;
+}
+
+.right-titulo {
+  font-family: "Roboto", sans-serif;
+  font-size: clamp(20px, 3vw, 32px);
+  color: #ffffff;
+  text-align: center;
+  margin: 0;
+}
+
+/* Responsividade: quando a tela for estreita, empilhar os cards e ajustar posicionamento */
+@media (max-width: 900px) {
+  form {
+    position: static;
+    transform: none;
+    margin: 5vh auto;
+    width: 94%;
+  }
+  .card-left,
+  .card-right {
+    min-width: 100%;
+    flex: 1 1 100%;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .teste-login {
+    font-size: clamp(20px, 8vw, 32px);
+  }
+  .card-left,
+  .card-right {
+    padding: 16px;
+  }
+  .right-titulo {
+    font-size: clamp(18px, 6vw, 26px);
+  }
+}
+
+/* Pequenos ajustes de acessibilidade/legibilidade */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
