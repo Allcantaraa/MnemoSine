@@ -1,46 +1,237 @@
 {% extends "global/base.html" %}
 
 {% block content %}
-
-    <a href="{% url "criar_categoria" client_slug %}" class="button add_client"> Adicionar categoria
-    </a>
+<div class="dashboards-container">
+    <div class="dashboards-header">
+        <h1>{{ cliente.name }} - Dashboards</h1>
+        <div class="action-buttons">
+            <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">+ Novo Dashboard</a>
+            <a href="{% url "criar_categoria" client_slug %}" class="btn-secondary">+ Nova Categoria</a>
+        </div>
+    </div>
 
     {% include "modals/categoria_listar.html" %}
 
-    <h1>Dashboards</h1>
-
-    <a href="{% url "criar_dashboard" client_slug %}" class="button add_client"> Adicionar Dashboards
-    </a>
-
-    <a href="{% url "cliente_dashboard" client_slug %}" class="button"> Todos
-    </a>
-    <a href="{% url "dashboards_em_execucao" client_slug %}" class="button"> Dashboards em execução
-    </a>
-    <a href="{% url "dashboards_novos" client_slug %}" class="button"> Dashboards Novos
-    </a>
-    <a href="{% url "dashboards_concluidos" client_slug %}" class="button"> Dashboards Concluidos
-    </a>
-    
     {% if dashboards %}
-        {% for dashboard in dashboards %}
-            <div class="card">
-                {% with first_image=dashboard.dashboard_images.first %}
-                    <div class="header"> <img src="{{ first_image.images.url }}" alt="">  </div>
-                {% endwith %}
-                <div class="info">
-                <p class="title">{{ dashboard.title  }}</p>
-                <p>{{ dashboard.get_status_display }}</p>
+        <div class="dashboards-grid">
+            {% for dashboard in dashboards %}
+                <div class="dashboard-card">
+                    <div class="dashboard-image">
+                        {% if dashboard.image %}
+                            <img src="{{ dashboard.image.url }}" alt="{{ dashboard.title }}">
+                        {% else %}
+                            <div class="no-image">Sem imagem</div>
+                        {% endif %}
+                    </div>
+                    <div class="dashboard-content">
+                        <h3>{{ dashboard.title }}</h3>
+                        <p class="category">Categoria: {{ dashboard.category|default:"Sem categoria" }}</p>
+                        <p class="date">Criado em: {{ dashboard.created_at|date:"d/m/Y" }}</p>
+                        <div class="dashboard-actions">
+                            <a href="{% url "detalhes_dashboard" dashboard.slug %}" class="btn-view">Ver Dashboard</a>
+                            <a href="{% url "atualizar_dashboard" client_slug dashboard.slug %}" class="btn-edit">Editar</a>
+                            <a href="{% url "deletar_dashboard" client_slug dashboard.slug %}" class="btn-delete">Deletar</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="footer">
-                <p class="tag">Categoria:  {{ dashboard.category}}</p>
-                <p class="tag">Criado em: {{ dashboard.created_at|date:"d/m/Y" }}</p>
-                <p class="tag">Atualizado em: {{ dashboard.updated_at|date:"d/m/Y, H:i"}} </p>
-                <a href="{% url "detalhes_dashboard" dashboard.slug %}" class="action">Ver dashboard </a>
-                </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
     {% else %}
-            <p>Este cliente não tem dashboards</p>
+        <div class="empty-state">
+            <p>Este cliente não tem dashboards ainda</p>
+            <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">Criar Primeiro Dashboard</a>
+        </div>
     {% endif %}
+</div>
 
+<style>
+    .dashboards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .dashboards-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .dashboards-header h1 {
+        color: #2c3e50;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-primary, .btn-secondary {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-secondary {
+        background-color: #95a5a6;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #7f8c8d;
+    }
+
+    .dashboards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .dashboard-image {
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        overflow: hidden;
+    }
+
+    .dashboard-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    .dashboard-content {
+        padding: 1.5rem;
+    }
+
+    .dashboard-content h3 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+    }
+
+    .category, .date {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        margin: 0.25rem 0;
+    }
+
+    .dashboard-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-view {
+        flex: 1;
+        padding: 0.5rem;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 0.85rem;
+        transition: background-color 0.3s;
+    }
+
+    .btn-view:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-edit {
+        padding: 0.5rem 1rem;
+        background-color: #27ae60;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        transition: background-color 0.3s;
+    }
+
+    .btn-edit:hover {
+        background-color: #229954;
+    }
+
+    .btn-delete {
+        padding: 0.5rem 1rem;
+        background-color: #e74c3c;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        transition: background-color 0.3s;
+    }
+
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .empty-state p {
+        color: #7f8c8d;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboards-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .action-buttons {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .action-buttons a {
+            width: 100%;
+        }
+
+        .dashboards-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 {% endblock content %}

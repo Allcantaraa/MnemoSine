@@ -1,0 +1,313 @@
+{% extends "global/base.html" %}
+{% load org_tags %}
+
+{% block content %}
+<div class="org-container">
+    <div class="org-card">
+        <div class="org-header">
+            <div>
+                <h1>Membros da Organização</h1>
+                <p class="subtitle">{{ organization.name }}</p>
+            </div>
+            {% if request.user|has_org_role:organization %}
+                <div class="code-badge">
+                    <span class="code-label">Código de Convite</span>
+                    <span class="code-value">{{ organization.code }}</span>
+                    <button class="copy-btn" onclick="copyToClipboard('{{ organization.code }}')">Copiar</button>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if request.user|has_org_role:organization %}
+            <div class="admin-actions">
+                <a href="{% url 'gerar_novo_codigo' %}" class="btn-generate">Gerar Novo Código</a>
+            </div>
+        {% endif %}
+
+        {% if membros %}
+            <div class="members-list">
+                {% for membro in membros %}
+                    <div class="member-item">
+                        <div class="member-info">
+                            <h3>{{ membro.user.get_full_name|default:membro.user.username }}</h3>
+                            <p class="member-email">{{ membro.user.email }}</p>
+                            <span class="role-badge" data-role="{{ membro.role }}">
+                                {{ membro.get_role_display }}
+                            </span>
+                            <p class="joined-date">Entrou em: {{ membro.joined_at|date:"d/m/Y H:i" }}</p>
+                        </div>
+
+                        {% if request.user|has_org_role:organization and membro.user != request.user %}
+                            <div class="member-actions">
+                                <form method="POST" action="{% url 'alterar_role_membro' membro.user.id %}" class="role-form">
+                                    {% csrf_token %}
+                                    <select name="role" class="role-select">
+                                        <option value="admin" {% if membro.role == "admin" %}selected{% endif %}>Admin</option>
+                                        <option value="member" {% if membro.role == "member" %}selected{% endif %}>Member</option>
+                                        <option value="viewer" {% if membro.role == "viewer" %}selected{% endif %}>Viewer</option>
+                                    </select>
+                                    <button type="submit" class="btn-update">Atualizar</button>
+                                </form>
+
+                                <a href="{% url 'remover_membro' membro.user.id %}" class="btn-remove">Remover</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-message">Nenhum membro encontrado.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .org-container {
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+    }
+
+    .org-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 900px;
+        width: 100%;
+    }
+
+    .org-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 2rem;
+        gap: 2rem;
+    }
+
+    .org-header h1 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        color: #7f8c8d;
+        font-size: 0.95rem;
+    }
+
+    .code-badge {
+        background-color: #f0f0f0;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 250px;
+    }
+
+    .code-label {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    .code-value {
+        font-family: 'Courier New', monospace;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #3498db;
+        letter-spacing: 2px;
+    }
+
+    .copy-btn {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: background-color 0.3s;
+    }
+
+    .copy-btn:hover {
+        background-color: #2980b9;
+    }
+
+    .admin-actions {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .btn-generate {
+        display: inline-block;
+        background-color: #9b59b6;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-generate:hover {
+        background-color: #8e44ad;
+    }
+
+    .members-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .member-item {
+        border: 1px solid #e0e0e0;
+        padding: 1.5rem;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fafafa;
+    }
+
+    .member-info h3 {
+        margin: 0 0 0.25rem 0;
+        color: #2c3e50;
+    }
+
+    .member-email {
+        margin: 0.25rem 0;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        margin: 0.5rem 0;
+        color: white;
+        font-weight: 500;
+    }
+
+    .role-badge[data-role="admin"] {
+        background-color: #e74c3c;
+    }
+
+    .role-badge[data-role="member"] {
+        background-color: #3498db;
+    }
+
+    .role-badge[data-role="viewer"] {
+        background-color: #95a5a6;
+    }
+
+    .joined-date {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.85rem;
+        color: #95a5a6;
+    }
+
+    .member-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .role-form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .role-select {
+        padding: 0.5rem;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+        background-color: white;
+        font-size: 0.9rem;
+    }
+
+    .btn-update {
+        background-color: #27ae60;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .btn-update:hover {
+        background-color: #229954;
+    }
+
+    .btn-remove {
+        background-color: #e74c3c;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.3s;
+        font-size: 0.9rem;
+    }
+
+    .btn-remove:hover {
+        background-color: #c0392b;
+    }
+
+    .empty-message {
+        text-align: center;
+        color: #7f8c8d;
+        padding: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .org-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .code-badge {
+            width: 100%;
+            min-width: auto;
+        }
+
+        .member-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .member-actions {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .role-form {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .role-select, .btn-update, .btn-remove {
+            flex: 1;
+            min-width: 100px;
+        }
+    }
+</style>
+
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Código copiado para a área de transferência!');
+        });
+    }
+</script>
+{% endblock content %}
+

@@ -1,5 +1,238 @@
-<ul class='navbar'>
-    <li><a href="{% url "index" %}">MnemoSine</a></li>
-    <li><a href="{% url "perfil" %}">Perfil</a></li>
-    <li><a href="{% url "logout" %}">Sair</a></li>
-</ul>
+{% load org_tags %}
+
+<nav class="sidebar">
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="brand-logo">◈</div>
+        <div class="brand-text">MnemoSine</div>
+    </div>
+
+    <!-- Organization Selector -->
+    {% if request.organization %}
+        <div class="org-selector">
+            <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-form">
+                {% csrf_token %}
+                <div class="org-display">
+                    <span class="org-icon">🏢</span>
+                    <span class="org-name">{{ request.organization.name|truncatewords:2 }}</span>
+                </div>
+            </form>
+        </div>
+    {% else %}
+        <div class="org-selector">
+            <p style="padding: 0.5rem; font-size: 0.8rem; color: #6c757d;">Sem organização</p>
+        </div>
+    {% endif %}
+
+    <!-- Navigation Links -->
+    <div class="sidebar-nav">
+        <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+            <span class="nav-icon">◈</span>
+            <span class="nav-label">Inicio</span>
+        </a>
+
+        {% if request.organization %}
+            {% if request.user|has_org_role:request.organization %}
+                <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label">Membros</span>
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'entrar_organizacao' %}" class="nav-link">
+                <span class="nav-icon">🔓</span>
+                <span class="nav-label">Entrar Org</span>
+            </a>
+            <a href="{% url 'criar_organizacao' %}" class="nav-link">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">Criar Org</span>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="sidebar-bottom">
+        <a href="{% url 'perfil' %}" class="nav-link">
+            <span class="nav-icon">👤</span>
+            <span class="nav-label">Perfil</span>
+        </a>
+        <a href="{% url 'logout' %}" class="nav-link logout-link">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-label">Sair</span>
+        </a>
+    </div>
+</nav>
+
+<style>
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background: white;
+        padding: 1.5rem 1rem;
+        gap: 1.5rem;
+    }
+
+    /* Brand */
+    .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .brand-logo {
+        font-size: 1.5rem;
+        color: #d4af37;
+        font-weight: bold;
+    }
+
+    .brand-text {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #2c3e50;
+        letter-spacing: -0.4px;
+    }
+
+    /* Organization Selector */
+    .org-selector {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border-left: 3px solid #d4af37;
+    }
+
+    .org-form {
+        margin: 0;
+    }
+
+    .org-display {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 0.25rem;
+    }
+
+    .org-icon {
+        font-size: 1.1rem;
+    }
+
+    .org-name {
+        color: #2c3e50;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Navigation */
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0.75rem;
+        color: #6c757d;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-left: 3px solid transparent;
+    }
+
+    .nav-icon {
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .nav-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .nav-link:hover {
+        background-color: #f8f9fa;
+        color: #d4af37;
+    }
+
+    .nav-link.active {
+        color: #d4af37;
+        background-color: #fef9f0;
+        border-left-color: #d4af37;
+    }
+
+    .nav-link.logout-link:hover {
+        background-color: #fff5f5;
+        color: #dc3545;
+    }
+
+    /* Bottom Section */
+    .sidebar-bottom {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    /* Mobile: Collapsed View */
+    @media (max-width: 768px) {
+        .sidebar {
+            padding: 1rem 0.5rem;
+            gap: 1rem;
+        }
+
+        .sidebar-brand {
+            padding-bottom: 0.75rem;
+        }
+
+        .brand-text {
+            display: none;
+        }
+
+        .brand-logo {
+            font-size: 1.3rem;
+            margin: 0 auto;
+        }
+
+        .org-selector {
+            display: none;
+        }
+
+        .nav-label {
+            display: none;
+        }
+
+        .nav-link {
+            justify-content: center;
+            padding: 0.75rem;
+        }
+
+        .nav-icon {
+            margin: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .sidebar {
+            padding: 0.75rem 0.3rem;
+        }
+
+        .nav-link {
+            padding: 0.6rem;
+        }
+    }
+</style>
+
+

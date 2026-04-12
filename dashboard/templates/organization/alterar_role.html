@@ -1,0 +1,174 @@
+{% extends "global/base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h1>Alterar Nível de Acesso</h1>
+        <p class="subtitle">{{ membership.user.username }} • {{ organization.name }}</p>
+
+        <form method="POST" class="form-body">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="label-static">Nível Atual</label>
+                <div class="current-role">
+                    <span class="role-badge" data-role="{{ membership.role }}">
+                        {{ membership.get_role_display }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Novo Nível de Acesso</label>
+                <select name="role" id="role" class="form-input" required>
+                    <option value="admin" {% if membership.role == "admin" %}selected{% endif %}>Admin - Gerencia tudo</option>
+                    <option value="member" {% if membership.role == "member" %}selected{% endif %}>Member - Cria e edita</option>
+                    <option value="viewer" {% if membership.role == "viewer" %}selected{% endif %}>Viewer - Apenas visualiza</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Atualizar Acesso</button>
+                <a href="{% url 'listar_membros' %}" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 300px);
+        padding: 2rem;
+    }
+
+    .form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        max-width: 450px;
+        width: 100%;
+    }
+
+    .form-card h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        color: #6c757d;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .form-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+    }
+
+    .form-group .label-static {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .current-role {
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: white;
+        font-weight: 600;
+    }
+
+    .role-badge[data-role="admin"] {
+        background-color: #dc3545;
+    }
+
+    .role-badge[data-role="member"] {
+        background-color: #0066cc;
+    }
+
+    .role-badge[data-role="viewer"] {
+        background-color: #6c757d;
+    }
+
+    .form-input {
+        padding: 0.85rem;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        font-size: 1rem;
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #0066cc;
+        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+        margin-top: 1rem;
+    }
+
+    .btn-primary {
+        padding: 0.85rem;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 0.85rem;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    @media (max-width: 600px) {
+        .form-card {
+            padding: 1.5rem;
+        }
+
+        .form-card h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock content %}
+

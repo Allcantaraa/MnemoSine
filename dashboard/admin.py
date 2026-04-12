@@ -1,70 +1,54 @@
 from django.contrib import admin
-from django.forms.models import BaseInlineFormSet
-from .models import Cliente, Categoria, Dashboard, DashboardImage
-from django.core.exceptions import ValidationError
+from .models import Organization, OrganizationMember, Cliente, Categoria, Dashboard
 
-class DashboardImageFormSet(BaseInlineFormSet):
-    def clean(self):
-        super().clean()
-        if self.instance.status == 'cn':
-            count = 0
-            for form in self.forms:
-                if form.cleaned_data and not form.cleaned_data.get('DELETE'):
-                    count += 1
-            
-            if count == 0:
-                raise ValidationError(
-                    'Um Dashboard concluído precisa de pelo menos uma imagem anexada.'
-                )
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'created_by', 'created_at')
+    list_display_links = ('name',)
+    search_fields = ('name', 'code')
+    readonly_fields = ('code', 'created_at', 'updated_at')
+    list_per_page = 50
+    ordering = ('-created_at',)
 
-
-class DashboardImageInline(admin.TabularInline):
-    model = DashboardImage
-    formset = DashboardImageFormSet
-    extra = 1
-    fields = ('images',)
+@admin.register(OrganizationMember)
+class OrganizationMemberAdmin(admin.ModelAdmin):
+    list_display = ('user', 'organization', 'role', 'joined_at')
+    list_display_links = ('user',)
+    list_filter = ('role', 'organization')
+    search_fields = ('user__username', 'organization__name')
+    readonly_fields = ('joined_at',)
+    list_per_page = 50
+    ordering = ('-joined_at',)
 
 @admin.register(Cliente)
 class ClienteAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_vip', 'created_at', 'updated_at')
+    list_display = ('name', 'organization', 'tier', 'created_at', 'updated_at')
     list_display_links = ('name',)
-    search_fields = ('name',)
+    list_filter = ('organization', 'tier')
+    search_fields = ('name', 'organization__name')
     list_per_page = 50
-    ordering = ('-id',)
-    list_editable = ('is_vip',)
+    ordering = ('-created_at',)
+    list_editable = ('tier',)
     readonly_fields = ('updated_at', 'created_at')
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'organization', 'slug')
+    list_filter = ('organization',)
+    list_display_links = ('name',)
+    search_fields = ('name', 'organization__name')
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Dashboard)
 class DashboardAdmin(admin.ModelAdmin):
-    list_display = ('title', 'slug', 'client', 'category', 'status', 'created_at')
+    list_display = ('title', 'organization', 'client', 'category', 'created_at')
     list_display_links = ('title',)
-    list_filter = ('status', 'client', 'category', 'analytical_or_macro')
+    list_filter = ('organization', 'client', 'category', 'analytical_or_macro')
     search_fields = ('title', 'purpose', 'kpis_displayed', 'data_source')
-    list_editable = ('status',)
-    inlines = [DashboardImageInline]
     ordering = ('-created_at',)
     list_per_page = 20
     prepopulated_fields = {
         'slug': ('title',),
     }
-    
-    def save_related(self, request, form, formsets, change):
-        status = form.cleaned_data.get('status')
-        
-        if status == 'cn' :
-            tem_imagem = False
-            for formset in formsets:
-                if isinstance(formset.model, type(DashboardImage)):
-                    if any(f.cleaned_data and not f.cleaned_data.get('DELETE') for f in formset.forms):
-                        tem_imagem = True
-            
-            if not tem_imagem:
-                pass
-
-        super().save_related(request, form, formsets, change)
+    readonly_fields = ('created_at', 'updated_at')

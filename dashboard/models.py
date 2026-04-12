@@ -2,36 +2,80 @@ from django.db import models
 from django.contrib.auth.models import User
 from utils.slugs import new_slugify
 from django.core.exceptions import ValidationError
+import secrets
+import string
 
-class Cliente(models.Model) :
-    class Meta :
+def generate_organization_code():
+    """Gera um código único para convite de organização."""
+    chars = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(chars) for _ in range(12))
+
+class Organization(models.Model):
+    class Meta:
+        verbose_name = 'Organization'
+        verbose_name_plural = 'Organizations'
+
+    name = models.CharField(max_length=255, blank=False, null=False)
+    code = models.CharField(max_length=12, unique=True, default=generate_organization_code)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_organizations')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+class OrganizationMember(models.Model):
+    class Role(models.TextChoices):
+        ADMIN = 'admin', 'Admin'
+        MEMBER = 'member', 'Member'
+        VIEWER = 'viewer', 'Viewer'
+
+    class Meta:
+        verbose_name = 'Organization Member'
+        verbose_name_plural = 'Organization Members'
+        unique_together = ('organization', 'user')
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organization_memberships')
+    role = models.CharField(max_length=10, choices=Role.choices, default=Role.MEMBER)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.organization.name} ({self.role})"
+
+class Cliente(models.Model):
+    class Tier(models.TextChoices):
+        STANDARD = 'standard', 'Standard'
+        SILVER = 'silver', 'Silver'
+        GOLD = 'gold', 'Gold'
+
+    class Meta:
         verbose_name = 'Cliente'
         verbose_name_plural = 'Clientes'
-    
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    name = models.CharField(max_length=255,blank=False, null=False)
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='clientes', null=False, blank=False)
+    name = models.CharField(max_length=255, blank=False, null=False)
     logo = models.ImageField(upload_to='pictures/%Y/%m/', blank=True)
-    description = models.TextField(max_length=100,blank=True, null=True)
-    is_vip = models.BooleanField(default=False)
+    description = models.TextField(max_length=100, blank=True, null=True)
+    tier = models.CharField(max_length=10, choices=Tier.choices, default=Tier.STANDARD)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, default='', null=False, blank=True, max_length=255)
-    
+
     def __str__(self):
         return self.name
-    
-    def save(self, *args, **kwargs) :
-        if not self.slug :
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
             self.slug = new_slugify(self.name)
         return super().save(*args, **kwargs)
-    
 
-class Categoria(models.Model) :
-    class Meta :
+class Categoria(models.Model):
+    class Meta:
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
-    
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='categorias')
     name = models.CharField(max_length=255, blank=False, null=False)
     slug = models.SlugField(
         unique=True,
@@ -40,41 +84,34 @@ class Categoria(models.Model) :
         blank=True,
         max_length=255
     )
-    
-    def save(self, *args, **kwargs) :
-        if not self.slug :
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
             self.slug = new_slugify(self.name)
         return super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return self.name
 
-class Dashboard(models.Model) :
-    
-    class Status(models.TextChoices) :
-        NOVO = 'nv', 'Novo'
-        EM_EXECUCAO = 'ex', 'Em Execução'
-        CONCLUIDO = 'cn', 'Concluido'
-        
-    class PublicoAlvo(models.TextChoices) :
+class Dashboard(models.Model):
+    class PublicoAlvo(models.TextChoices):
         GESTORES = 'ges', 'Gestores'
         TECNICOS = 'tec', 'Tecnicos'
         OUTROS = 'out', 'Outros'
-        
-    class AnaliticoOuMacro(models.TextChoices) :
+
+    class AnaliticoOuMacro(models.TextChoices):
         ANALITICO = 'an', 'Analitico'
         Macro = 'ma', 'Macro'
-    
-    class Meta :
+
+    class Meta:
         verbose_name = 'Dashboard'
         verbose_name_plural = 'Dashboards'
-    
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='dashboards')
     client = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, blank=False, null=False)
     category = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
-    status = models.CharField(max_length=2, choices=Status.choices, default=Status.NOVO)
-    purpose = models.CharField(max_length=255, blank=True, null= True)
+    purpose = models.CharField(max_length=255, blank=True, null=True)
     target_audience = models.CharField(max_length=3, choices=PublicoAlvo.choices, default=PublicoAlvo.OUTROS)
     kpis_displayed = models.CharField(max_length=255, blank=True, null=True)
     analytical_or_macro = models.CharField(max_length=2, choices=AnaliticoOuMacro.choices, default=AnaliticoOuMacro.Macro)
@@ -82,9 +119,10 @@ class Dashboard(models.Model) :
     panel_preference = models.CharField(max_length=255, blank=True, null=True)
     color_preference = models.CharField(max_length=60, blank=True, null=True)
     screen_resolution = models.CharField(max_length=60, blank=True, null=True)
+    image = models.ImageField(upload_to='dashboards/images/%Y/%m/', blank=False, null=False)
+    json = models.FileField(upload_to='dashboards/json/%Y/%m/', blank=False, null=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    json = models.FileField(upload_to='dashboards/json/%Y/%m/',blank=True, null=True)
     slug = models.SlugField(
         unique=True,
         default=None,
@@ -92,24 +130,11 @@ class Dashboard(models.Model) :
         blank=True,
         max_length=255
     )
-    
-    def clean(self) :
-        if self.status == 'cn' :
-                if not self.json :
-                    raise ValidationError('O arquivo JSON é obrigatório para conclusão.')
-                
-                if not str(self.json).endswith('.json') :
-                    raise ValidationError('É necessário que o arquivo seja um JSON')
-    
-    def save(self, *args, **kwargs) :
-        if not self.slug :
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
             self.slug = new_slugify(self.title)
         return super().save(*args, **kwargs)
-    
+
     def __str__(self):
-        return f"{self.client.name} - {self.title}"
-    
-class DashboardImage(models.Model) :
-    dashboard = models.ForeignKey(Dashboard, on_delete=models.CASCADE, related_name='dashboard_images')
-    images = models.ImageField(upload_to='dashboards/images/%Y/%m/', blank=True, null=True) 
-    description = models.TextField(max_length=100,blank=True, null=True)
+        return f"{self.client.name} - {self.title}" if self.client else self.title
