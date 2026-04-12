@@ -11,21 +11,58 @@
 
     <!-- Navigation Links -->
     <div class="sidebar-nav">
-        <!-- Organization Selector as Nav Item -->
-        {% if request.user.organizationmember_set.all %}
-            <div class="nav-item-group">
-                <label class="nav-item-label">Organização</label>
-                <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-selector-form">
-                    {% csrf_token %}
-                    <select name="organization" class="org-nav-select" onchange="this.form.submit()">
-                        <option value="" disabled>Selecionar organização...</option>
-                        {% for org_member in request.user.organizationmember_set.all %}
-                            <option value="{{ org_member.organization.slug }}" {% if request.organization == org_member.organization %}selected{% endif %}>
-                                {{ org_member.organization.name }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </form>
+        <!-- Organization Selector as Nav Item - Visual Display -->
+        {% if request.organization %}
+            <div class="org-selector-item">
+                <div class="org-selector-header" onclick="toggleOrgDropdown()">
+                    <div class="org-selector-content">
+                        <span class="org-label">Organização</span>
+                        <span class="org-name">{{ request.organization.name }}</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down org-chevron"></i>
+                </div>
+                
+                {% if request.user.organizationmember_set.all|length > 1 %}
+                    <div class="org-dropdown" id="orgDropdown">
+                        <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
+                            {% csrf_token %}
+                            <div class="org-options">
+                                {% for org_member in request.user.organizationmember_set.all %}
+                                    {% if org_member.organization != request.organization %}
+                                        <button type="submit" name="organization" value="{{ org_member.organization.slug }}" class="org-option">
+                                            <i class="fa-solid fa-building"></i>
+                                            <span>{{ org_member.organization.name }}</span>
+                                        </button>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% elif request.user.organizationmember_set.all %}
+            <div class="org-selector-item">
+                <div class="org-selector-header" onclick="toggleOrgDropdown()">
+                    <div class="org-selector-content">
+                        <span class="org-label">Organização</span>
+                        <span class="org-name">Selecionar...</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down org-chevron"></i>
+                </div>
+                
+                <div class="org-dropdown" id="orgDropdown">
+                    <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
+                        {% csrf_token %}
+                        <div class="org-options">
+                            {% for org_member in request.user.organizationmember_set.all %}
+                                <button type="submit" name="organization" value="{{ org_member.organization.slug }}" class="org-option">
+                                    <i class="fa-solid fa-building"></i>
+                                    <span>{{ org_member.organization.name }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
             </div>
         {% endif %}
 
@@ -124,64 +161,132 @@
         flex: 1;
     }
 
-    /* Organization Selector as Nav Item */
-    .nav-item-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.5rem 0;
+    /* Organization Selector - Dropdown Item */
+    .org-selector-item {
+        position: relative;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
         border-bottom: 1px solid #f0f0f0;
-        margin-bottom: 0.5rem;
     }
 
-    .nav-item-label {
-        font-size: 0.75rem;
+    .org-selector-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .org-selector-header:hover {
+        background-color: #eff1f5;
+        border-color: #c92a2a;
+    }
+
+    .org-selector-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .org-label {
+        font-size: 0.7rem;
         font-weight: 700;
         color: #999;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        padding: 0 0.75rem;
     }
 
-    .org-selector-form {
+    .org-name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #2c3e50;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .org-chevron {
+        font-size: 0.75rem;
+        color: #c92a2a;
+        transition: transform 0.3s ease;
+        margin-left: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .org-selector-header.active .org-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* Organization Dropdown */
+    .org-dropdown {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #e9ecef;
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        margin-top: -1px;
+    }
+
+    .org-dropdown.active {
+        display: block;
+    }
+
+    .org-dropdown-form {
         margin: 0;
     }
 
-    .org-nav-select {
-        width: 100%;
-        padding: 0.75rem 0.75rem;
-        border: 1px solid #e9ecef;
-        border-radius: 8px;
-        background-color: white;
-        font-size: 0.9rem;
-        color: #2c3e50;
+    .org-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .org-option {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        background: none;
+        border: none;
+        color: #6c757d;
         cursor: pointer;
+        text-align: left;
+        font-size: 0.9rem;
         font-weight: 500;
-        transition: all 0.3s ease;
-        -webkit-appearance: none; /* Remove default arrow */
-        -moz-appearance: none;
-        appearance: none;
-        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23c92a2a%22%20d%3D%22M287%2C114.7L153.2%2C248.5c-4.1%2C4.1-9.6%2C6.2-15.3%2C6.2c-5.7%2C0-11.2-2.1-15.3-6.2L5.4%2C114.7C-1.8%2C107.5-1.8%2C95.2%2C5.4%2C88c7.2-7.2%2C18.9-7.2%2C26.1%2C0l106.6%2C106.6l106.6-106.6c7.2-7.2%2C18.9-7.2%2C26.1%2C0C294.2%2C95.2%2C294.2%2C107.5%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px top 50%;
-        background-size: 10px;
+        transition: all 0.2s ease;
+        width: 100%;
     }
 
-    .org-nav-select:hover {
-        border-color: #c92a2a;
+    .org-option:first-child {
+        border-radius: 0;
+    }
+
+    .org-option:last-child {
+        border-radius: 0 0 8px 8px;
+    }
+
+    .org-option:hover {
         background-color: #f8f9fa;
+        color: #c92a2a;
     }
 
-    .org-nav-select:focus {
-        outline: none;
-        border-color: #c92a2a;
-        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
-    }
-
-    .org-nav-select:disabled {
-        background-color: #f5f5f5;
-        color: #999;
-        cursor: not-allowed;
+    .org-option i {
+        font-size: 0.9rem;
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
     }
 
     /* Nav Links */
@@ -262,6 +367,20 @@
             display: none;
         }
 
+        .org-selector-item {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .org-selector-content {
+            flex-direction: row;
+            gap: 0;
+        }
+
+        .org-label {
+            display: none;
+        }
+
         .nav-label {
             display: none;
         }
@@ -295,3 +414,26 @@
         }
     }
 </style>
+
+<script>
+    function toggleOrgDropdown() {
+        const dropdown = document.getElementById('orgDropdown');
+        const header = dropdown?.parentElement?.querySelector('.org-selector-header');
+        
+        if (!dropdown) return;
+        
+        dropdown.classList.toggle('active');
+        header?.classList.toggle('active');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const orgSelector = event.target.closest('.org-selector-item');
+        if (!orgSelector) {
+            const dropdown = document.getElementById('orgDropdown');
+            const header = dropdown?.parentElement?.querySelector('.org-selector-header');
+            dropdown?.classList.remove('active');
+            header?.classList.remove('active');
+        }
+    });
+</script>
