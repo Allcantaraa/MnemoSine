@@ -52,10 +52,10 @@
   margin-left: 1rem;
   margin-right: 1rem;
   border-radius: 0.75rem;
-  background-color: rgb(33 150 243);
+  background-color: #c92a2a;
   box-shadow:
-    0 10px 15px -3px rgba(33, 150, 243, 0.4),
-    0 4px 6px -4px rgba(33, 150, 243, 0.4);
+    0 10px 15px -3px rgba(201, 42, 42, 0.4),
+    0 4px 6px -4px rgba(201, 42, 42, 0.4);
   height: 14rem;
 }
 
@@ -66,10 +66,10 @@
   margin-left: 1rem;
   margin-right: 1rem;
   border-radius: 0.75rem;
-  background-color: rgb(243, 229, 33);
+  background-color: #c92a2a;
   box-shadow:
-    0 10px 15px -3px rgba(222, 243, 33, 0.4),
-    0 4px 6px -4px rgba(212, 243, 33, 0.4);
+    0 10px 15px -3px rgba(201, 42, 42, 0.4),
+    0 4px 6px -4px rgba(201, 42, 42, 0.4);
   height: 14rem;
 }
 

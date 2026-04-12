@@ -6,9 +6,9 @@
     <div style="background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); display: flex; align-items: center; gap: 2rem;">
         <div style="flex-shrink: 0;">
             {% if user.perfil.profile_image %}
-                <img src="{{ user.perfil.profile_image.url }}" alt="Foto" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #0066cc; box-shadow: 0 4px 16px rgba(0, 102, 204, 0.2);">
+                <img src="{{ user.perfil.profile_image.url }}" alt="Foto" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #c92a2a; box-shadow: 0 4px 16px rgba(201, 42, 42, 0.2);">
             {% else %}
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #0066cc, #0052a3); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; border: 4px solid #0066cc; box-shadow: 0 4px 16px rgba(0, 102, 204, 0.2);">👤</div>
+                <div style="width: 150px; height: 150px; border-radius: 50%; background: linear-gradient(135deg, #c92a2a, #a01c1c); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; border: 4px solid #c92a2a; box-shadow: 0 4px 16px rgba(201, 42, 42, 0.2);">U</div>
             {% endif %}
         </div>
         <div>
@@ -16,53 +16,6 @@
             <p style="color: #6c757d; font-size: 1rem; margin: 0;">{{ user.email }}</p>
         </div>
     </div>
-
-    <!-- Organization Selector -->
-    {% if org_memberships %}
-        <div style="background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
-            <h2 style="font-size: 1.3rem; color: #2c3e50; margin: 0 0 1.5rem 0; padding-bottom: 1rem; border-bottom: 1px solid #e9ecef;">Organização Ativa</h2>
-
-            <form method="POST" style="display: flex; flex-direction: column; gap: 1.5rem;">
-                {% csrf_token %}
-
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <label style="font-weight: 600; color: #2c3e50; font-size: 0.95rem;">Selecione uma organização:</label>
-                    <select name="active_organization" onchange="this.form.submit()" style="width: 100%; padding: 0.75rem; border: 1px solid #dee2e6; border-radius: 8px; font-size: 1rem; cursor: pointer; background-color: white; color: #2c3e50;">
-                        <option value="">-- Nenhuma organização selecionada --</option>
-                        {% for membership in org_memberships %}
-                            <option value="{{ membership.organization.id }}" {% if membership.organization.id == active_org_id %}selected{% endif %}>
-                                {{ membership.organization.name }} ({{ membership.get_role_display }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </form>
-
-            {% if active_org_id %}
-                {% for membership in org_memberships %}
-                    {% if membership.organization.id == active_org_id %}
-                        <div style="background: #f0f6ff; padding: 1rem; border-radius: 8px; border-left: 4px solid #0066cc; margin-top: 1rem;">
-                            <p style="margin: 0.5rem 0; color: #2c3e50; font-size: 0.95rem;"><strong>Código:</strong> {{ membership.organization.code }}</p>
-                            <p style="margin: 0.5rem 0; color: #2c3e50; font-size: 0.95rem;"><strong>Seu papel:</strong> <span style="background: #0066cc; color: white; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-transform: capitalize;">{{ membership.get_role_display }}</span></p>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            {% else %}
-                <div style="background: #f0f6ff; padding: 1rem; border-radius: 8px; border-left: 4px solid #0066cc; color: #2c3e50; font-size: 0.95rem; margin-top: 1rem;">
-                    <p style="margin: 0;">Selecione uma organização para começar</p>
-                </div>
-            {% endif %}
-        </div>
-    {% else %}
-        <div style="background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); text-align: center;">
-            <h2 style="font-size: 1.3rem; color: #2c3e50; margin: 0 0 1.5rem 0; padding-bottom: 1rem; border-bottom: 1px solid #e9ecef;">Organizações</h2>
-            <p style="color: #6c757d; font-size: 0.95rem; margin: 0 0 1.5rem 0;">Você ainda não é membro de nenhuma organização.</p>
-            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="{% url 'criar_organizacao' %}" style="padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; background-color: #0066cc; color: white; display: inline-block; transition: all 0.3s ease;">Criar Organização</a>
-                <a href="{% url 'entrar_organizacao' %}" style="padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem; background-color: #6c757d; color: white; display: inline-block; transition: all 0.3s ease;">Entrar em Organização</a>
-            </div>
-        </div>
-    {% endif %}
 
     <!-- Edit Profile Form -->
     <div style="background: white; border: 1px solid #e9ecef; border-radius: 12px; padding: 2rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
@@ -96,7 +49,7 @@
                 </div>
             {% endfor %}
 
-            <button type="submit" style="background-color: #0066cc; color: white; padding: 0.85rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; align-self: flex-start;">Salvar Alterações</button>
+            <button type="submit" style="background-color: #c92a2a; color: white; padding: 0.85rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; align-self: flex-start;">Salvar Alterações</button>
         </form>
     </div>
 </div>
