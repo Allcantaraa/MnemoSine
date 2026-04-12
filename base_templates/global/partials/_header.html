@@ -22,14 +22,14 @@
                     <i class="fa-solid fa-chevron-down org-chevron"></i>
                 </div>
                 
-                {% if request.user.organizationmember_set.all|length > 1 %}
+                {% if request.user_organizations|length > 1 %}
                     <div class="org-dropdown" id="orgDropdown">
                         <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
                             {% csrf_token %}
                             <div class="org-options">
-                                {% for org_member in request.user.organizationmember_set.all %}
+                                {% for org_member in request.user_organizations %}
                                     {% if org_member.organization != request.organization %}
-                                        <button type="submit" name="organization" value="{{ org_member.organization.slug }}" class="org-option">
+                                        <button type="submit" name="organization" value="{{ org_member.organization.id }}" class="org-option">
                                             <i class="fa-solid fa-building"></i>
                                             <span>{{ org_member.organization.name }}</span>
                                         </button>
@@ -40,7 +40,7 @@
                     </div>
                 {% endif %}
             </div>
-        {% elif request.user.organizationmember_set.all %}
+        {% elif request.user_organizations %}
             <div class="org-selector-item">
                 <div class="org-selector-header" onclick="toggleOrgDropdown(event)" style="cursor: pointer;">
                     <div class="org-selector-content">
@@ -54,8 +54,8 @@
                     <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
                         {% csrf_token %}
                         <div class="org-options">
-                            {% for org_member in request.user.organizationmember_set.all %}
-                                <button type="submit" name="organization" value="{{ org_member.organization.slug }}" class="org-option">
+                            {% for org_member in request.user_organizations %}
+                                <button type="submit" name="organization" value="{{ org_member.organization.id }}" class="org-option">
                                     <i class="fa-solid fa-building"></i>
                                     <span>{{ org_member.organization.name }}</span>
                                 </button>

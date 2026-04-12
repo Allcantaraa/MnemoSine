@@ -162,10 +162,10 @@ def entrar_organizacao(request):
 def selecionar_organizacao(request):
     """Permite que o usuário selecione qual organização está ativa."""
     if request.method == 'POST':
-        org_slug = request.POST.get('organization')
+        org_id = request.POST.get('organization')
 
         try:
-            org = Organization.objects.get(slug=org_slug)
+            org = Organization.objects.get(id=org_id)
 
             # Verificar se o usuário é membro
             if not OrganizationMember.objects.filter(user=request.user, organization=org).exists():

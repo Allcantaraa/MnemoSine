@@ -8,7 +8,6 @@ from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
 
-
 @login_required
 @organization_required
 def index(request):

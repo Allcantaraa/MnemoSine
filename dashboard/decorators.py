@@ -28,6 +28,9 @@ def organization_required(view_func):
 
         # Tenta pegar a org ativa da sessão
         active_org_id = request.session.get('active_org_id')
+        
+        # SEMPRE passa todas as organizações do usuário para o template
+        request.user_organizations = OrganizationMember.objects.filter(user=request.user).select_related('organization')
 
         if active_org_id:
             try:
@@ -37,8 +40,16 @@ def organization_required(view_func):
                     return redirect('index')
                 request.organization = org
             except Organization.DoesNotExist:
-                messages.error(request, 'Organização não encontrada.')
-                return redirect('index')
+                # Organização foi deletada, limpar sessão e tentar pegar outra
+                del request.session['active_org_id']
+                membership = OrganizationMember.objects.filter(user=request.user).first()
+                if membership:
+                    request.organization = membership.organization
+                    request.session['active_org_id'] = membership.organization.id
+                    messages.info(request, f'Organização anterior deletada. Carregando: {membership.organization.name}')
+                else:
+                    messages.error(request, 'Você não pertence a nenhuma organização.')
+                    return redirect('criar_organizacao')
         else:
             # Tenta pegar a primeira org do usuário
             membership = OrganizationMember.objects.filter(user=request.user).first()
@@ -61,6 +72,9 @@ def organization_admin_required(view_func):
             return redirect('login')
 
         active_org_id = request.session.get('active_org_id')
+        
+        # SEMPRE passa todas as organizações do usuário para o template
+        request.user_organizations = OrganizationMember.objects.filter(user=request.user).select_related('organization')
 
         if not active_org_id:
             messages.error(request, 'Selecione uma organização.')
@@ -75,7 +89,12 @@ def organization_admin_required(view_func):
                 return redirect('index')
 
             request.organization = org
-        except (Organization.DoesNotExist, OrganizationMember.DoesNotExist):
+        except Organization.DoesNotExist:
+            # Organização foi deletada, limpar sessão
+            del request.session['active_org_id']
+            messages.error(request, 'Organização deletada. Selecione outra.')
+            return redirect('index')
+        except OrganizationMember.DoesNotExist:
             messages.error(request, 'Acesso negado.')
             return redirect('index')
 
@@ -91,6 +110,9 @@ def organization_member_or_admin_required(view_func):
             return redirect('login')
 
         active_org_id = request.session.get('active_org_id')
+        
+        # SEMPRE passa todas as organizações do usuário para o template
+        request.user_organizations = OrganizationMember.objects.filter(user=request.user).select_related('organization')
 
         if not active_org_id:
             messages.error(request, 'Selecione uma organização.')
@@ -105,7 +127,12 @@ def organization_member_or_admin_required(view_func):
                 return redirect('index')
 
             request.organization = org
-        except (Organization.DoesNotExist, OrganizationMember.DoesNotExist):
+        except Organization.DoesNotExist:
+            # Organização foi deletada, limpar sessão
+            del request.session['active_org_id']
+            messages.error(request, 'Organização deletada. Selecione outra.')
+            return redirect('index')
+        except OrganizationMember.DoesNotExist:
             messages.error(request, 'Acesso negado.')
             return redirect('index')
 
