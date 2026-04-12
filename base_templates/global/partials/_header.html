@@ -14,7 +14,7 @@
         <!-- Organization Selector as Nav Item - Visual Display -->
         {% if request.organization %}
             <div class="org-selector-item">
-                <div class="org-selector-header" onclick="toggleOrgDropdown()">
+                <div class="org-selector-header" onclick="toggleOrgDropdown(event)" style="cursor: pointer;">
                     <div class="org-selector-content">
                         <span class="org-label">Organização</span>
                         <span class="org-name">{{ request.organization.name }}</span>
@@ -42,7 +42,7 @@
             </div>
         {% elif request.user.organizationmember_set.all %}
             <div class="org-selector-item">
-                <div class="org-selector-header" onclick="toggleOrgDropdown()">
+                <div class="org-selector-header" onclick="toggleOrgDropdown(event)" style="cursor: pointer;">
                     <div class="org-selector-content">
                         <span class="org-label">Organização</span>
                         <span class="org-name">Selecionar...</span>
@@ -416,24 +416,47 @@
 </style>
 
 <script>
-    function toggleOrgDropdown() {
-        const dropdown = document.getElementById('orgDropdown');
-        const header = dropdown?.parentElement?.querySelector('.org-selector-header');
+    function toggleOrgDropdown(event) {
+        event.stopPropagation();
         
-        if (!dropdown) return;
+        // Encontra o contêiner de seleção da organização mais próximo
+        const header = event.currentTarget;
+        const orgSelector = header.closest('.org-selector-item');
+        if (!orgSelector) {
+            console.warn('org-selector-item não encontrado');
+            return;
+        }
+        
+        const dropdown = orgSelector.querySelector('.org-dropdown');
+        
+        if (!dropdown) {
+            console.warn('org-dropdown não encontrado');
+            return;
+        }
+        
+        // Fecha todos os outros dropdowns
+        document.querySelectorAll('.org-dropdown.active').forEach(d => {
+            if (d !== dropdown) {
+                d.classList.remove('active');
+                d.closest('.org-selector-item')?.querySelector('.org-selector-header')?.classList.remove('active');
+            }
+        });
         
         dropdown.classList.toggle('active');
-        header?.classList.toggle('active');
+        header.classList.toggle('active');
     }
 
     // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const orgSelector = event.target.closest('.org-selector-item');
         if (!orgSelector) {
-            const dropdown = document.getElementById('orgDropdown');
-            const header = dropdown?.parentElement?.querySelector('.org-selector-header');
-            dropdown?.classList.remove('active');
-            header?.classList.remove('active');
+            // Fecha todos os dropdowns abertos
+            document.querySelectorAll('.org-dropdown.active').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+            document.querySelectorAll('.org-selector-header.active').forEach(header => {
+                header.classList.remove('active');
+            });
         }
     });
 </script>

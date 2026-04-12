@@ -237,7 +237,7 @@ def criar_dashboard(request, client_slug):
     form_action = reverse('criar_dashboard', args=(client_slug,))
 
     if request.method == 'POST':
-        form = DashboardForm(request.POST, request.FILES)
+        form = DashboardForm(request.POST, request.FILES, organization=org)
 
         if form.is_valid():
             dashboard = form.save(commit=False)
@@ -255,7 +255,7 @@ def criar_dashboard(request, client_slug):
         })
 
     return render(request, 'modals/dashboard.html', {
-        'form': DashboardForm(),
+        'form': DashboardForm(organization=org),
         'cliente': cliente,
         'form_action': form_action,
         'is_updating': False
@@ -276,7 +276,7 @@ def atualizar_dashboard(request, client_slug, slug):
     form_action = reverse('atualizar_dashboard', args=(client_slug, slug))
 
     if request.method == 'POST':
-        form = DashboardForm(request.POST, request.FILES, instance=dashboard)
+        form = DashboardForm(request.POST, request.FILES, instance=dashboard, organization=org)
 
         if form.is_valid():
             form.save()
@@ -291,7 +291,7 @@ def atualizar_dashboard(request, client_slug, slug):
             'is_updating': True
         })
 
-    form = DashboardForm(instance=dashboard)
+    form = DashboardForm(instance=dashboard, organization=org)
 
     return render(request, 'modals/dashboard.html', {
         'form': form,

@@ -1,8 +1,7 @@
 {% extends "global/base.html" %}
 
 {% block content %}
-<div class="form-container">
-    <div class="form-card">
+<div class="page-container">
         <h1>Alterar Nível de Acesso</h1>
         <p class="subtitle">{{ membership.user.username }} • {{ organization.name }}</p>
 
@@ -32,30 +31,19 @@
                 <a href="{% url 'listar_membros' %}" class="btn-secondary">Cancelar</a>
             </div>
         </form>
-    </div>
 </div>
 
 <style>
-    .form-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: calc(100vh - 300px);
+    .page-container {
+        max-width: 800px;
+        margin: 0 auto;
         padding: 2rem;
     }
 
-    .form-card {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        max-width: 450px;
-        width: 100%;
-    }
-
-    .form-card h1 {
-        font-size: 1.8rem;
+    .page-container h1 {
+        font-size: 2rem;
         margin-bottom: 0.5rem;
+        color: #2c3e50;
     }
 
     .subtitle {
@@ -88,9 +76,10 @@
     }
 
     .current-role {
-        padding: 0.75rem;
+        padding: 1rem;
         background-color: #f8f9fa;
-        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
     }
 
     .role-badge {
@@ -117,7 +106,7 @@
     .form-input {
         padding: 0.85rem;
         border: 1px solid #dee2e6;
-        border-radius: 6px;
+        border-radius: 8px;
         font-size: 1rem;
         background-color: white;
         transition: all 0.3s ease;
@@ -125,35 +114,36 @@
 
     .form-input:focus {
         outline: none;
-        border-color: #0066cc;
-        box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        border-color: #c92a2a;
+        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
     }
 
     .form-actions {
         display: flex;
         gap: 1rem;
-        flex-direction: column;
-        margin-top: 1rem;
+        margin-top: 2rem;
     }
 
     .btn-primary {
-        padding: 0.85rem;
+        padding: 0.85rem 1.5rem;
         font-size: 1rem;
         font-weight: 600;
+        flex: 1;
     }
 
     .btn-secondary {
         background-color: #6c757d;
         color: white;
-        padding: 0.85rem;
+        padding: 0.85rem 1.5rem;
         border: none;
-        border-radius: 6px;
+        border-radius: 8px;
         text-decoration: none;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 600;
         transition: all 0.3s ease;
+        flex: 1;
     }
 
     .btn-secondary:hover {
@@ -161,12 +151,16 @@
     }
 
     @media (max-width: 600px) {
-        .form-card {
-            padding: 1.5rem;
+        .page-container {
+            padding: 1rem;
         }
 
-        .form-card h1 {
+        .page-container h1 {
             font-size: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
         }
     }
 </style>
