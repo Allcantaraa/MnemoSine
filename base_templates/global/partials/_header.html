@@ -3,47 +3,52 @@
 <nav class="sidebar">
     <!-- Brand with Logo -->
     <div class="sidebar-brand">
-        <img src="https://storage.googleapis.com/flowbix-img/LogoFBX_noBck.png" alt="Flowbix" class="brand-logo-img">
+        <div class="brand-logo-container">
+            <img src="https://storage.googleapis.com/flowbix-img/LogoFBX_noBck.png" alt="Flowbix" class="brand-logo-img">
+        </div>
         <div class="brand-text">MnemoSine</div>
-    </div>
-
-    <!-- Organization Selector as Navigation Item -->
-    <div class="org-selector-nav">
-        <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-form">
-            {% csrf_token %}
-            {% if request.user.organizationmember_set.all %}
-                <select name="organization" class="org-select" onchange="this.form.submit()">
-                    {% for org_member in request.user.organizationmember_set.all %}
-                        <option value="{{ org_member.organization.slug }}" {% if request.organization == org_member.organization %}selected{% endif %}>
-                            {{ org_member.organization.name }}
-                        </option>
-                    {% endfor %}
-                </select>
-            {% else %}
-                <select class="org-select" disabled>
-                    <option>Sem organização</option>
-                </select>
-            {% endif %}
-        </form>
     </div>
 
     <!-- Navigation Links -->
     <div class="sidebar-nav">
+        <!-- Organization Selector as Nav Item -->
+        {% if request.user.organizationmember_set.all %}
+            <div class="nav-item-group">
+                <label class="nav-item-label">Organização</label>
+                <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-selector-form">
+                    {% csrf_token %}
+                    <select name="organization" class="org-nav-select" onchange="this.form.submit()">
+                        <option value="" disabled>Selecionar organização...</option>
+                        {% for org_member in request.user.organizationmember_set.all %}
+                            <option value="{{ org_member.organization.slug }}" {% if request.organization == org_member.organization %}selected{% endif %}>
+                                {{ org_member.organization.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        {% endif %}
+
+        <!-- Navigation Menu Items -->
         <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
             <span class="nav-label">Início</span>
         </a>
 
         {% if request.organization %}
             {% if request.user|has_org_role:request.organization %}
                 <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i>
                     <span class="nav-label">Membros</span>
                 </a>
             {% endif %}
         {% else %}
             <a href="{% url 'entrar_organizacao' %}" class="nav-link">
+                <i class="fa-solid fa-arrow-right-to-bracket"></i>
                 <span class="nav-label">Entrar na Org</span>
             </a>
             <a href="{% url 'criar_organizacao' %}" class="nav-link">
+                <i class="fa-solid fa-plus"></i>
                 <span class="nav-label">Criar Org</span>
             </a>
         {% endif %}
@@ -52,9 +57,11 @@
     <!-- Bottom Section -->
     <div class="sidebar-bottom">
         <a href="{% url 'perfil' %}" class="nav-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+            <i class="fa-solid fa-user"></i>
             <span class="nav-label">Perfil</span>
         </a>
         <a href="{% url 'logout' %}" class="nav-link logout-link">
+            <i class="fa-solid fa-sign-out-alt"></i>
             <span class="nav-label">Sair</span>
         </a>
     </div>
@@ -77,12 +84,25 @@
         gap: 0.75rem;
         padding-bottom: 1rem;
         border-bottom: 2px solid #f5f5f5;
+        min-width: 0;
+    }
+
+    .brand-logo-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: #c92a2a;
+        border-radius: 8px;
+        flex-shrink: 0;
     }
 
     .brand-logo-img {
-        height: 40px;
-        width: auto;
+        height: 32px;
+        width: 32px; /* Set explicit width to prevent overflow */
         object-fit: contain;
+        filter: brightness(0) invert(1);
     }
 
     .brand-text {
@@ -90,56 +110,81 @@
         font-size: 1rem;
         color: #2c3e50;
         letter-spacing: -0.4px;
-    }
-
-    /* Organization Selector */
-    .org-selector-nav {
-        padding: 0.75rem;
-        border-radius: 8px;
-        background: #fafafa;
-        border: 1px solid #e9ecef;
-    }
-
-    .org-form {
-        margin: 0;
-    }
-
-    .org-select {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        background-color: white;
-        font-size: 0.9rem;
-        color: #495057;
-        cursor: pointer;
-        font-weight: 500;
-    }
-
-    .org-select:hover:not(:disabled) {
-        border-color: #c92a2a;
-    }
-
-    .org-select:focus {
-        border-color: #c92a2a;
-        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
-        outline: none;
-    }
-
-    .org-select:disabled {
-        background-color: #f5f5f5;
-        color: #999;
-        cursor: not-allowed;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        /* min-width: 0; -- Removed, might cause issues */
     }
 
     /* Navigation */
     .sidebar-nav {
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.75rem;
         flex: 1;
     }
 
+    /* Organization Selector as Nav Item */
+    .nav-item-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 0.5rem;
+    }
+
+    .nav-item-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0 0.75rem;
+    }
+
+    .org-selector-form {
+        margin: 0;
+    }
+
+    .org-nav-select {
+        width: 100%;
+        padding: 0.75rem 0.75rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background-color: white;
+        font-size: 0.9rem;
+        color: #2c3e50;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        -webkit-appearance: none; /* Remove default arrow */
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23c92a2a%22%20d%3D%22M287%2C114.7L153.2%2C248.5c-4.1%2C4.1-9.6%2C6.2-15.3%2C6.2c-5.7%2C0-11.2-2.1-15.3-6.2L5.4%2C114.7C-1.8%2C107.5-1.8%2C95.2%2C5.4%2C88c7.2-7.2%2C18.9-7.2%2C26.1%2C0l106.6%2C106.6l106.6-106.6c7.2-7.2%2C18.9-7.2%2C26.1%2C0C294.2%2C95.2%2C294.2%2C107.5%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px top 50%;
+        background-size: 10px;
+    }
+
+    .org-nav-select:hover {
+        border-color: #c92a2a;
+        background-color: #f8f9fa;
+    }
+
+    .org-nav-select:focus {
+        outline: none;
+        border-color: #c92a2a;
+        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
+    }
+
+    .org-nav-select:disabled {
+        background-color: #f5f5f5;
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    /* Nav Links */
     .nav-link {
         display: flex;
         align-items: center;
@@ -152,12 +197,21 @@
         font-size: 0.9rem;
         font-weight: 500;
         border-left: 3px solid transparent;
+        min-width: 0;
+    }
+
+    .nav-link i {
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
+        font-size: 1rem;
     }
 
     .nav-label {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        min-width: 0;
     }
 
     .nav-link:hover {
@@ -200,17 +254,12 @@
             display: none;
         }
 
-        .brand-logo-img {
-            height: 35px;
+        .brand-logo-container {
+            margin: 0 auto;
         }
 
-        .org-selector-nav {
-            padding: 0.5rem;
-        }
-
-        .org-select {
-            font-size: 0.8rem;
-            padding: 6px 10px;
+        .nav-item-group {
+            display: none;
         }
 
         .nav-label {
@@ -219,6 +268,7 @@
 
         .nav-link {
             justify-content: center;
+            padding: 0.75rem;
         }
 
         .sidebar-bottom {
@@ -231,8 +281,13 @@
             padding: 0.75rem 0.25rem;
         }
 
+        .brand-logo-container {
+            width: 40px;
+            height: 40px;
+        }
+
         .brand-logo-img {
-            height: 32px;
+            height: 28px;
         }
 
         .nav-link {

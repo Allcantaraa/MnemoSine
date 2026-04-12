@@ -45,11 +45,20 @@
                 min-height: 100vh;
                 padding: 2rem;
                 background-color: #f8f9fa;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Se não houver autenticação, a main ocupa toda a tela */
+            body:not(.authenticated) main {
+                margin-left: 0;
+                width: 100%;
             }
 
             .main-content {
                 max-width: 1400px;
                 margin: 0 auto;
+                width: 100%;
             }
 
             h1, h2, h3 {
@@ -64,9 +73,15 @@
                 border-radius: 8px;
                 cursor: pointer;
                 text-decoration: none;
-                display: inline-block;
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
                 font-weight: 600;
                 transition: all 0.3s ease;
+            }
+
+            .btn-primary i {
+                font-size: 0.9rem;
             }
 
             .btn-primary:hover {
@@ -96,6 +111,33 @@
             textarea.form-input {
                 resize: vertical;
                 min-height: 120px;
+            }
+
+            /* FontAwesome Icons - Explicit Support */
+            i[class*="fa-"] {
+                display: inline-block;
+                font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro";
+                font-weight: 900;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            i.fa-solid {
+                font-family: "Font Awesome 6 Free";
+                font-weight: 900;
+            }
+
+            i.fa-regular {
+                font-family: "Font Awesome 6 Free";
+                font-weight: 400;
+            }
+
+            i.fa-brands {
+                font-family: "Font Awesome 6 Brands";
+                font-weight: 400;
             }
 
             /* Mobile: Sidebar collapses */
@@ -129,7 +171,7 @@
         </style>
     </head>
 
-<body>
+<body {% if user.is_authenticated %}class="authenticated"{% endif %}>
     <div class="layout-wrapper">
         {% if user.is_authenticated %}
             <header>

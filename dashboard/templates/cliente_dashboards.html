@@ -12,6 +12,26 @@
 
     {% include "modals/categoria_listar.html" %}
 
+    <!-- Filters and Search Bar -->
+    {% if categorias %}
+        <div class="filters-bar">
+            <form method="GET" class="filters-form">
+                <div class="category-chips">
+                    <a href="{% url 'cliente_dashboard' client_slug %}" class="chip {% if not selected_category %}active{% endif %}">
+                        <i class="fa-solid fa-list"></i>
+                        <span>Todas</span>
+                    </a>
+                    {% for categoria in categorias %}
+                        <a href="?category={{ categoria.id }}" class="chip {% if categoria.id|stringformat:"s" == selected_category %}active{% endif %}">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>{{ categoria.name }}</span>
+                        </a>
+                    {% endfor %}
+                </div>
+            </form>
+        </div>
+    {% endif %}
+
     {% if dashboards %}
         <div class="dashboards-grid">
             {% for dashboard in dashboards %}
@@ -211,6 +231,68 @@
     .empty-state p {
         color: #7f8c8d;
         margin-bottom: 1.5rem;
+    }
+
+    /* Filters Bar and Chips */
+    .filters-bar {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 1rem 0;
+        margin: 1.5rem 0;
+        gap: 1rem;
+    }
+
+    .filters-form {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* Category Chips */
+    .category-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: #f5f5f5;
+        border: 2px solid #e9ecef;
+        border-radius: 20px;
+        cursor: pointer;
+        text-decoration: none;
+        color: #495057;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .chip i {
+        font-size: 0.85rem;
+    }
+
+    .chip:hover {
+        border-color: #c92a2a;
+        color: #c92a2a;
+        background-color: #fff5f5;
+    }
+
+    .chip.active {
+        background-color: #c92a2a;
+        color: white;
+        border-color: #c92a2a;
+    }
+
+    .chip.active i {
+        color: white;
     }
 
     @media (max-width: 768px) {

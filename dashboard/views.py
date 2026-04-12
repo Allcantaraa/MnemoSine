@@ -63,14 +63,27 @@ def dashboards(request, slug):
     """Lista dashboards de um cliente específico."""
     org = request.organization
     cliente = get_object_or_404(Cliente, slug=slug, organization=org)
-    dashboards = Dashboard.objects.filter(client=cliente)
+    
+    # Filtro de categoria
+    category_filter = request.GET.get('category', '')
+    
+    dashboards_qs = Dashboard.objects.filter(client=cliente)
+    
+    if category_filter:
+        try:
+            category = Categoria.objects.get(id=category_filter, organization=org)
+            dashboards_qs = dashboards_qs.filter(category=category)
+        except Categoria.DoesNotExist:
+            pass
+    
     categorias = Categoria.objects.filter(organization=org)
 
     return render(request, 'cliente_dashboards.html', {
-        'dashboards': dashboards,
+        'dashboards': dashboards_qs,
         'client_slug': slug,
         'categorias': categorias,
-        'cliente': cliente
+        'cliente': cliente,
+        'selected_category': category_filter
     })
 
 
