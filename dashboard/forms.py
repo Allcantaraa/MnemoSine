@@ -8,21 +8,32 @@ class ClienteForm(forms.ModelForm):
         fields = ('name', 'logo', 'description', 'tier')
         widgets = {
             'name': forms.TextInput(attrs={
-                'placeholder': 'Escreva o nome do cliente'
+                'placeholder': 'Escreva o nome do cliente',
+                'class': 'form-input'
             }),
             'logo': forms.ClearableFileInput(attrs={
-                'accept': 'image/*'
+                'accept': 'image/*',
+                'class': 'form-input'
             }),
             'description': forms.Textarea(attrs={
-                'placeholder': 'Descrição do cliente'
+                'placeholder': 'Descrição do cliente',
+                'class': 'form-input'
             }),
-            'tier': forms.Select()
+            'tier': forms.Select(attrs={
+                'class': 'form-input'
+            })
         }
 
 class CategoriaForm(forms.ModelForm):
     class Meta:
         model = Categoria
         fields = ('name', )
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'placeholder': 'Nome da categoria',
+                'class': 'form-input'
+            })
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -61,4 +72,3 @@ class DashboardForm(forms.ModelForm):
             raise ValidationError('O arquivo deve ser um JSON válido.')
 
         return cleaned_data
-

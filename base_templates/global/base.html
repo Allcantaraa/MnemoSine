@@ -75,11 +75,16 @@
             }
 
             .form-input {
+                width: 100%;
                 padding: 0.75rem;
                 border: 1px solid #dee2e6;
                 border-radius: 8px;
                 font-size: 1rem;
+                font-family: inherit;
                 transition: all 0.3s ease;
+                background-color: white;
+                color: #2c3e50;
+                box-sizing: border-box; /* Garante que padding e border sejam incluídos na largura */
             }
 
             .form-input:focus {
@@ -88,16 +93,9 @@
                 box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
             }
 
-            .card {
-                background: white;
-                border: 1px solid #e9ecef;
-                border-radius: 12px;
-                padding: 1.5rem;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            }
-
-            .card:hover {
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            textarea.form-input {
+                resize: vertical;
+                min-height: 120px;
             }
 
             /* Mobile: Sidebar collapses */

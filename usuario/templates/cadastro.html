@@ -1,22 +1,45 @@
 {% extends "global/base.html" %}
 
 {% block content %}
+<div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #f5f6f7 0%, #e9ecef 100%); padding: 1rem;">
+    <div style="background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); padding: 3rem; width: 100%; max-width: 450px; border: 1px solid #e9ecef;">
+        <h1 style="font-size: 1.8rem; font-weight: 700; color: #0066cc; margin: 0 0 0.5rem 0; text-align: center;">MnemoSine</h1>
+        <p style="text-align: center; color: #6c757d; font-size: 1rem; margin-bottom: 2rem;">Crie sua conta</p>
 
-<div class="card">
-    <div class="card-body">
-        <form action="{% url "cadastro" %}" method='POST'>
-            <div class="mb-3">
-                {% csrf_token %}
-                {{ form.as_p }}
+        <form method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            {% csrf_token %}
 
-                {% if form.non_field_errors %}
-                    <p>{{ non_field_error }}</p>
-                {% endif %}
-                <button type='submit' class='btn btn-primary mx-auto w-50 d-block'>Cadastrar</button>
-            </div>
+            {% if form.non_field_errors %}
+                <div style="background: #fef2f2; border: 1px solid #f9a8a8; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    {% for error in form.non_field_errors %}
+                        <p style="color: #dc3545; font-size: 0.9rem; margin: 0;">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-weight: 500; color: #2c3e50; font-size: 0.95rem;">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div style="color: #dc3545; font-size: 0.85rem;">
+                            {% for error in field.errors %}
+                                <p style="margin: 0.25rem 0;">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small style="display: block; color: #6c757d; font-size: 0.8rem; margin-top: 0.25rem; font-style: italic;">{{ field.help_text|safe }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" style="width: 100%; padding: 0.85rem; background-color: #0066cc; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; margin-top: 0.5rem;">Cadastrar</button>
         </form>
-        <a href="{% url "login" %}" class='card-link mx-auto d-block text-center'>Já tem uma conta? Faça login</a>
+
+        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e9ecef;">
+            <p style="color: #6c757d; font-size: 0.95rem; margin: 0;">Já tem uma conta? <a href="{% url "login" %}" style="color: #0066cc; text-decoration: none; font-weight: 600;">Faça login aqui</a></p>
+        </div>
     </div>
 </div>
-    
 {% endblock content %}
