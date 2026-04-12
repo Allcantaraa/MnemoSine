@@ -1,13 +1,20 @@
 {% extends "global/base.html" %}
 
 {% block content %}
-    <h2 class="teste-login">Login</h2>
     <form method="post">
+    <div class="card-left">
+    <h2 class="teste-login">Login</h2>
+
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Entrar</button>
         <a href="{% url "cadastro" %}" class='card-link mx-auto d-block text-center'>Não tem uma conta? Crie uma</a>
-
+    </div>
+    <div class="card-right">
+       <h1 class="right-titulo">wwwwwwwwwwwwwwwwwwwwwwwww</h1>
+       <p>sssssssssssssss</p>
+       <button><a href="">seila</a></button>
+    </div>
     </form>
 
 {% endblock content %}
