@@ -78,12 +78,14 @@ def dashboards(request, slug):
             pass
     
     categorias = Categoria.objects.filter(organization=org)
+    all_clients = Cliente.objects.filter(organization=org).order_by('name')
 
     return render(request, 'cliente_dashboards.html', {
         'dashboards': dashboards_qs,
         'client_slug': slug,
         'categorias': categorias,
         'cliente': cliente,
+        'all_clients': all_clients,
         'selected_category': category_filter
     })
 
@@ -346,3 +348,99 @@ def baixar_dashboard_json(request, client_slug, dashboard_slug):
     else:
         messages.error(request, 'Arquivo JSON não encontrado no servidor.')
         return redirect('cliente_dashboard', slug=client_slug)
+
+
+@login_required
+@organization_member_or_admin_required
+def mover_dashboards(request, client_slug):
+    """Move muitos dashboards para outro cliente."""
+    org = request.organization
+    cliente_atual = get_object_or_404(Cliente, slug=client_slug, organization=org)
+
+    if request.method == 'POST':
+        dashboard_ids = request.POST.get('dashboard_ids', '').split(',')
+        destination_client_id = request.POST.get('destination_client')
+
+        # Validar que recebemos os dados
+        if not dashboard_ids or not dashboard_ids[0] or not destination_client_id:
+            messages.error(request, 'Selecione um cliente de destino.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Obter cliente de destino
+        try:
+            destination_client = Cliente.objects.get(id=destination_client_id, organization=org)
+        except Cliente.DoesNotExist:
+            messages.error(request, 'Cliente de destino inválido.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Garantir que não é o mesmo cliente
+        if destination_client.id == cliente_atual.id:
+            messages.error(request, 'Selecione um cliente diferente do atual.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Filtrar IDs válidos (apenas números)
+        dashboard_ids = [id for id in dashboard_ids if id and id.isdigit()]
+
+        if not dashboard_ids:
+            messages.error(request, 'Nenhum dashboard selecionado.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Buscar dashboards
+        dashboards = Dashboard.objects.filter(
+            id__in=dashboard_ids,
+            organization=org,
+            client=cliente_atual
+        )
+
+        if not dashboards.exists():
+            messages.error(request, 'Nenhum dashboard encontrado para mover.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Mover dashboards
+        count = dashboards.count()
+        dashboards.update(client=destination_client)
+
+        message = f'{count} dashboard foi movido' if count == 1 else f'{count} dashboards foram movidos'
+        messages.success(request, f'{message} para {destination_client.name} com sucesso!')
+        return redirect('cliente_dashboard', slug=client_slug)
+
+    return redirect('cliente_dashboard', slug=client_slug)
+
+
+@login_required
+@organization_admin_required
+def deletar_dashboards_bulk(request, client_slug):
+    """Deleta vários dashboards em massa (apenas admin)."""
+    org = request.organization
+    cliente = get_object_or_404(Cliente, slug=client_slug, organization=org)
+
+    if request.method == 'POST':
+        dashboard_ids = request.POST.get('dashboard_ids', '').split(',')
+
+        # Filtrar IDs válidos
+        dashboard_ids = [id for id in dashboard_ids if id and id.isdigit()]
+
+        if not dashboard_ids:
+            messages.error(request, 'Nenhum dashboard selecionado.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Buscar dashboards
+        dashboards = Dashboard.objects.filter(
+            id__in=dashboard_ids,
+            organization=org,
+            client=cliente
+        )
+
+        if not dashboards.exists():
+            messages.error(request, 'Nenhum dashboard encontrado para deletar.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        # Deletar dashboards
+        count = dashboards.count()
+        dashboards.delete()
+
+        message = f'{count} dashboard foi deletado' if count == 1 else f'{count} dashboards foram deletados'
+        messages.success(request, f'{message} com sucesso!')
+        return redirect('cliente_dashboard', slug=client_slug)
+
+    return redirect('cliente_dashboard', slug=client_slug)

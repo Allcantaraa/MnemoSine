@@ -25,6 +25,10 @@ urlpatterns = [
     path('clientes/<slug:client_slug>/dashboard/deletar/<slug:dashboard_slug>', views.deletar_dashboard, name='deletar_dashboard'),
     path('clientes/<slug:client_slug>/dashboard/baixar/<slug:dashboard_slug>', views.baixar_dashboard_json, name='baixar_dashboard_json'),
 
+    # Bulk operations
+    path('clientes/<slug:client_slug>/dashboards/mover/', views.mover_dashboards, name='mover_dashboards'),
+    path('clientes/<slug:client_slug>/dashboards/deletar-bulk/', views.deletar_dashboards_bulk, name='deletar_dashboards_bulk'),
+
     # Organization management
     path('organization/criar', organization_views.criar_organizacao, name='criar_organizacao'),
     path('organization/membros', organization_views.listar_membros, name='listar_membros'),
