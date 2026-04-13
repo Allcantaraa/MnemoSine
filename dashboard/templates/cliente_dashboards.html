@@ -10,27 +10,28 @@
         </div>
     </div>
 
-    <!-- Categorias Modal Removed - Now using chips filter above -->
-
     <!-- Filters and Search Bar -->
-    {% if categorias %}
-        <div class="filters-bar">
-            <form method="GET" class="filters-form">
-                <div class="category-chips">
-                    <a href="{% url 'cliente_dashboard' client_slug %}" class="chip {% if not selected_category %}active{% endif %}">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Todas</span>
-                    </a>
-                    {% for categoria in categorias %}
-                        <a href="?category={{ categoria.id }}" class="chip {% if categoria.id|stringformat:"s" == selected_category %}active{% endif %}">
-                            <i class="fa-solid fa-tag"></i>
-                            <span>{{ categoria.name }}</span>
-                        </a>
-                    {% endfor %}
-                </div>
-            </form>
+    <div class="filters-bar">
+        <div class="search-input">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="dashboardSearch" placeholder="Buscar dashboard..." class="form-input">
         </div>
-    {% endif %}
+
+        {% if categorias %}
+            <div class="category-chips">
+                <a href="javascript:void(0)" class="chip active" data-category="">
+                    <i class="fa-solid fa-list"></i>
+                    <span>Todas</span>
+                </a>
+                {% for categoria in categorias %}
+                    <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
+                        <i class="fa-solid fa-tag"></i>
+                        <span>{{ categoria.name }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 
     {% if dashboards %}
         <div class="dashboards-grid">
@@ -45,7 +46,7 @@
                     </div>
                     <div class="dashboard-content">
                         <h3>{{ dashboard.title }}</h3>
-                        <p class="category"><i class="fa-solid fa-tag"></i> {{ dashboard.category|default:"Sem categoria" }}</p>
+                        <p class="category"><i class="fa-solid fa-tag"></i> <span>{{ dashboard.category|default:"Sem categoria" }}</span></p>
                         
                         <div class="dashboard-meta">
                             <p class="meta-item">
@@ -321,21 +322,55 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Filters Bar and Chips */
+    /* Filters Bar and Search Input */
     .filters-bar {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        padding: 1rem 0;
-        margin: 1.5rem 0;
-        gap: 1rem;
+        gap: 2rem;
+        padding: 1.5rem 0;
+        margin: 2rem 0;
+        flex-wrap: wrap;
     }
 
-    .filters-form {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
+    .search-input {
+        position: relative;
+        flex: 1;
+        min-width: 250px;
+        max-width: 500px;
+    }
+
+    .search-input i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #c92a2a;
+        font-size: 1rem;
+        pointer-events: none;
+    }
+
+    .form-input {
         width: 100%;
+        padding: 0.75rem 1rem 0.75rem 2.75rem;
+        font-size: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #c92a2a;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(201, 42, 42, 0.15);
+    }
+
+    .form-input::placeholder {
+        color: #adb5bd;
     }
 
     /* Category Chips */
@@ -401,6 +436,17 @@
 
         .dashboards-grid {
             grid-template-columns: 1fr;
+        }
+
+        .filters-bar {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            min-width: unset;
+            max-width: unset;
         }
     }
 
@@ -497,7 +543,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Open modal when click on view button
+    // Modal functionality
     const viewButtons = document.querySelectorAll('.btn-view');
     viewButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -508,7 +554,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Close modal when click outside the modal content
     const imageModal = document.getElementById('imageModal');
     imageModal.addEventListener('click', function(e) {
         if (e.target === this) {
@@ -516,12 +561,85 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeImageModal();
         }
     });
+
+    // Search and filter functionality
+    const searchInput = document.getElementById('dashboardSearch');
+    const categoryChips = document.querySelectorAll('.category-chips .chip');
+    const dashboardCards = document.querySelectorAll('.dashboard-card');
+    const dashboardsGrid = document.querySelector('.dashboards-grid');
+    const emptyState = document.querySelector('.empty-state');
+    
+    let selectedCategory = '';
+
+    // Search functionality
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            filterDashboards();
+        });
+    }
+
+    // Category filter functionality
+    categoryChips.forEach(chip => {
+        chip.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Update active state
+            categoryChips.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Set selected category
+            selectedCategory = this.getAttribute('data-category');
+            filterDashboards();
+        });
+    });
+
+    function filterDashboards() {
+        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+        let visibleCount = 0;
+
+        dashboardCards.forEach(card => {
+            const dashboardTitle = card.querySelector('h3').textContent.toLowerCase();
+            const dashboardCategory = card.querySelector('.category span')?.textContent.toLowerCase() || 'sem categoria';
+            
+            const matchesSearch = dashboardTitle.includes(searchTerm) || dashboardCategory.includes(searchTerm);
+            const matchesCategory = !selectedCategory || dashboardCategory === selectedCategory.toLowerCase();
+            
+            if (matchesSearch && matchesCategory) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Show/hide no results message
+        let noResultsMsg = document.querySelector('.no-results-message');
+        
+        if (visibleCount === 0 && dashboardsGrid) {
+            if (!noResultsMsg) {
+                noResultsMsg = document.createElement('div');
+                noResultsMsg.className = 'no-results-message';
+                dashboardsGrid.parentNode.insertBefore(noResultsMsg, dashboardsGrid);
+            }
+            noResultsMsg.innerHTML = `
+                <div style="text-align: center; padding: 3rem 2rem; color: #7f8c8d;">
+                    <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 1rem; color: #c92a2a;"></i>
+                    <p>Nenhum dashboard encontrado</p>
+                </div>
+            `;
+            dashboardsGrid.style.display = 'none';
+        } else if (dashboardsGrid) {
+            dashboardsGrid.style.display = '';
+            if (noResultsMsg) {
+                noResultsMsg.remove();
+            }
+        }
+    }
 });
 
 function openImageModal(imageUrl, dashboardName) {

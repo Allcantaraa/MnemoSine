@@ -47,7 +47,7 @@
                         <span>Todas</span>
                     </a>
                     {% for categoria in categorias %}
-                        <a href="javascript:void(0)" class="chip" data-category="{{ categoria.id }}">
+                        <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
                             <i class="fa-solid fa-tag"></i>
                             <span>{{ categoria.name }}</span>
                         </a>
@@ -730,7 +730,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 dashboardCategory.includes(searchTerm);
             
             const matchesCategory = !selectedCategory || 
-                                  dashboardCategory.includes(selectedCategory.toLowerCase());
+                                  dashboardCategory === selectedCategory.toLowerCase();
             
             if (matchesSearch && matchesCategory) {
                 card.style.display = '';
