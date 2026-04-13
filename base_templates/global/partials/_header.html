@@ -73,12 +73,10 @@
         </a>
 
         {% if request.organization %}
-            {% if request.user|has_org_role:request.organization %}
-                <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
-                    <i class="fa-solid fa-users"></i>
-                    <span class="nav-label">Membros</span>
-                </a>
-            {% endif %}
+            <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i>
+                <span class="nav-label">Membros</span>
+            </a>
         {% else %}
             <a href="{% url 'entrar_organizacao' %}" class="nav-link">
                 <i class="fa-solid fa-arrow-right-to-bracket"></i>

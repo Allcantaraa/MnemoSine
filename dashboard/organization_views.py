@@ -186,3 +186,65 @@ def selecionar_organizacao(request):
     return render(request, 'organization/selecionar.html', {
         'memberships': org_memberships
     })
+
+
+@login_required
+@organization_required
+def sair_organizacao(request):
+    """Permite que o usuário saia da organização."""
+    org = request.organization
+    
+    if request.method == 'POST':
+        try:
+            membership = OrganizationMember.objects.get(
+                organization=org,
+                user=request.user
+            )
+            membership.delete()
+            
+            # Limpar a sessão de organização ativa
+            if request.session.get('active_org_id') == org.id:
+                del request.session['active_org_id']
+            
+            messages.success(request, f'Você saiu da organização "{org.name}".')
+            return redirect('index')
+        except OrganizationMember.DoesNotExist:
+            messages.error(request, 'Erro ao sair da organização.')
+            return redirect('index')
+    
+    return render(request, 'organization/sair.html', {
+        'organization': org
+    })
+
+
+@login_required
+@organization_required
+def deletar_organizacao(request):
+    """Permite que apenas o criador delete a organização."""
+    org = request.organization
+    
+    # Apenas o criador pode deletar
+    if org.created_by != request.user:
+        messages.error(request, 'Você não tem permissão para deletar esta organização.')
+        return redirect('listar_membros')
+    
+    if request.method == 'POST':
+        org_name = org.name
+        org_id = org.id
+        
+        # Deletar todos os membros
+        OrganizationMember.objects.filter(organization=org).delete()
+        
+        # Deletar a organização
+        org.delete()
+        
+        # Limpar a sessão de organização ativa
+        if request.session.get('active_org_id') == org_id:
+            del request.session['active_org_id']
+        
+        messages.success(request, f'Organização "{org_name}" deletada com sucesso.')
+        return redirect('index')
+    
+    return render(request, 'organization/deletar.html', {
+        'organization': org
+    })

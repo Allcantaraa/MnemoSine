@@ -33,4 +33,6 @@ urlpatterns = [
     path('organization/codigo-novo', organization_views.gerar_novo_codigo, name='gerar_novo_codigo'),
     path('organization/entrar', organization_views.entrar_organizacao, name='entrar_organizacao'),
     path('organization/selecionar', organization_views.selecionar_organizacao, name='selecionar_organizacao'),
+    path('organization/sair', organization_views.sair_organizacao, name='sair_organizacao'),
+    path('organization/deletar', organization_views.deletar_organizacao, name='deletar_organizacao'),
 ]
