@@ -23,6 +23,7 @@ urlpatterns = [
     path('clientes/<slug:client_slug>/dashboard/criar', views.criar_dashboard, name='criar_dashboard'),
     path('clientes/<slug:client_slug>/dashboard/editar/<slug:slug>', views.atualizar_dashboard, name='atualizar_dashboard'),
     path('clientes/<slug:client_slug>/dashboard/deletar/<slug:dashboard_slug>', views.deletar_dashboard, name='deletar_dashboard'),
+    path('clientes/<slug:client_slug>/dashboard/baixar/<slug:dashboard_slug>', views.baixar_dashboard_json, name='baixar_dashboard_json'),
 
     # Organization management
     path('organization/criar', organization_views.criar_organizacao, name='criar_organizacao'),

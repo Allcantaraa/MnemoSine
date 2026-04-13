@@ -121,6 +121,7 @@ class Dashboard(models.Model):
     screen_resolution = models.CharField(max_length=60, blank=True, null=True)
     image = models.ImageField(upload_to='dashboards/images/%Y/%m/', blank=False, null=False)
     json = models.FileField(upload_to='dashboards/json/%Y/%m/', blank=False, null=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='dashboards_created')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(

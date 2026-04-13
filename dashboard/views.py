@@ -3,6 +3,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.db.models import Q
+from django.http import FileResponse
+import os
 
 from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
@@ -242,6 +244,7 @@ def criar_dashboard(request, client_slug):
             dashboard = form.save(commit=False)
             dashboard.organization = org
             dashboard.client = cliente
+            dashboard.created_by = request.user
             dashboard.save()
             messages.success(request, 'Dashboard criado com sucesso')
             return redirect('cliente_dashboard', slug=client_slug)
@@ -319,3 +322,27 @@ def deletar_dashboard(request, client_slug, dashboard_slug):
         'confirmation': confirmation,
         'client_slug': client_slug
     })
+
+
+@login_required
+@organization_required
+def baixar_dashboard_json(request, client_slug, dashboard_slug):
+    """Faz download do arquivo JSON do dashboard."""
+    org = request.organization
+    dashboard = get_object_or_404(Dashboard, slug=dashboard_slug, organization=org, client__slug=client_slug)
+    
+    # Verificar permissão (qualquer membro pode ver)
+    if not dashboard.json:
+        messages.error(request, 'Arquivo JSON não encontrado.')
+        return redirect('cliente_dashboard', slug=client_slug)
+    
+    # Obter o caminho do arquivo
+    file_path = dashboard.json.path
+    
+    if os.path.exists(file_path):
+        response = FileResponse(open(file_path, 'rb'), content_type='application/json')
+        response['Content-Disposition'] = f'attachment; filename="{dashboard.title}-{dashboard.slug}.json"'
+        return response
+    else:
+        messages.error(request, 'Arquivo JSON não encontrado no servidor.')
+        return redirect('cliente_dashboard', slug=client_slug)
