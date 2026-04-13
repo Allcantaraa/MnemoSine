@@ -21,7 +21,7 @@
                     </div>
                     <i class="fa-solid fa-chevron-down org-chevron"></i>
                 </div>
-                
+
                 {% if request.user_organizations|length > 1 %}
                     <div class="org-dropdown" id="orgDropdown">
                         <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
@@ -49,7 +49,7 @@
                     </div>
                     <i class="fa-solid fa-chevron-down org-chevron"></i>
                 </div>
-                
+
                 <div class="org-dropdown" id="orgDropdown">
                     <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
                         {% csrf_token %}
@@ -135,20 +135,19 @@
 
     .brand-logo-img {
         height: 32px;
-        width: 32px; /* Set explicit width to prevent overflow */
+        width: 32px;
         object-fit: contain;
         filter: brightness(0) invert(1);
     }
 
     .brand-text {
         font-weight: 700;
-        font-size: 1.3rem;
+        font-size: 1rem;
         color: #2c3e50;
         letter-spacing: -0.4px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        /* min-width: 0; -- Removed, might cause issues */
     }
 
     /* Navigation */
@@ -361,10 +360,6 @@
             margin: 0 auto;
         }
 
-        .nav-item-group {
-            display: none;
-        }
-
         .org-selector-item {
             margin-bottom: 0.5rem;
             padding-bottom: 0.5rem;
@@ -416,39 +411,35 @@
 <script>
     function toggleOrgDropdown(event) {
         event.stopPropagation();
-        
-        // Encontra o contêiner de seleção da organização mais próximo
+
         const header = event.currentTarget;
         const orgSelector = header.closest('.org-selector-item');
         if (!orgSelector) {
             console.warn('org-selector-item não encontrado');
             return;
         }
-        
+
         const dropdown = orgSelector.querySelector('.org-dropdown');
-        
+
         if (!dropdown) {
             console.warn('org-dropdown não encontrado');
             return;
         }
-        
-        // Fecha todos os outros dropdowns
+
         document.querySelectorAll('.org-dropdown.active').forEach(d => {
             if (d !== dropdown) {
                 d.classList.remove('active');
                 d.closest('.org-selector-item')?.querySelector('.org-selector-header')?.classList.remove('active');
             }
         });
-        
+
         dropdown.classList.toggle('active');
         header.classList.toggle('active');
     }
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', function(event) {
         const orgSelector = event.target.closest('.org-selector-item');
         if (!orgSelector) {
-            // Fecha todos os dropdowns abertos
             document.querySelectorAll('.org-dropdown.active').forEach(dropdown => {
                 dropdown.classList.remove('active');
             });
@@ -458,3 +449,5 @@
         }
     });
 </script>
+
+
