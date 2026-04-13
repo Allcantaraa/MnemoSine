@@ -25,6 +25,11 @@
                 min-height: 100vh;
             }
 
+            body:not(.authenticated) .layout-wrapper {
+                min-height: auto;
+                height: auto;
+            }
+
             /* Sidebar */
             header {
                 position: fixed;
@@ -53,6 +58,9 @@
             body:not(.authenticated) main {
                 margin-left: 0;
                 width: 100%;
+                min-height: auto;
+                padding: 0;
+                background-color: transparent;
             }
 
             .main-content {

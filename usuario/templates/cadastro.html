@@ -1,7 +1,15 @@
 {% extends "global/base.html" %}
 
 {% block content %}
-<div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #f5f6f7 0%, #e9ecef 100%); padding: 1rem;">
+<style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+    }
+</style>
+<div style="display: flex; align-items: center; justify-content: center; height: 100vh; background: linear-gradient(135deg, #f5f6f7 0%, #e9ecef 100%); overflow: hidden; padding: 1rem;">
     <div style="background: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); padding: 3rem; width: 100%; max-width: 450px; border: 1px solid #e9ecef;">
         <h1 style="font-size: 1.8rem; font-weight: 700; color: #c92a2a; margin: 0 0 0.5rem 0; text-align: center;">MnemoSine</h1>
         <p style="text-align: center; color: #6c757d; font-size: 1rem; margin-bottom: 2rem;">Crie sua conta</p>
