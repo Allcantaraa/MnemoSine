@@ -42,9 +42,9 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Dashboard)
 class DashboardAdmin(admin.ModelAdmin):
-    list_display = ('title', 'organization', 'client', 'category', 'created_at')
+    list_display = ('title', 'organization', 'client', 'get_categories', 'created_at')
     list_display_links = ('title',)
-    list_filter = ('organization', 'client', 'category', 'analytical_or_macro')
+    list_filter = ('organization', 'client', 'categories', 'analytical_or_macro')
     search_fields = ('title', 'purpose', 'kpis_displayed', 'data_source')
     ordering = ('-created_at',)
     list_per_page = 20
@@ -52,3 +52,7 @@ class DashboardAdmin(admin.ModelAdmin):
         'slug': ('title',),
     }
     readonly_fields = ('created_at', 'updated_at')
+
+    @admin.display(description='Categories')
+    def get_categories(self, obj):
+        return ", ".join(obj.categories.values_list('name', flat=True)) or "-"

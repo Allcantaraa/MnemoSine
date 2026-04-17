@@ -54,7 +54,7 @@
     {% if dashboards %}
         <div class="dashboards-grid">
             {% for dashboard in dashboards %}
-                <div class="dashboard-card" data-dashboard-id="{{ dashboard.id }}">
+                <div class="dashboard-card" data-dashboard-id="{{ dashboard.id }}" data-categories="{{ dashboard.categories.all|join:','|lower }}">
                     <div class="dashboard-checkbox">
                         <input type="checkbox" class="dashboard-select" data-dashboard-id="{{ dashboard.id }}">
                     </div>
@@ -67,7 +67,16 @@
                     </div>
                     <div class="dashboard-content">
                         <h3>{{ dashboard.title }}</h3>
-                        <p class="category"><i class="fa-solid fa-tag"></i> <span>{{ dashboard.category|default:"Sem categoria" }}</span></p>
+                        <p class="category">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>
+                                {% for categoria in dashboard.categories.all %}
+                                    {{ categoria.name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Sem categoria
+                                {% endfor %}
+                            </span>
+                        </p>
                         
                         <div class="dashboard-meta">
                             <p class="meta-item">
@@ -773,10 +782,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         dashboardCards.forEach(card => {
             const dashboardTitle = card.querySelector('h3').textContent.toLowerCase();
-            const dashboardCategory = card.querySelector('.category span')?.textContent.toLowerCase() || 'sem categoria';
-            
-            const matchesSearch = dashboardTitle.includes(searchTerm) || dashboardCategory.includes(searchTerm);
-            const matchesCategory = !selectedCategory || dashboardCategory === selectedCategory.toLowerCase();
+            const dashboardCategories = card.getAttribute('data-categories') || '';
+            const matchesSearch = dashboardTitle.includes(searchTerm) || dashboardCategories.includes(searchTerm);
+            const matchesCategory = !selectedCategory || dashboardCategories.split(',').includes(selectedCategory.toLowerCase());
             
             if (matchesSearch && matchesCategory) {
                 card.style.display = '';

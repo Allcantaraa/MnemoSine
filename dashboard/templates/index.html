@@ -85,12 +85,14 @@
 
                         <div class="client-footer">
                             <div class="client-status">
-                                {% if cliente.tier == 'gold' %}
+                                {% if cliente.tier == 'platinum' %}
+                                    <span class="badge badge-platinum">Platinum</span>
+                                {% elif cliente.tier == 'gold' %}
                                     <span class="badge badge-gold">Gold</span>
                                 {% elif cliente.tier == 'silver' %}
                                     <span class="badge badge-silver">Silver</span>
                                 {% else %}
-                                    <span class="badge badge-standard">Standard</span>
+                                    <span class="badge badge-silver">Silver</span>
                                 {% endif %}
                             </div>
 
@@ -110,7 +112,7 @@
                     <h2>Dashboards Filtrados</h2>
                     <div class="dashboards-grid">
                         {% for dashboard in dashboards %}
-                            <div class="dashboard-card">
+                            <div class="dashboard-card" data-categories="{{ dashboard.categories.all|join:','|lower }}">
                                 <div class="dashboard-image">
                                     {% if dashboard.image %}
                                         <img src="{{ dashboard.image.url }}" alt="{{ dashboard.title }}" class="dashboard-img-preview" onclick="openImageModal('{{ dashboard.image.url }}', '{{ dashboard.title }}')">
@@ -121,9 +123,13 @@
                                 <div class="dashboard-info">
                                     <h4>{{ dashboard.title }}</h4>
                                     <p class="dashboard-client">{{ dashboard.client.name }}</p>
-                                    {% if dashboard.category %}
-                                        <p class="dashboard-category">{{ dashboard.category.name }}</p>
-                                    {% endif %}
+                                    <p class="dashboard-category">
+                                        {% for categoria in dashboard.categories.all %}
+                                            {{ categoria.name }}{% if not forloop.last %}, {% endif %}
+                                        {% empty %}
+                                            Sem categoria
+                                        {% endfor %}
+                                    </p>
                                     <div class="dashboard-card-actions">
                                         <a href="javascript:void(0)" class="btn-view-dash" onclick="openImageModal('{{ dashboard.image.url }}', '{{ dashboard.title }}')" title="Ver imagem"><i class="fa-solid fa-eye"></i></a>
                                         <a href="{% url 'baixar_dashboard_json' dashboard.client.slug dashboard.slug %}" class="btn-download-dash" title="Download JSON"><i class="fa-solid fa-download"></i></a>
@@ -437,14 +443,14 @@
         color: #1a1a1a;
     }
 
+    .badge-platinum {
+        background-color: #d8e5f7;
+        color: #0f2a4a;
+    }
+
     .badge-silver {
         background-color: #c0c0c0;
         color: #1a1a1a;
-    }
-
-    .badge-standard {
-        background-color: #e9ecef;
-        color: #495057;
     }
 
     .client-actions {
@@ -889,14 +895,14 @@ document.addEventListener('DOMContentLoaded', function() {
         dashboardCards.forEach(card => {
             const dashboardTitle = card.querySelector('h4').textContent.toLowerCase();
             const dashboardClient = card.querySelector('.dashboard-client').textContent.toLowerCase();
-            const dashboardCategory = card.querySelector('.dashboard-category')?.textContent.toLowerCase() || '';
+            const dashboardCategories = card.getAttribute('data-categories') || '';
             
             const matchesSearch = dashboardTitle.includes(searchTerm) || 
                                 dashboardClient.includes(searchTerm) || 
-                                dashboardCategory.includes(searchTerm);
+                                dashboardCategories.includes(searchTerm);
             
             const matchesCategory = !selectedCategory || 
-                                  dashboardCategory === selectedCategory.toLowerCase();
+                                  dashboardCategories.split(',').includes(selectedCategory.toLowerCase());
             
             if (matchesSearch && matchesCategory) {
                 card.style.display = '';

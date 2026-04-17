@@ -37,13 +37,15 @@ def index(request):
     if category_filter:
         try:
             category = Categoria.objects.get(id=category_filter, organization=org)
-            dashboards_qs = dashboards_qs.filter(category=category)
+            dashboards_qs = dashboards_qs.filter(categories=category)
         except Categoria.DoesNotExist:
             pass
 
     # Filtrar por texto (título)
     if search_query:
         dashboards_qs = dashboards_qs.filter(title__icontains=search_query)
+
+    dashboards_qs = dashboards_qs.distinct()
 
     return render(request, 'index.html', {
         'clientes': clientes,
@@ -73,9 +75,11 @@ def dashboards(request, slug):
     if category_filter:
         try:
             category = Categoria.objects.get(id=category_filter, organization=org)
-            dashboards_qs = dashboards_qs.filter(category=category)
+            dashboards_qs = dashboards_qs.filter(categories=category)
         except Categoria.DoesNotExist:
             pass
+
+    dashboards_qs = dashboards_qs.distinct()
     
     categorias = Categoria.objects.filter(organization=org)
     all_clients = Cliente.objects.filter(organization=org).order_by('name')
@@ -248,6 +252,7 @@ def criar_dashboard(request, client_slug):
             dashboard.client = cliente
             dashboard.created_by = request.user
             dashboard.save()
+            form.save_m2m()
             messages.success(request, 'Dashboard criado com sucesso')
             return redirect('cliente_dashboard', slug=client_slug)
 
@@ -283,7 +288,9 @@ def atualizar_dashboard(request, client_slug, slug):
         form = DashboardForm(request.POST, request.FILES, instance=dashboard, organization=org)
 
         if form.is_valid():
-            form.save()
+            dashboard = form.save(commit=False)
+            dashboard.save()
+            form.save_m2m()
             messages.success(request, f'Dashboard "{dashboard.title}" atualizado com sucesso!')
             return redirect('cliente_dashboard', slug=client_slug)
 

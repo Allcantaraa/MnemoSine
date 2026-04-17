@@ -45,9 +45,9 @@ class OrganizationMember(models.Model):
 
 class Cliente(models.Model):
     class Tier(models.TextChoices):
-        STANDARD = 'standard', 'Standard'
         SILVER = 'silver', 'Silver'
         GOLD = 'gold', 'Gold'
+        PLATINUM = 'platinum', 'Platinum'
 
     class Meta:
         verbose_name = 'Cliente'
@@ -57,7 +57,7 @@ class Cliente(models.Model):
     name = models.CharField(max_length=255, blank=False, null=False)
     logo = models.ImageField(upload_to='pictures/%Y/%m/', blank=True)
     description = models.TextField(max_length=100, blank=True, null=True)
-    tier = models.CharField(max_length=10, choices=Tier.choices, default=Tier.STANDARD)
+    tier = models.CharField(max_length=10, choices=Tier.choices, default=Tier.SILVER)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, default='', null=False, blank=True, max_length=255)
@@ -110,7 +110,7 @@ class Dashboard(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='dashboards')
     client = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, blank=False, null=False)
-    category = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True)
+    categories = models.ManyToManyField(Categoria, related_name='dashboards', blank=True)
     purpose = models.CharField(max_length=255, blank=True, null=True)
     target_audience = models.CharField(max_length=3, choices=PublicoAlvo.choices, default=PublicoAlvo.OUTROS)
     kpis_displayed = models.CharField(max_length=255, blank=True, null=True)

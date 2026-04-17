@@ -42,7 +42,7 @@ class CategoriaForm(forms.ModelForm):
 class DashboardForm(forms.ModelForm):
     class Meta:
         model = Dashboard
-        fields = ['title', 'image', 'json', 'category']
+        fields = ['title', 'image', 'json', 'categories']
 
         widgets = {
             'title': forms.TextInput(attrs={
@@ -57,7 +57,7 @@ class DashboardForm(forms.ModelForm):
                 'accept': '.json',
                 'class': 'form-input'
             }),
-            'category': forms.Select(attrs={
+            'categories': forms.SelectMultiple(attrs={
                 'class': 'form-input'
             })
         }
@@ -68,15 +68,12 @@ class DashboardForm(forms.ModelForm):
         self.fields['title'].label = "Título"
         self.fields['image'].label = "Imagem"
         self.fields['json'].label = "Arquivo JSON"
-        self.fields['category'].label = "Categoria (Opcional)"
-        self.fields['category'].required = False
-        
-        # Deixar categoria em branco por padrão
-        self.fields['category'].empty_label = "Sem categoria"
+        self.fields['categories'].label = "Categorias (Opcional)"
+        self.fields['categories'].required = False
         
         # Filtrar categorias pela organização se fornecida
         if organization:
-            self.fields['category'].queryset = Categoria.objects.filter(organization=organization).order_by('name')
+            self.fields['categories'].queryset = Categoria.objects.filter(organization=organization).order_by('name')
 
     def clean(self):
         cleaned_data = super().clean()

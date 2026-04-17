@@ -9,7 +9,14 @@
             <p>{{ dashboard.get_status_display }}</p>
             </div>
             <div class="footer">
-            <p class="tag">Categoria:  {{ dashboard.category}}</p>
+            <p class="tag">
+                Categorias:
+                {% for categoria in dashboard.categories.all %}
+                    {{ categoria.name }}{% if not forloop.last %}, {% endif %}
+                {% empty %}
+                    Sem categoria
+                {% endfor %}
+            </p>
             <p class="tag">Criado em: {{ dashboard.created_at|date:"d/m/Y" }}</p>
             <p class="tag">Atualizado em: {{ dashboard.updated_at|date:"d/m/Y, H:i"}} </p>
             <a href="{% url "atualizar_dashboard" client_slug dashboard.slug %}" class="action"> Editar dashboard </a>
