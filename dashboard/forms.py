@@ -1,5 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
+from django.contrib.auth import password_validation
 from dashboard.models import Cliente, Categoria, Dashboard
 
 class ClienteForm(forms.ModelForm):
@@ -80,5 +82,78 @@ class DashboardForm(forms.ModelForm):
 
         if cleaned_data.get('json') and not str(cleaned_data['json']).endswith('.json'):
             raise ValidationError('O arquivo deve ser um JSON válido.')
+
+        return cleaned_data
+
+
+class OrganizationUserCreateForm(forms.Form):
+    username = forms.CharField(
+        label='Usuário',
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nome de usuário',
+            'class': 'form-input'
+        })
+    )
+    email = forms.EmailField(
+        label='E-mail',
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'email@exemplo.com',
+            'class': 'form-input'
+        })
+    )
+    password1 = forms.CharField(
+        label='Senha',
+        strip=False,
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'class': 'form-input'
+        })
+    )
+    password2 = forms.CharField(
+        label='Confirmação de senha',
+        strip=False,
+        widget=forms.PasswordInput(attrs={
+            'autocomplete': 'new-password',
+            'class': 'form-input'
+        })
+    )
+    role = forms.ChoiceField(
+        label='Perfil na organização',
+        choices=(
+            ('admin', 'Admin'),
+            ('member', 'Member'),
+            ('viewer', 'Viewer'),
+        ),
+        initial='member',
+        widget=forms.Select(attrs={'class': 'form-input'})
+    )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email__iexact=email).exists():
+            raise ValidationError('Já existe um usuário com este e-mail.')
+        return email
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError('Já existe um usuário com este nome de usuário.')
+        return username
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+
+        if password1 and password2 and password1 != password2:
+            self.add_error('password2', 'As senhas não coincidem.')
+            return cleaned_data
+
+        if password1:
+            try:
+                password_validation.validate_password(password1)
+            except ValidationError as exc:
+                self.add_error('password1', exc)
 
         return cleaned_data

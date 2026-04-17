@@ -95,6 +95,10 @@
             <i class="fa-solid fa-user"></i>
             <span class="nav-label">Perfil</span>
         </a>
+        <button type="button" id="globalThemeToggle" class="nav-link nav-link-button">
+            <i class="fa-solid fa-moon"></i>
+            <span class="nav-label" id="globalThemeToggleLabel">Dark mode</span>
+        </button>
         <a href="{% url 'logout' %}" class="nav-link logout-link">
             <i class="fa-solid fa-sign-out-alt"></i>
             <span class="nav-label">Sair</span>
@@ -107,7 +111,7 @@
         display: flex;
         flex-direction: column;
         height: 100%;
-        background: white;
+        background: var(--app-surface);
         padding: 1.5rem 1rem;
         gap: 1.5rem;
     }
@@ -143,7 +147,7 @@
     .brand-text {
         font-weight: 700;
         font-size: 1rem;
-        color: #2c3e50;
+        color: var(--app-text);
         letter-spacing: -0.4px;
         white-space: nowrap;
         overflow: hidden;
@@ -163,7 +167,7 @@
         position: relative;
         margin-bottom: 0.75rem;
         padding-bottom: 0.75rem;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid var(--app-border);
     }
 
     .org-selector-header {
@@ -171,8 +175,8 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.75rem;
-        background-color: #f8f9fa;
-        border: 1px solid #e9ecef;
+        background-color: var(--app-bg);
+        border: 1px solid var(--app-border);
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -202,7 +206,7 @@
     .org-name {
         font-size: 0.9rem;
         font-weight: 600;
-        color: #2c3e50;
+        color: var(--app-text);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -227,8 +231,8 @@
         top: 100%;
         left: 0;
         right: 0;
-        background: white;
-        border: 1px solid #e9ecef;
+        background: var(--app-surface);
+        border: 1px solid var(--app-border);
         border-top: none;
         border-radius: 0 0 8px 8px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -292,7 +296,7 @@
         align-items: center;
         gap: 0.75rem;
         padding: 0.75rem 0.75rem;
-        color: #6c757d;
+        color: var(--app-muted);
         text-decoration: none;
         border-radius: 8px;
         transition: all 0.3s ease;
@@ -327,6 +331,10 @@
         border-left-color: #c92a2a;
     }
 
+    [data-theme="dark"] .nav-link.active {
+        background-color: rgba(201, 42, 42, 0.16);
+    }
+
     .nav-link.logout-link:hover {
         background-color: #fff5f5;
         color: #dc3545;
@@ -338,7 +346,15 @@
         flex-direction: column;
         gap: 0.5rem;
         padding-top: 1rem;
-        border-top: 1px solid #e9ecef;
+        border-top: 1px solid var(--app-border);
+    }
+
+    .nav-link-button {
+        width: 100%;
+        border: none;
+        background: transparent;
+        text-align: left;
+        font: inherit;
     }
 
     /* Mobile: Collapsed View */
@@ -448,6 +464,33 @@
             });
         }
     });
+
+    (function () {
+        const key = 'mnemosine-theme';
+        const toggleBtn = document.getElementById('globalThemeToggle');
+        const toggleLabel = document.getElementById('globalThemeToggleLabel');
+        const toggleIcon = toggleBtn?.querySelector('i');
+
+        function syncToggleLabel() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (toggleLabel) {
+                toggleLabel.textContent = isDark ? 'Light mode' : 'Dark mode';
+            }
+            if (toggleIcon) {
+                toggleIcon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            }
+        }
+
+        toggleBtn?.addEventListener('click', function () {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem(key, next);
+            syncToggleLabel();
+        });
+
+        syncToggleLabel();
+    })();
 </script>
 
 

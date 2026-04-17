@@ -32,6 +32,7 @@ urlpatterns = [
     # Organization management
     path('organization/criar', organization_views.criar_organizacao, name='criar_organizacao'),
     path('organization/membros', organization_views.listar_membros, name='listar_membros'),
+    path('organization/usuarios/criar', organization_views.criar_usuario_organizacao, name='criar_usuario_organizacao'),
     path('organization/membros/<int:user_id>/role', organization_views.alterar_role_membro, name='alterar_role_membro'),
     path('organization/membros/<int:user_id>/remover', organization_views.remover_membro, name='remover_membro'),
     path('organization/codigo-novo', organization_views.gerar_novo_codigo, name='gerar_novo_codigo'),

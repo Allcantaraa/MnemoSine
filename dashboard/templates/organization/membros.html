@@ -11,61 +11,79 @@
             </div>
             <div class="code-badge">
                 <span class="code-label">Código de Convite</span>
-                <span class="code-value">{{ organization.code }}</span>
-                <button class="copy-btn" onclick="copyToClipboard('{{ organization.code }}')">Copiar</button>
+                <span class="code-value" id="inviteCode">{{ organization.code }}</span>
+                <button type="button" class="copy-btn" onclick="copyInviteCode()">Copiar</button>
             </div>
         </div>
 
         <div class="action-bar">
             {% if request.user|has_org_role:organization %}
-                <div class="admin-actions">
-                    <a href="{% url 'gerar_novo_codigo' %}" class="btn-generate">Gerar Novo Código</a>
-                    {% if organization.created_by == request.user %}
-                        <a href="{% url 'deletar_organizacao' %}" class="btn-delete-org">Deletar Organização</a>
-                    {% endif %}
-                </div>
+                <button type="button" class="btn-create-user" onclick="openCreateUserModal()">Criar Usuário</button>
+                <button type="button" class="btn-generate" onclick="openSimpleModal('generateCodeModal')">Gerar Novo Código</button>
+                {% if organization.created_by == request.user %}
+                    <button type="button" class="btn-delete-org" onclick="openSimpleModal('deleteOrgModal')">Deletar Organização</button>
+                {% endif %}
             {% endif %}
-            <div class="user-actions">
-                <a href="{% url 'sair_organizacao' %}" class="btn-leave">Sair da Organização</a>
-            </div>
+            <button type="button" class="btn-leave" onclick="openSimpleModal('leaveOrgModal')">Sair da Organização</button>
         </div>
 
         {% if membros %}
-            <div class="members-list">
-                {% for membro in membros %}
-                    <div class="member-item">
-                        <div class="member-info">
-                            <h3>{{ membro.user.get_full_name|default:membro.user.username }}</h3>
-                            <p class="member-email">{{ membro.user.email }}</p>
-                            <span class="role-badge" data-role="{{ membro.role }}">
-                                {{ membro.get_role_display }}
-                            </span>
-                            <p class="joined-date">Entrou em: {{ membro.joined_at|date:"d/m/Y H:i" }}</p>
-                        </div>
-
-                        {% if request.user|has_org_role:organization and membro.user != request.user %}
-                            <div class="member-actions">
-                                <form method="POST" action="{% url 'alterar_role_membro' membro.user.id %}" class="role-form">
-                                    {% csrf_token %}
-                                    <select name="role" class="role-select">
-                                        <option value="admin" {% if membro.role == "admin" %}selected{% endif %}>Admin</option>
-                                        <option value="member" {% if membro.role == "member" %}selected{% endif %}>Member</option>
-                                        <option value="viewer" {% if membro.role == "viewer" %}selected{% endif %}>Viewer</option>
-                                    </select>
-                                    <button type="submit" class="btn-update">Atualizar</button>
-                                </form>
-
-                                <a href="{% url 'remover_membro' membro.user.id %}" class="btn-remove">Remover</a>
-                            </div>
-                        {% elif membro.user != request.user %}
-                            <div class="member-actions member-view-only">
-                                <select disabled class="role-select role-select-disabled">
-                                    <option value="{{ membro.role }}" selected>{{ membro.get_role_display }}</option>
-                                </select>
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+            <div class="table-wrap">
+                <table class="members-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Perfil</th>
+                            <th>Entrou em</th>
+                            <th>Último login</th>
+                            <th class="align-right">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membro in membros %}
+                            <tr>
+                                <td>{{ membro.user.get_full_name|default:membro.user.username }}</td>
+                                <td>{{ membro.user.email|default:"-" }}</td>
+                                <td>
+                                    <span class="role-badge" data-role="{{ membro.role }}">{{ membro.get_role_display }}</span>
+                                </td>
+                                <td>{{ membro.joined_at|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    {% if membro.user.last_login %}
+                                        {{ membro.user.last_login|date:"d/m/Y H:i" }}
+                                    {% else %}
+                                        <span class="action-disabled">Nunca</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-right">
+                                    {% if request.user|has_org_role:organization and membro.user != request.user %}
+                                        <div class="member-actions">
+                                            <form method="POST" action="{% url 'alterar_role_membro' membro.user.id %}" class="role-form">
+                                                {% csrf_token %}
+                                                <select name="role" class="role-select">
+                                                    <option value="admin" {% if membro.role == "admin" %}selected{% endif %}>Admin</option>
+                                                    <option value="member" {% if membro.role == "member" %}selected{% endif %}>Member</option>
+                                                    <option value="viewer" {% if membro.role == "viewer" %}selected{% endif %}>Viewer</option>
+                                                </select>
+                                                <button type="submit" class="btn-update">Salvar</button>
+                                            </form>
+                                            <button
+                                                type="button"
+                                                class="btn-remove"
+                                                onclick="openRemoveMemberModal('{% url 'remover_membro' membro.user.id %}', '{{ membro.user.get_full_name|default:membro.user.username|escapejs }}')"
+                                            >
+                                                Remover
+                                            </button>
+                                        </div>
+                                    {% else %}
+                                        <span class="action-disabled">Sem ação</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         {% else %}
             <p class="empty-message">Nenhum membro encontrado.</p>
@@ -73,343 +91,381 @@
     </div>
 </div>
 
+{% if request.user|has_org_role:organization %}
+    <div id="createUserModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="createUserTitle">
+            <div class="modal-head">
+                <h2 id="createUserTitle">Criar usuário</h2>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCreateUserModal()" aria-label="Fechar modal">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                        <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </button>
+            </div>
+            <form method="POST" action="{% url 'criar_usuario_organizacao' %}" class="modal-form">
+                {% csrf_token %}
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Usuário</span>
+                        <input class="token-input" type="text" name="username" maxlength="150" required>
+                    </label>
+                    <label class="field">
+                        <span>E-mail</span>
+                        <input class="token-input" type="email" name="email" required>
+                    </label>
+                    <label class="field">
+                        <span>Senha</span>
+                        <input class="token-input" type="password" name="password1" required>
+                    </label>
+                    <label class="field">
+                        <span>Confirmar senha</span>
+                        <input class="token-input" type="password" name="password2" required>
+                    </label>
+                    <label class="field field-full">
+                        <span>Perfil na organização</span>
+                        <select class="token-input" name="role">
+                            <option value="member" selected>Member</option>
+                            <option value="viewer">Viewer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCreateUserModal()">Cancelar</button>
+                    <button type="submit" class="modal-btn modal-btn-submit">Criar usuário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+{% if request.user|has_org_role:organization %}
+    <div id="generateCodeModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <div class="modal-head">
+                <h2>Gerar novo código</h2>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('generateCodeModal')" aria-label="Fechar modal">X</button>
+            </div>
+            <p class="modal-message">Um novo código de convite será criado e o anterior deixará de funcionar.</p>
+            <form method="POST" action="{% url 'gerar_novo_codigo' %}" class="modal-actions">
+                {% csrf_token %}
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('generateCodeModal')">Cancelar</button>
+                <button type="submit" class="modal-btn modal-btn-submit">Gerar código</button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+<div id="leaveOrgModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true">
+        <div class="modal-head">
+            <h2>Sair da organização</h2>
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('leaveOrgModal')" aria-label="Fechar modal">X</button>
+        </div>
+        <p class="modal-message">Você perderá acesso aos dados desta organização até entrar novamente.</p>
+        <form method="POST" action="{% url 'sair_organizacao' %}" class="modal-actions">
+            {% csrf_token %}
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('leaveOrgModal')">Cancelar</button>
+            <button type="submit" class="modal-btn modal-btn-submit">Sair</button>
+        </form>
+    </div>
+</div>
+
+{% if organization.created_by == request.user %}
+    <div id="deleteOrgModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <div class="modal-head">
+                <h2>Deletar organização</h2>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('deleteOrgModal')" aria-label="Fechar modal">X</button>
+            </div>
+            <p class="modal-message">Esta ação é irreversível e removerá todos os membros e dados vinculados.</p>
+            <form method="POST" action="{% url 'deletar_organizacao' %}" class="modal-actions">
+                {% csrf_token %}
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('deleteOrgModal')">Cancelar</button>
+                <button type="submit" class="modal-btn modal-btn-submit modal-btn-danger">Deletar</button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
+{% if request.user|has_org_role:organization %}
+    <div id="removeMemberModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <div class="modal-head">
+                <h2>Remover membro</h2>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('removeMemberModal')" aria-label="Fechar modal">X</button>
+            </div>
+            <p class="modal-message">
+                O usuário <strong id="removeMemberName">-</strong> será removido da organização.
+            </p>
+            <form id="removeMemberForm" method="POST" action="" class="modal-actions">
+                {% csrf_token %}
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('removeMemberModal')">Cancelar</button>
+                <button type="submit" class="modal-btn modal-btn-submit modal-btn-danger">Remover</button>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
 <style>
     .org-container {
         display: flex;
         justify-content: center;
-        padding: 2rem;
     }
-
     .org-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        max-width: 900px;
         width: 100%;
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
     }
-
     .org-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
-        margin-bottom: 2rem;
-        gap: 2rem;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
-
-    .org-header h1 {
-        color: #2c3e50;
-        margin-bottom: 0.5rem;
-    }
-
-    .subtitle {
-        color: #7f8c8d;
-        font-size: 0.95rem;
-    }
-
+    .org-header h1 { color: #2c3e50; margin-bottom: 0.3rem; }
+    .subtitle { color: #6c757d; }
     .code-badge {
-        background-color: #f0f0f0;
-        border: 1px solid #e0e0e0;
-        border-radius: 8px;
-        padding: 1rem;
+        min-width: 240px;
+        border: 1px solid #e9ecef;
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 0.8rem;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.5rem;
-        min-width: 250px;
+        gap: 0.4rem;
     }
-
-    .code-label {
-        font-size: 0.85rem;
-        color: #7f8c8d;
-        font-weight: 500;
-    }
-
-    .code-value {
-        font-family: 'Courier New', monospace;
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #3498db;
-        letter-spacing: 2px;
-    }
-
+    .code-label { font-size: 0.8rem; color: #6c757d; }
+    .code-value { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: 1px; color: #2c3e50; }
     .copy-btn {
-        background-color: #3498db;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.85rem;
-        transition: background-color 0.3s;
-    }
-
-    .copy-btn:hover {
-        background-color: #2980b9;
-    }
-
-    .btn-generate {
-        display: inline-block;
-        background-color: #9b59b6;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .btn-generate:hover {
-        background-color: #8e44ad;
-    }
-
-    .admin-actions {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-    }
-
-    .user-actions {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e0e0e0;
-    }
-
-    .btn-delete-org {
-        display: inline-block;
-        background-color: #c92a2a;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .btn-delete-org:hover {
-        background-color: #a01c1c;
-    }
-
-    .btn-leave {
-        display: inline-block;
-        background-color: #dc3545;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 4px;
-        text-decoration: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .btn-leave:hover {
-        background-color: #c82333;
-    }
-
-    .action-bar {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #e0e0e0;
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .member-view-only {
-        display: flex;
-        align-items: center;
-    }
-
-    .role-select-disabled {
-        cursor: not-allowed;
-        background-color: #f5f5f5;
-        color: #6c757d;
-    }
-
-    .role-select-disabled:hover {
-        border-color: #bdc3c7;
-        background-color: #f5f5f5;
-    }
-
-    .members-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .member-item {
-        border: 1px solid #e0e0e0;
-        padding: 1.5rem;
-        border-radius: 6px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: #fafafa;
-    }
-
-    .member-info h3 {
-        margin: 0 0 0.25rem 0;
+        border: 1px solid #dee2e6;
+        background: white;
         color: #2c3e50;
+        padding: 0.45rem 0.7rem;
+        border-radius: 10px;
+        cursor: pointer;
     }
-
-    .member-email {
-        margin: 0.25rem 0;
-        color: #7f8c8d;
-        font-size: 0.9rem;
-    }
-
-    .role-badge {
-        display: inline-block;
-        padding: 0.4rem 0.8rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        margin: 0.5rem 0;
-        color: white;
-        font-weight: 500;
-    }
-
-    .role-badge[data-role="admin"] {
-        background-color: #e74c3c;
-    }
-
-    .role-badge[data-role="member"] {
-        background-color: #3498db;
-    }
-
-    .role-badge[data-role="viewer"] {
-        background-color: #95a5a6;
-    }
-
-    .joined-date {
-        margin: 0.5rem 0 0 0;
-        font-size: 0.85rem;
-        color: #95a5a6;
-    }
-
-    .member-actions {
+    .copy-btn:hover { background: #f1f3f5; }
+    .action-bar {
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e9ecef;
         display: flex;
         gap: 0.75rem;
+        flex-wrap: wrap;
         align-items: center;
     }
-
-    .role-form {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-    }
-
-    .role-select {
-        padding: 0.6rem 0.75rem;
-        border: 1px solid #c92a2a;
-        border-radius: 6px;
-        background-color: white;
+    .btn-create-user,
+    .btn-generate,
+    .btn-delete-org,
+    .btn-leave {
+        border: 1px solid transparent;
+        border-radius: 8px;
+        padding: 0.6rem 0.95rem;
         font-size: 0.9rem;
-        color: #2c3e50;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .role-select:hover {
-        border-color: #a01c1c;
-        background-color: #fff9f9;
-    }
-
-    .role-select:focus {
-        outline: none;
-        border-color: #c92a2a;
-        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
-    }
-
-    .btn-update {
-        background-color: #27ae60;
-        color: white;
-        padding: 0.6rem 1.2rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .btn-update:hover {
-        background-color: #229954;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(34, 153, 84, 0.3);
-    }
-
-    .btn-remove {
-        background-color: #e74c3c;
-        color: white;
-        padding: 0.6rem 1.2rem;
-        border-radius: 6px;
+        font-weight: 600;
         text-decoration: none;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+    .btn-create-user { background: #2b8a3e; color: white; }
+    .btn-create-user:hover { background: #237032; }
+    .btn-generate { background: #1f6feb; color: white; }
+    .btn-generate:hover { background: #1a5fd0; }
+    .btn-delete-org { background: #fff5f5; color: #c92a2a; border-color: #ffc9c9; }
+    .btn-delete-org:hover { background: #ffe3e3; }
+    .btn-leave { margin-left: auto; background: #f8f9fa; color: #495057; border-color: #dee2e6; }
+    .btn-leave:hover { background: #e9ecef; }
+    .table-wrap {
+        overflow-x: auto;
+        border: 1px solid #e9ecef;
+        border-radius: 10px;
+        background: white;
+    }
+    .members-table { width: 100%; min-width: 980px; border-collapse: collapse; }
+    .members-table thead th {
+        text-align: left;
+        padding: 0.78rem;
+        color: #6c757d;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .members-table td {
+        padding: 0.78rem;
+        border-bottom: 1px solid #f1f3f5;
+        color: #2c3e50;
+        vertical-align: middle;
+    }
+    .members-table tbody tr:hover { background: #fafafa; }
+    .align-right { text-align: right !important; }
+    .role-badge {
         display: inline-block;
-        transition: all 0.3s ease;
-        font-size: 0.9rem;
-        font-weight: 500;
-        border: none;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.78rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    .role-badge[data-role="admin"] { background: #fff5f5; color: #c92a2a; border: 1px solid #ffc9c9; }
+    .role-badge[data-role="member"] { background: #ebfbee; color: #2b8a3e; border: 1px solid #b2f2bb; }
+    .role-badge[data-role="viewer"] { background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6; }
+    .member-actions { display: flex; justify-content: flex-end; gap: 0.35rem; align-items: center; background: transparent; border: none; box-shadow: none; padding: 0; }
+    .role-form { display: flex; gap: 0.35rem; align-items: center; margin: 0; padding: 0; border: none; background: transparent; box-shadow: none; }
+    .role-select {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 0.38rem 0.5rem;
+        background: transparent;
+        color: #2c3e50;
+        min-width: 104px;
+    }
+    .role-select:focus { outline: none; border-color: #1f6feb; box-shadow: 0 0 0 2px rgba(31,111,235,0.12); }
+    .btn-update {
+        border: 1px solid #e2e8f0;
+        background: transparent;
+        color: #475569;
+        border-radius: 6px;
+        padding: 0.38rem 0.58rem;
+        cursor: pointer;
+        line-height: 1;
+    }
+    .btn-update:hover { background: #f8fafc; color: #1e293b; }
+    .btn-remove {
+        border: 1px solid #ffc9c9;
+        background: transparent;
+        color: #c92a2a;
+        border-radius: 6px;
+        padding: 0.38rem 0.58rem;
+        text-decoration: none;
         cursor: pointer;
     }
-
-    .btn-remove:hover {
-        background-color: #c0392b;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 6px rgba(192, 57, 43, 0.3);
+    .btn-remove:hover { background: #fff5f5; }
+    .action-disabled { color: #adb5bd; }
+    .empty-message { padding: 1.5rem; text-align: center; color: #6c757d; }
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 999;
+        padding: 1rem;
     }
-
-    .empty-message {
-        text-align: center;
-        color: #7f8c8d;
-        padding: 2rem;
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+        width: min(640px, 100%);
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        background: #ffffff;
+        color: #111827;
+        box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+        padding: 1rem;
     }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; }
+    .modal-form { display: flex; flex-direction: column; gap: 0.9rem; }
+    .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; color: #6b7280; font-size: 0.86rem; }
+    .field-full { grid-column: span 2; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .modal-message { color: #4b5563; margin-bottom: 0.85rem; line-height: 1.45; }
+    .token-input {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #111827;
+        padding: 0.5rem 0.65rem;
+        min-height: 36px;
+    }
+    .token-input:focus {
+        outline: none;
+        border-color: #9ca3af;
+        box-shadow: 0 0 0 2px rgba(17,24,39,0.08);
+    }
+    .modal-btn {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 0.52rem 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .modal-btn-cancel { background: #ffffff; color: #374151; }
+    .modal-btn-submit { background: #111827; color: #ffffff; border-color: #111827; }
+    .modal-btn-danger { background: #b91c1c; border-color: #b91c1c; }
 
-    @media (max-width: 768px) {
-        .org-header {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .code-badge {
-            width: 100%;
-            min-width: auto;
-        }
-
-        .member-item {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .member-actions {
-            width: 100%;
-            margin-top: 1rem;
-        }
-
-        .role-form {
-            width: 100%;
-            flex-wrap: wrap;
-        }
-
-        .role-select, .btn-update, .btn-remove {
-            flex: 1;
-            min-width: 100px;
-        }
+    @media (max-width: 920px) {
+        .org-header { flex-direction: column; }
+        .code-badge { width: 100%; align-items: flex-start; }
+        .btn-leave { margin-left: 0; }
+        .field-grid { grid-template-columns: 1fr; }
+        .field-full { grid-column: span 1; }
+        .member-actions { justify-content: flex-start; }
     }
 </style>
 
 <script>
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Código copiado para a área de transferência!');
-        });
+    function copyInviteCode() {
+        const codeElement = document.getElementById('inviteCode');
+        if (!codeElement) return;
+        navigator.clipboard.writeText(codeElement.textContent.trim());
     }
+
+    function openCreateUserModal() {
+        const modal = document.getElementById('createUserModal');
+        if (!modal) return;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeCreateUserModal() {
+        const modal = document.getElementById('createUserModal');
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openSimpleModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeSimpleModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openRemoveMemberModal(actionUrl, memberName) {
+        const modal = document.getElementById('removeMemberModal');
+        const form = document.getElementById('removeMemberForm');
+        const name = document.getElementById('removeMemberName');
+        if (!modal || !form || !name) return;
+        form.action = actionUrl;
+        name.textContent = memberName;
+        openSimpleModal('removeMemberModal');
+    }
+
+    document.getElementById('createUserModal')?.addEventListener('click', function (event) {
+        if (event.target.id === 'createUserModal') {
+            closeCreateUserModal();
+        }
+    });
+
+    ['generateCodeModal', 'leaveOrgModal', 'deleteOrgModal', 'removeMemberModal'].forEach(function (id) {
+        document.getElementById(id)?.addEventListener('click', function (event) {
+            if (event.target.id === id) {
+                closeSimpleModal(id);
+            }
+        });
+    });
 </script>
 {% endblock content %}
 

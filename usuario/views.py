@@ -26,22 +26,8 @@ def logout(request) :
     return redirect('login')
 
 def cadastro(request) :
-    form = CadastroForm()
-
-    if request.method == 'POST' :
-        form = CadastroForm(request.POST)
-
-        if form.is_valid() :
-            user = form.save()
-            profile_image = form.cleaned_data.get('profile_image')
-            Perfil.objects.update_or_create(
-                user=user,
-                defaults={'profile_image': profile_image}
-            )
-            messages.success(request, 'Usuário criado com sucesso')
-            return redirect('login')
-
-    return render(request, 'cadastro.html', {'form': form})
+    messages.info(request, 'O cadastro direto foi desativado. Solicite a criação de usuário ao administrador.')
+    return redirect('login')
 
 @login_required()
 def perfil(request):

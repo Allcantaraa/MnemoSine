@@ -212,3 +212,31 @@
   color: rgb(34 197 94);
   border: 1px rgb(34 197 94) solid;
 }
+
+/* Global dark theme support for card-based UI blocks */
+[data-theme="dark"] .card,
+[data-theme="dark"] .card-category,
+[data-theme="dark"] .org-card,
+[data-theme="dark"] .kpi-card,
+[data-theme="dark"] .client-card,
+[data-theme="dark"] .dashboard-card,
+[data-theme="dark"] .stat-card {
+  background-color: #111827 !important;
+  color: #e5e7eb !important;
+  border: 1px solid #1f2937 !important;
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.12),
+    0 0 24px rgba(56, 189, 248, 0.08) !important;
+}
+
+[data-theme="dark"] .title,
+[data-theme="dark"] .subtitle,
+[data-theme="dark"] .info,
+[data-theme="dark"] .tag {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .footer {
+  background-color: rgba(30, 41, 59, 0.55) !important;
+  border-color: #1f2937 !important;
+}

@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.urls import reverse
 from .models import Organization, OrganizationMember
 from .decorators import organization_admin_required, organization_required
+from .forms import OrganizationUserCreateForm
 
 
 @login_required
@@ -248,3 +250,33 @@ def deletar_organizacao(request):
     return render(request, 'organization/deletar.html', {
         'organization': org
     })
+
+
+@login_required
+@organization_admin_required
+def criar_usuario_organizacao(request):
+    """Cria um novo usuário e já adiciona na organização ativa."""
+    org = request.organization
+
+    if request.method != 'POST':
+        return redirect('listar_membros')
+
+    form = OrganizationUserCreateForm(request.POST)
+    if form.is_valid():
+        user = User.objects.create_user(
+            username=form.cleaned_data['username'],
+            email=form.cleaned_data['email'],
+            password=form.cleaned_data['password1'],
+        )
+        OrganizationMember.objects.create(
+            organization=org,
+            user=user,
+            role=form.cleaned_data['role']
+        )
+        messages.success(request, f'Usuário "{user.username}" criado e vinculado à organização com sucesso.')
+        return redirect('listar_membros')
+
+    for field_errors in form.errors.values():
+        for error in field_errors:
+            messages.error(request, error)
+    return redirect('listar_membros')
