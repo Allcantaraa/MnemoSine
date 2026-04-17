@@ -44,8 +44,8 @@ class CategoriaAdmin(admin.ModelAdmin):
 class DashboardAdmin(admin.ModelAdmin):
     list_display = ('title', 'organization', 'client', 'get_categories', 'created_at')
     list_display_links = ('title',)
-    list_filter = ('organization', 'client', 'categories', 'analytical_or_macro')
-    search_fields = ('title', 'purpose', 'kpis_displayed', 'data_source')
+    list_filter = ('organization', 'client', 'categories')
+    search_fields = ('title',)
     ordering = ('-created_at',)
     list_per_page = 20
     prepopulated_fields = {

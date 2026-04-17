@@ -66,7 +66,11 @@ class Cliente(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug:
+        if self.pk:
+            original = type(self).objects.filter(pk=self.pk).only('name', 'slug').first()
+            if original and original.name != self.name:
+                self.slug = new_slugify(self.name)
+        elif not self.slug:
             self.slug = new_slugify(self.name)
         return super().save(*args, **kwargs)
 
@@ -94,15 +98,6 @@ class Categoria(models.Model):
         return self.name
 
 class Dashboard(models.Model):
-    class PublicoAlvo(models.TextChoices):
-        GESTORES = 'ges', 'Gestores'
-        TECNICOS = 'tec', 'Tecnicos'
-        OUTROS = 'out', 'Outros'
-
-    class AnaliticoOuMacro(models.TextChoices):
-        ANALITICO = 'an', 'Analitico'
-        Macro = 'ma', 'Macro'
-
     class Meta:
         verbose_name = 'Dashboard'
         verbose_name_plural = 'Dashboards'
@@ -111,14 +106,6 @@ class Dashboard(models.Model):
     client = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=255, blank=False, null=False)
     categories = models.ManyToManyField(Categoria, related_name='dashboards', blank=True)
-    purpose = models.CharField(max_length=255, blank=True, null=True)
-    target_audience = models.CharField(max_length=3, choices=PublicoAlvo.choices, default=PublicoAlvo.OUTROS)
-    kpis_displayed = models.CharField(max_length=255, blank=True, null=True)
-    analytical_or_macro = models.CharField(max_length=2, choices=AnaliticoOuMacro.choices, default=AnaliticoOuMacro.Macro)
-    data_source = models.CharField(max_length=111, blank=False, null=False)
-    panel_preference = models.CharField(max_length=255, blank=True, null=True)
-    color_preference = models.CharField(max_length=60, blank=True, null=True)
-    screen_resolution = models.CharField(max_length=60, blank=True, null=True)
     image = models.ImageField(upload_to='dashboards/images/%Y/%m/', blank=False, null=False)
     json = models.FileField(upload_to='dashboards/json/%Y/%m/', blank=False, null=False)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='dashboards_created')
