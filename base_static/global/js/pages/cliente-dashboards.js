@@ -1,4 +1,5 @@
-function openCategoryModal(actionUrl) {
+// Global Modal Management Functions
+function openCategoryModal() {
     const modal = document.getElementById('categoryModal');
     const title = document.getElementById('categoryModalTitle');
     const form = document.getElementById('categoryForm');
@@ -10,8 +11,18 @@ function openCategoryModal(actionUrl) {
     btn.innerText = 'Criar';
     input.value = '';
     
-    // Usa a URL gerada pelo Django diretamente
-    form.action = actionUrl;
+    const pathParts = window.location.pathname.split('/').filter(p => p !== '');
+    // URL patterns: /clientes/SLUG/ ou /dashboard/clientes/SLUG/
+    // Se parts: ["clientes", "slug"] -> index 1
+    // Se parts: ["dashboard", "clientes", "slug"] -> index 2
+    const clientSlug = pathParts[0] === 'dashboard' ? pathParts[2] : pathParts[1];
+    
+    if (!clientSlug) {
+        console.error("Não foi possível identificar o slug do cliente a partir da URL:", window.location.pathname);
+        return;
+    }
+    
+    form.action = `/dashboard/categoria/${clientSlug}/criar/`;
     
     modal.classList.add('active');
 }
@@ -20,7 +31,7 @@ function closeCategoryModal() {
     document.getElementById('categoryModal')?.classList.remove('active');
 }
 
-function openEditCategoryModal(actionUrl, name) {
+function openEditCategoryModal(slug, name) {
     const modal = document.getElementById('categoryModal');
     const title = document.getElementById('categoryModalTitle');
     const form = document.getElementById('categoryForm');
@@ -32,22 +43,23 @@ function openEditCategoryModal(actionUrl, name) {
     btn.innerText = 'Atualizar';
     input.value = name;
     
-    // Usa a URL gerada pelo Django diretamente
-    form.action = actionUrl;
+    const pathParts = window.location.pathname.split('/').filter(p => p !== '');
+    const clientSlug = pathParts[0] === 'dashboard' ? pathParts[2] : pathParts[1];
+    form.action = `/dashboard/categoria/${clientSlug}/atualizar/${slug}/`;
     
     modal.classList.add('active');
 }
 
-function openDeleteCategoryModal(actionUrl, name) {
+function openDeleteCategoryModal(slug, name) {
     const modal = document.getElementById('deleteCategoryModal');
     const nameSpan = document.getElementById('deleteCategoryName');
     const form = document.getElementById('deleteCategoryForm');
     if (!modal || !nameSpan || !form) return;
 
     nameSpan.innerText = name;
-    
-    // Usa a URL gerada pelo Django diretamente
-    form.action = actionUrl;
+    const pathParts = window.location.pathname.split('/').filter(p => p !== '');
+    const clientSlug = pathParts[0] === 'dashboard' ? pathParts[2] : pathParts[1];
+    form.action = `/dashboard/categoria/${clientSlug}/deletar/${slug}/`;
     
     modal.classList.add('active');
 }

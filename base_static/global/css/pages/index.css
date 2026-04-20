@@ -668,39 +668,35 @@
 /* --- MODAL DE APAGAR CLIENTE (INDEX) --- */
 
 .image-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    z-index: 9999;
-    transition: all 0.3s ease;
-}
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(4px);
+    }
 
-.image-modal.active {
-    opacity: 1;
-    visibility: visible;
-}
+    .image-modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
 .modal-content {
-    position: relative;
-    background-color: var(--app-surface);
-    border: 1px solid var(--app-border);
-    border-radius: 12px;
-    padding: 2rem;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: var(--app-shadow, 0 10px 25px rgba(0, 0, 0, 0.2));
-    transform: translateY(20px) scale(0.95);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+        background: var(--app-surface);
+        padding: 2.5rem;
+        border-radius: 16px;
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        border: 1px solid var(--app-border);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+    }
 
 .image-modal.active .modal-content {
     transform: translateY(0) scale(1);
