@@ -43,9 +43,19 @@ def alterar_role_membro(request, user_id):
             messages.error(request, 'Role inválido.')
             return redirect('listar_membros')
 
-        membership.role = new_role
-        membership.save()
-        messages.success(request, f'Role do membro alterado para "{membership.get_role_display()}".')
+        # Se a organização for uma das permitidas (Principal/Modelos), atualizar em ambas
+        if org.name in [Organization.PRINCIPAL, Organization.MODELOS]:
+            allowed_orgs = Organization.objects.filter(name__in=[Organization.PRINCIPAL, Organization.MODELOS])
+            OrganizationMember.objects.filter(
+                user_id=user_id, 
+                organization__in=allowed_orgs
+            ).update(role=new_role)
+            messages.success(request, f'Role do membro alterado para "{new_role}" nas organizações permitidas.')
+        else:
+            membership.role = new_role
+            membership.save()
+            messages.success(request, f'Role do membro alterado para "{membership.get_role_display()}".')
+            
         return redirect('listar_membros')
 
     return render(request, 'organization/alterar_role.html', {
@@ -71,8 +81,19 @@ def remover_membro(request, user_id):
 
     if request.method == 'POST':
         user_name = membership.user.username
-        membership.delete()
-        messages.success(request, f'Membro "{user_name}" removido da organização.')
+        
+        # Se a organização for uma das permitidas, remover de ambas
+        if org.name in [Organization.PRINCIPAL, Organization.MODELOS]:
+            allowed_orgs = Organization.objects.filter(name__in=[Organization.PRINCIPAL, Organization.MODELOS])
+            OrganizationMember.objects.filter(
+                user_id=user_id, 
+                organization__in=allowed_orgs
+            ).delete()
+            messages.success(request, f'Membro "{user_name}" removido das organizações permitidas.')
+        else:
+            membership.delete()
+            messages.success(request, f'Membro "{user_name}" removido da organização.')
+            
         return redirect('listar_membros')
 
     return render(request, 'organization/remover_membro.html', {
@@ -127,12 +148,18 @@ def criar_usuario_organizacao(request):
             email=form.cleaned_data['email'],
             password=form.cleaned_data['password1'],
         )
-        OrganizationMember.objects.create(
-            organization=org,
-            user=user,
-            role=form.cleaned_data['role']
-        )
-        messages.success(request, f'Usuário "{user.username}" criado e vinculado à organização com sucesso.')
+        
+        # Vincular o usuário a AMBAS as organizações permitidas (Principal e Modelos)
+        allowed_orgs = Organization.objects.filter(name__in=[Organization.PRINCIPAL, Organization.MODELOS])
+        
+        for organization in allowed_orgs:
+            OrganizationMember.objects.get_or_create(
+                organization=organization,
+                user=user,
+                defaults={'role': form.cleaned_data['role']}
+            )
+            
+        messages.success(request, f'Usuário "{user.username}" criado e vinculado às organizações permitidas com sucesso.')
         return redirect('listar_membros')
 
     for field_errors in form.errors.values():
