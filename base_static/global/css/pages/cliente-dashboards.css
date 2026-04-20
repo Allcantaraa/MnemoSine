@@ -906,3 +906,188 @@
     display: block;
 }
     }
+
+/* --- ESTILO DAS CATEGORIAS (CHIPS) --- */
+
+.category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+/* O container que abraça o chip e as ações */
+.chip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 20px;
+    overflow: hidden;
+    /* Fundo base da tag - ajuste para a variável de cor do seu tema */
+    background: var(--app-bg-secondary, #1e293b); 
+    border: 1px solid var(--app-border, #334155);
+    transition: all 0.3s ease;
+}
+
+/* O link principal do chip */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    color: var(--app-text, #f8fafc);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1;
+}
+
+/* Container de botões (Oculto por padrão) */
+.chip-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    /* Padding com espaço na esquerda para o gradiente respirar */
+    padding: 0 0.5rem 0 1.5rem; 
+    z-index: 2;
+    
+    /* Degradê para não cortar o texto do chip de forma dura */
+    background: linear-gradient(90deg, rgba(30,41,59,0) 0%, rgba(30,41,59,0.9) 30%, rgba(30,41,59,1) 100%);
+    backdrop-filter: blur(2px);
+    
+    /* Estado inicial: invisível e levemente deslocado para a direita */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- GATILHOS DE HOVER --- */
+
+/* Revela as ações ao passar o mouse */
+.chip-wrapper:hover .chip-actions {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* Aumenta o padding direito do texto no hover para ele não ficar espremido sob os botões */
+.chip-wrapper:hover .chip {
+    padding-right: 4.5rem; 
+}
+
+/* --- ESTILIZAÇÃO DOS BOTÕES DE AÇÃO --- */
+
+.btn-chip-edit,
+.btn-chip-delete {
+    background: transparent;
+    border: none;
+    color: #94a3b8; /* Cor de ícone inativo padrão */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px; /* Borda mais tech/séria */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover de Edição - Azul translúcido */
+.btn-chip-edit:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+/* Hover de Exclusão - Vermelho translúcido */
+.btn-chip-delete:hover {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+/* Ajuste visual para o chip ativo (Opcional, se você tiver a classe .active no JS) */
+.chip.active {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* --- ADAPTAÇÃO DAS AÇÕES DOS CHIPS (MODO LIGHT/DARK) --- */
+.chip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 9999px; /* Mantém o seu padrão de pílula para o limite do container */
+    overflow: hidden;
+}
+
+/* Expande o espaço interno do seu chip no hover para o texto não ficar sob os botões */
+.chip-wrapper:hover .chip {
+    padding-right: 4.5rem;
+}
+
+/* Container de botões (Oculto por padrão) */
+.chip-actions {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0 0.8rem 0 1rem;
+    
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Efeito glassmorphism: adapta-se magicamente ao fundo dark ou light */
+    backdrop-filter: blur(4px);
+    background: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .chip-actions {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.chip-wrapper:hover .chip-actions {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* Botões de Ação */
+.btn-chip-edit,
+.btn-chip-delete {
+    background: transparent;
+    border: none;
+    color: var(--app-muted); /* Utiliza a sua variável nativa */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-chip-edit:hover {
+    background-color: rgba(59, 130, 246, 0.15);
+    color: #3b82f6; /* Azul corporativo para edição */
+}
+
+.btn-chip-delete:hover {
+    background-color: rgba(201, 42, 42, 0.15);
+    color: #c92a2a; /* Vermelho do seu padrão para exclusão */
+}
+
+[data-theme="dark"] .btn-chip-delete:hover {
+    color: #ff6b6b; /* Vermelho mais claro para contraste no escuro */
+}

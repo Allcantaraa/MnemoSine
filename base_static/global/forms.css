@@ -93,3 +93,27 @@ label {
   font-weight: 800;
   margin: 0 0 2rem 0;
 }
+
+
+.move-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* Botões do Modal */
+.move-form-actions .btn-primary {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.move-form-actions .btn-primary:hover {
+    filter: brightness(0.9);
+}
