@@ -1,0 +1,29 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/org-selecionar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="org-select-page">
+    <h1>Selecionar organização</h1>
+    <p class="lead">Escolha qual organização deseja usar agora.</p>
+    {% if memberships %}
+        <ul class="org-select-list">
+            {% for m in memberships %}
+                <li class="org-select-item">
+                    <form method="post" action="{% url 'selecionar_organizacao' %}">
+                        {% csrf_token %}
+                        <button type="submit" name="organization" value="{{ m.organization.id }}" class="org-select-btn">
+                            {{ m.organization.name }}
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="lead">Você ainda não participa de nenhuma organização.</p>
+    {% endif %}
+</div>
+{% endblock content %}

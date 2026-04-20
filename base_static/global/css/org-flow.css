@@ -1,0 +1,121 @@
+/* Confirmações simples: sair / deletar organização */
+.org-flow-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.org-flow-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.org-flow-card h1 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem 0;
+}
+
+.org-flow-card--danger h1 {
+    color: #c92a2a;
+}
+
+.org-flow-card:not(.org-flow-card--danger) h1 {
+    color: #2c3e50;
+}
+
+.org-flow-alert {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+.org-flow-alert--strong {
+    background: #fef2f2;
+    border: 2px solid #f9a8a8;
+}
+
+.org-flow-alert--strong p {
+    color: #dc3545;
+    margin: 0;
+    font-weight: 600;
+}
+
+.org-flow-alert--soft {
+    background: #fff5f5;
+    border: 1px solid #f9a8a8;
+}
+
+.org-flow-alert--soft p {
+    color: #dc3545;
+    margin: 0;
+}
+
+.org-flow-text {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.org-flow-text--tight {
+    margin-bottom: 1.5rem;
+}
+
+.org-flow-list {
+    color: #6c757d;
+    margin-bottom: 2rem;
+    padding-left: 1.5rem;
+}
+
+.org-flow-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.org-flow-actions .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    flex: 1;
+}
+
+.org-flow-actions .btn-org-delete {
+    background-color: #c92a2a;
+    color: white;
+    padding: 0.75rem 2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    flex: 1;
+}
+
+.org-flow-actions .btn-muted {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.org-flow-card form {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}

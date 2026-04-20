@@ -1,0 +1,135 @@
+.perfil-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.perfil-hero {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.perfil-hero-media {
+    flex-shrink: 0;
+}
+
+.perfil-avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #c92a2a;
+    box-shadow: 0 4px 16px rgba(201, 42, 42, 0.2);
+}
+
+.perfil-avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c92a2a, #a01c1c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: white;
+    border: 4px solid #c92a2a;
+    box-shadow: 0 4px 16px rgba(201, 42, 42, 0.2);
+}
+
+.perfil-hero h1 {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+}
+
+.perfil-hero .perfil-email {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.perfil-panel {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.perfil-panel h2 {
+    font-size: 1.3rem;
+    color: #2c3e50;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.perfil-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.perfil-form .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.perfil-form label {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.perfil-error-banner {
+    background: #fef2f2;
+    border: 1px solid #f9a8a8;
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.perfil-error-banner p {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.perfil-field-errors {
+    color: #dc3545;
+    font-size: 0.85rem;
+}
+
+.perfil-field-errors p {
+    margin: 0.25rem 0;
+}
+
+.perfil-submit {
+    background-color: #c92a2a;
+    color: white;
+    padding: 0.85rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.perfil-panel form {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}

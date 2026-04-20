@@ -1,35 +1,40 @@
 {% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/cliente-form.css' %}">
+{% endblock %}
 
 {% block content %}
-<div style="display: flex; justify-content: center; align-items: flex-start; padding: 2rem; min-height: calc(100vh - 300px);">
-    <div style="background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); max-width: 600px; width: 100%; border: 1px solid #e9ecef;">
+<div class="cliente-form-page">
+    <div class="cliente-form-card">
         {% if 'criar' in form_action %}
-            <h1 style="font-size: 1.8rem; color: #2c3e50; margin: 0 0 0.5rem 0;">Criar Cliente</h1>
-            <p style="color: #6c757d; margin: 0 0 2rem 0; font-size: 0.95rem;">Adicione um novo cliente ao seu portfólio</p>
+            <h1>Criar Cliente</h1>
+            <p class="lead">Adicione um novo cliente ao seu portfólio</p>
         {% else %}
-            <h1 style="font-size: 1.8rem; color: #2c3e50; margin: 0 0 0.5rem 0;">Editar Cliente</h1>
-            <p style="color: #6c757d; margin: 0 0 2rem 0; font-size: 0.95rem;">Atualize as informações do cliente</p>
+            <h1>Editar Cliente</h1>
+            <p class="lead">Atualize as informações do cliente</p>
         {% endif %}
 
-        <form action="{{ form_action }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 1.5rem;">
+        <form action="{{ form_action }}" method="POST" enctype="multipart/form-data" class="cliente-form">
             {% csrf_token %}
 
             {% if form.non_field_errors %}
-                <div style="background: #fef2f2; border: 1px solid #f9a8a8; border-radius: 8px; padding: 1rem;">
+                <div class="cliente-error-banner">
                     {% for error in form.non_field_errors %}
-                        <p style="color: #dc3545; font-size: 0.9rem; margin: 0;">{{ error }}</p>
+                        <p>{{ error }}</p>
                     {% endfor %}
                 </div>
             {% endif %}
 
             {% for field in form %}
-                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <label style="font-weight: 500; color: #2c3e50; font-size: 0.95rem;">{{ field.label }}</label>
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.errors %}
-                        <div style="color: #dc3545; font-size: 0.85rem;">
+                        <div class="cliente-field-errors">
                             {% for error in field.errors %}
-                                <p style="margin: 0.25rem 0;">{{ error }}</p>
+                                <p>{{ error }}</p>
                             {% endfor %}
                         </div>
                     {% endif %}
@@ -37,9 +42,9 @@
             {% endfor %}
 
             {% if 'criar' in form_action %}
-                <button type="submit" style="background-color: #0066cc; color: white; padding: 0.85rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; align-self: flex-start;">Criar Cliente</button>
+                <button type="submit" class="cliente-submit">Criar Cliente</button>
             {% else %}
-                <button type="submit" style="background-color: #0066cc; color: white; padding: 0.85rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: all 0.3s ease; align-self: flex-start;">Atualizar Cliente</button>
+                <button type="submit" class="cliente-submit">Atualizar Cliente</button>
             {% endif %}
         </form>
     </div>

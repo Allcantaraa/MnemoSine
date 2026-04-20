@@ -1,0 +1,129 @@
+.page-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-container h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+
+    .subtitle {
+        color: #6c757d;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .form-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+    }
+
+    .form-group .label-static {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .current-role {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+    }
+
+    .role-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: white;
+        font-weight: 600;
+    }
+
+    .role-badge[data-role="admin"] {
+        background-color: #dc3545;
+    }
+
+    .role-badge[data-role="member"] {
+        background-color: #0066cc;
+    }
+
+    .role-badge[data-role="viewer"] {
+        background-color: #6c757d;
+    }
+
+    .form-input {
+        padding: 0.85rem;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        font-size: 1rem;
+        background-color: white;
+        transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #c92a2a;
+        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-primary {
+        padding: 0.85rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        flex: 1;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 0.85rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        flex: 1;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    @media (max-width: 600px) {
+        .page-container {
+            padding: 1rem;
+        }
+
+        .page-container h1 {
+            font-size: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }

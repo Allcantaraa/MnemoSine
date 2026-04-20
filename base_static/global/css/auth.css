@@ -1,0 +1,156 @@
+/* Login / cadastro — conteúdo em tela cheia sem barra lateral */
+.auth-layout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f6f7 0%, #e9ecef 100%);
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.auth-layout--wide .auth-card {
+    max-width: 450px;
+}
+
+.auth-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    padding: 3rem;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #e9ecef;
+}
+
+.auth-logo-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.auth-logo-box {
+    background-color: #c92a2a;
+    width: 90px;
+    height: 90px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+}
+
+.auth-logo-box img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #c92a2a;
+    margin: 0 0 0.5rem 0;
+    text-align: center;
+}
+
+.auth-subtitle {
+    text-align: center;
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.auth-form .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-form label,
+.auth-field-label {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95rem;
+}
+
+.auth-error-banner {
+    background: #fef2f2;
+    border: 1px solid #f9a8a8;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.auth-error-banner p {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.auth-field-errors {
+    color: #dc3545;
+    font-size: 0.85rem;
+}
+
+.auth-field-errors p {
+    margin: 0.25rem 0;
+}
+
+.auth-submit {
+    width: 100%;
+    padding: 0.85rem;
+    background-color: #c92a2a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+}
+
+.auth-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.auth-footer p {
+    color: #6c757d;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.auth-footer a {
+    color: #c92a2a;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-help {
+    display: block;
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* Neutraliza regras globais de forms.css dentro do card */
+.auth-card form {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    gap: 1.5rem;
+}

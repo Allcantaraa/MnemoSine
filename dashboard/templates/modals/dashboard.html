@@ -1,18 +1,23 @@
 {% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/dashboard-form.css' %}">
+{% endblock %}
 
 {% block content %}
     <form method="POST" enctype="multipart/form-data" action="{{ form_action }}">
     {% csrf_token %}
-    
+
     <h3>Dados do Dashboard</h3>
     {{ form.as_p }}
 
     <hr>
     <h3>Imagens do Briefing</h3>
     {{ formset.management_form }}
-    
+
     {% for image_form in formset %}
-        <div class="image-form-row" style="border-bottom: 1px solid #ddd; margin-bottom: 1rem;">
+        <div class="image-form-row">
             {{ image_form.as_p }}
         </div>
     {% endfor %}

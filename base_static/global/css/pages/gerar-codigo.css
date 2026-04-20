@@ -1,0 +1,88 @@
+.confirmation-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 300px);
+        padding: 2rem;
+    }
+
+    .confirmation-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        max-width: 450px;
+        width: 100%;
+    }
+
+    .confirmation-card h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        color: #6c757d;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+    }
+
+    .alert-info {
+        background-color: #d1ecf1;
+        border-left: 4px solid #0066cc;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 2rem;
+    }
+
+    .alert-info p {
+        color: #004085;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .form-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        padding: 0.85rem;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        padding: 0.85rem;
+        border: none;
+        border-radius: 6px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .help-text {
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+        .confirmation-card {
+            padding: 1.5rem;
+        }
+
+        .confirmation-card h1 {
+            font-size: 1.5rem;
+        }
+    }
