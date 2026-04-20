@@ -1,0 +1,230 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% load org_tags %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/membros.css' %}">
+    <style>
+        .notif-card {
+            background-color: var(--app-bg-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--app-border);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .notif-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--app-text);
+            margin: 0;
+        }
+
+        .notif-meta {
+            font-size: 0.85rem;
+            color: var(--app-muted);
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .notif-body {
+            color: var(--app-text);
+            font-size: 0.95rem;
+        }
+
+        .notif-reason {
+            background-color: var(--app-bg-hover);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-style: italic;
+            margin-top: 0.5rem;
+            border-left: 4px solid var(--app-primary);
+        }
+
+        .notif-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .badge-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background-color: #f59e0b22; color: #d97706; border: 1px solid #d9770644; }
+        .badge-approved { background-color: #10b98122; color: #059669; border: 1px solid #05966944; }
+        .badge-rejected { background-color: #ef444422; color: #dc2626; border: 1px solid #dc262644; }
+
+        .btn-approve {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-approve:hover { background-color: #047857; }
+
+        .btn-reject {
+            background-color: transparent;
+            color: #dc2626;
+            border: 1px solid #dc2626;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .btn-reject:hover { background-color: #dc262611; }
+
+        .section-title {
+            margin: 2rem 0 1rem;
+            color: var(--app-text);
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .empty-notif {
+            text-align: center;
+            padding: 3rem;
+            background-color: var(--app-bg-card);
+            border-radius: 12px;
+            border: 2px dashed var(--app-border);
+            color: var(--app-muted);
+        }
+
+        .review-notes {
+            font-size: 0.85rem;
+            color: var(--app-muted);
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--app-border);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="page-header">
+        <div class="header-content">
+            <h1>Notificações</h1>
+            <p class="subtitle">Gerencie solicitações de exclusão da organização {{ organization.name }}</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        Solicitações Pendentes
+    </h2>
+
+    <div class="notifications-list">
+        {% for solicitacao in solicitacoes %}
+            <div class="notif-card">
+                <div class="notif-header">
+                    <div>
+                        <h3 class="notif-title">
+                            Exclusão de {{ solicitacao.get_content_type_display }}: 
+                            <strong>{{ solicitacao.object_name }}</strong>
+                        </h3>
+                        <div class="notif-meta">
+                            <span><i class="fa-solid fa-user"></i> Solicitado por: {{ solicitacao.requested_by.username }}</span>
+                            <span><i class="fa-solid fa-calendar"></i> {{ solicitacao.created_at|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+                    <span class="badge-status badge-pending">Pendente</span>
+                </div>
+
+                <div class="notif-body">
+                    {% if solicitacao.reason %}
+                        <div class="notif-reason">
+                            "{{ solicitacao.reason }}"
+                        </div>
+                    {% else %}
+                        <p class="notif-muted">Nenhuma justificativa fornecida.</p>
+                    {% endif %}
+                </div>
+
+                <div class="notif-actions">
+                    <form method="POST" action="{% url 'revisar_solicitacao' solicitacao.id %}" style="display: flex; gap: 0.75rem; width: 100%;">
+                        {% csrf_token %}
+                        <input type="text" name="notes" placeholder="Notas de revisão (opcional)" class="form-input" style="flex: 1;">
+                        <button type="submit" name="action" value="approve" class="btn-approve">
+                            <i class="fa-solid fa-check"></i> Aprovar
+                        </button>
+                        <button type="submit" name="action" value="reject" class="btn-reject">
+                            <i class="fa-solid fa-xmark"></i> Rejeitar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-notif">
+                <i class="fa-solid fa-check-double fa-3x" style="margin-bottom: 1rem; display: block;"></i>
+                <p>Tudo em dia! Nenhuma solicitação pendente.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if historico %}
+        <h2 class="section-title">
+            <i class="fa-solid fa-history"></i>
+            Histórico Recente
+        </h2>
+
+        <div class="notifications-list">
+            {% for item in historico %}
+                <div class="notif-card" style="opacity: 0.8;">
+                    <div class="notif-header">
+                        <div>
+                            <h3 class="notif-title" style="font-size: 1rem;">
+                                {{ item.get_content_type_display }}: {{ item.object_name }}
+                            </h3>
+                            <div class="notif-meta">
+                                <span>Solicitante: {{ item.requested_by.username }}</span>
+                                <span>Revisado por: {{ item.reviewed_by.username }}</span>
+                                <span>{{ item.updated_at|date:"d/m/Y H:i" }}</span>
+                            </div>
+                        </div>
+                        <span class="badge-status badge-{{ item.status }}">
+                            {{ item.get_status_display }}
+                        </span>
+                    </div>
+                    {% if item.review_notes %}
+                        <div class="review-notes">
+                            <strong>Notas:</strong> {{ item.review_notes }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock content %}

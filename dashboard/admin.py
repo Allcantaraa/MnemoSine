@@ -1,13 +1,21 @@
 from django.contrib import admin
-from .models import Organization, OrganizationMember, Cliente, Categoria, Dashboard
+from .models import Organization, OrganizationMember, Cliente, Categoria, Dashboard, DeletionRequest
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'created_by', 'created_at')
+    list_display = ('name', 'created_by', 'created_at')
     list_display_links = ('name',)
-    search_fields = ('name', 'code')
-    readonly_fields = ('code', 'created_at', 'updated_at')
+    search_fields = ('name',)
+    readonly_fields = ('created_at', 'updated_at')
     list_per_page = 50
+    ordering = ('-created_at',)
+
+@admin.register(DeletionRequest)
+class DeletionRequestAdmin(admin.ModelAdmin):
+    list_display = ('object_name', 'content_type', 'status', 'requested_by', 'created_at')
+    list_filter = ('status', 'content_type', 'organization')
+    search_fields = ('object_name', 'reason', 'requested_by__username')
+    readonly_fields = ('created_at', 'updated_at')
     ordering = ('-created_at',)
 
 @admin.register(OrganizationMember)

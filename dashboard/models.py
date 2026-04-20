@@ -15,8 +15,11 @@ class Organization(models.Model):
         verbose_name = 'Organization'
         verbose_name_plural = 'Organizations'
 
-    name = models.CharField(max_length=255, blank=False, null=False)
-    code = models.CharField(max_length=12, unique=True, default=generate_organization_code)
+    PRINCIPAL = 'Principal'
+    MODELOS = 'Modelos'
+    ALLOWED_NAMES = [PRINCIPAL, MODELOS]
+
+    name = models.CharField(max_length=255, blank=False, null=False, unique=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_organizations')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -24,11 +27,24 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if self.name not in self.ALLOWED_NAMES:
+            raise ValidationError(f"Apenas as organizações '{self.PRINCIPAL}' e '{self.MODELOS}' são permitidas.")
+        
+        # Bloquear criação se já existirem as duas (se for um novo objeto)
+        if not self.pk:
+            if Organization.objects.filter(name=self.name).exists():
+                raise ValidationError(f"A organização '{self.name}' já existe.")
+        
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("Não é permitido excluir organizações no sistema.")
+
 class OrganizationMember(models.Model):
     class Role(models.TextChoices):
-        ADMIN = 'admin', 'Admin'
-        MEMBER = 'member', 'Member'
-        VIEWER = 'viewer', 'Viewer'
+        ADMINISTRADOR = 'administrador', 'Administrador'
+        MEMBRO = 'membro', 'Membro'
 
     class Meta:
         verbose_name = 'Organization Member'
@@ -37,11 +53,42 @@ class OrganizationMember(models.Model):
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='members')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='organization_memberships')
-    role = models.CharField(max_length=10, choices=Role.choices, default=Role.MEMBER)
+    role = models.CharField(max_length=15, choices=Role.choices, default=Role.MEMBRO)
     joined_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.user.username} - {self.organization.name} ({self.role})"
+        return f"{self.user.username} - {self.organization.name} ({self.get_role_display()})"
+
+class DeletionRequest(models.Model):
+    class Status(models.TextChoices):
+        PENDING = 'pending', 'Pendente'
+        APPROVED = 'approved', 'Aprovado'
+        REJECTED = 'rejected', 'Rejeitado'
+
+    class ContentType(models.TextChoices):
+        CLIENTE = 'cliente', 'Cliente'
+        DASHBOARD = 'dashboard', 'Dashboard'
+        CATEGORIA = 'categoria', 'Categoria'
+
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='deletion_requests')
+    requested_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='deletion_requests_made')
+    content_type = models.CharField(max_length=20, choices=ContentType.choices)
+    object_id = models.PositiveIntegerField()
+    object_name = models.CharField(max_length=255)
+    reason = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='deletion_requests_reviewed')
+    review_notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Solicitação de Exclusão'
+        verbose_name_plural = 'Solicitações de Exclusão'
+
+    def __str__(self):
+        return f"Solicitação de exclusão: {self.get_content_type_display()} - {self.object_name} ({self.get_status_display()})"
 
 class Cliente(models.Model):
     class Tier(models.TextChoices):

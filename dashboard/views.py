@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.http import FileResponse
 import os
 
-from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember
+from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, DeletionRequest
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
 
@@ -90,7 +90,8 @@ def dashboards(request, slug):
         'categorias': categorias,
         'cliente': cliente,
         'all_clients': all_clients,
-        'selected_category': category_filter
+        'selected_category': category_filter,
+        'organization': org
     })
 
 
@@ -104,7 +105,8 @@ def dashboard(request, slug):
 
     return render(request, 'detalhes_dashboard.html', {
         'dashboard': dashboard_obj,
-        'client_slug': cliente_slug
+        'client_slug': cliente_slug,
+        'organization': org
     })
 
 
@@ -125,9 +127,9 @@ def criar_cliente(request):
             messages.success(request, 'Cliente criado com sucesso')
             return redirect('index')
 
-        return render(request, 'cliente_criar.html', {'form': form, 'form_action': form_action})
+        return render(request, 'cliente_criar.html', {'form': form, 'form_action': form_action, 'organization': org})
 
-    return render(request, 'cliente_criar.html', {'form': ClienteForm(), 'form_action': form_action})
+    return render(request, 'cliente_criar.html', {'form': ClienteForm(), 'form_action': form_action, 'organization': org})
 
 
 @login_required
@@ -147,21 +149,34 @@ def atualizar_cliente(request, slug):
             messages.success(request, 'Cliente atualizado com sucesso')
             return redirect('index')
 
-        return render(request, 'cliente_criar.html', {'form': form, 'form_action': form_action})
+        return render(request, 'cliente_criar.html', {'form': form, 'form_action': form_action, 'organization': org})
 
-    return render(request, 'cliente_criar.html', {'form': ClienteForm(instance=cliente), 'form_action': form_action})
+    return render(request, 'cliente_criar.html', {'form': ClienteForm(instance=cliente), 'form_action': form_action, 'organization': org})
 
 
 @login_required
-@organization_admin_required
+@organization_member_or_admin_required
 def deletar_cliente(request, slug):
-    """Deleta um cliente (apenas admin)."""
+    """Deleta um cliente (admin) ou solicita exclusão (membro)."""
     org = request.organization
     cliente = get_object_or_404(Cliente, slug=slug, organization=org)
+    membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
     if request.method == 'POST':
-        cliente.delete()
-        messages.success(request, f'Cliente "{cliente.name}" removido com sucesso.')
+        if membership.role == OrganizationMember.Role.ADMINISTRADOR:
+            cliente.delete()
+            messages.success(request, f'Cliente "{cliente.name}" removido com sucesso.')
+        else:
+            # Criar solicitação de exclusão
+            DeletionRequest.objects.create(
+                organization=org,
+                requested_by=request.user,
+                content_type=DeletionRequest.ContentType.CLIENTE,
+                object_id=cliente.id,
+                object_name=cliente.name,
+                reason=request.POST.get('reason', '')
+            )
+            messages.info(request, f'Solicitação de exclusão para o cliente "{cliente.name}" enviada aos administradores.')
         return redirect('index')
 
     return redirect('index')
@@ -214,15 +229,28 @@ def atualizar_categoria(request, client_slug, categoria_slug):
 
 
 @login_required
-@organization_admin_required
+@organization_member_or_admin_required
 def deletar_categoria(request, client_slug, categoria_slug):
-    """Deleta uma categoria (apenas admin)."""
+    """Deleta uma categoria (admin) ou solicita exclusão (membro)."""
     org = request.organization
     categoria = get_object_or_404(Categoria, slug=categoria_slug, organization=org)
+    membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
     if request.method == 'POST':
-        categoria.delete()
-        messages.success(request, f'Categoria "{categoria.name}" removida com sucesso.')
+        if membership.role == OrganizationMember.Role.ADMINISTRADOR:
+            categoria.delete()
+            messages.success(request, f'Categoria "{categoria.name}" removida com sucesso.')
+        else:
+            # Criar solicitação de exclusão
+            DeletionRequest.objects.create(
+                organization=org,
+                requested_by=request.user,
+                content_type=DeletionRequest.ContentType.CATEGORIA,
+                object_id=categoria.id,
+                object_name=categoria.name,
+                reason=request.POST.get('reason', '')
+            )
+            messages.info(request, f'Solicitação de exclusão para a categoria "{categoria.name}" enviada aos administradores.')
         return redirect('cliente_dashboard', slug=client_slug)
 
     return redirect('cliente_dashboard', slug=client_slug)
@@ -308,15 +336,28 @@ def atualizar_dashboard(request, client_slug, slug):
 
 
 @login_required
-@organization_admin_required
+@organization_member_or_admin_required
 def deletar_dashboard(request, client_slug, dashboard_slug):
-    """Deleta um dashboard (apenas admin)."""
+    """Deleta um dashboard (admin) ou solicita exclusão (membro)."""
     org = request.organization
     dashboard = get_object_or_404(Dashboard, slug=dashboard_slug, organization=org, client__slug=client_slug)
+    membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
     if request.method == 'POST':
-        dashboard.delete()
-        messages.success(request, f'Dashboard "{dashboard.title}" removido com sucesso.')
+        if membership.role == OrganizationMember.Role.ADMINISTRADOR:
+            dashboard.delete()
+            messages.success(request, f'Dashboard "{dashboard.title}" removido com sucesso.')
+        else:
+            # Criar solicitação de exclusão
+            DeletionRequest.objects.create(
+                organization=org,
+                requested_by=request.user,
+                content_type=DeletionRequest.ContentType.DASHBOARD,
+                object_id=dashboard.id,
+                object_name=dashboard.title,
+                reason=request.POST.get('reason', '')
+            )
+            messages.info(request, f'Solicitação de exclusão para o dashboard "{dashboard.title}" enviada aos administradores.')
         return redirect('cliente_dashboard', slug=client_slug)
 
     return redirect('cliente_dashboard', slug=client_slug)
@@ -404,23 +445,21 @@ def mover_dashboards(request, client_slug):
 
 
 @login_required
-@organization_admin_required
+@organization_member_or_admin_required
 def deletar_dashboards_bulk(request, client_slug):
-    """Deleta vários dashboards em massa (apenas admin)."""
+    """Deleta vários dashboards (admin) ou solicita exclusão (membro)."""
     org = request.organization
     cliente = get_object_or_404(Cliente, slug=client_slug, organization=org)
+    membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
     if request.method == 'POST':
         dashboard_ids = request.POST.get('dashboard_ids', '').split(',')
-
-        # Filtrar IDs válidos
         dashboard_ids = [id for id in dashboard_ids if id and id.isdigit()]
 
         if not dashboard_ids:
             messages.error(request, 'Nenhum dashboard selecionado.')
             return redirect('cliente_dashboard', slug=client_slug)
 
-        # Buscar dashboards
         dashboards = Dashboard.objects.filter(
             id__in=dashboard_ids,
             organization=org,
@@ -428,15 +467,95 @@ def deletar_dashboards_bulk(request, client_slug):
         )
 
         if not dashboards.exists():
-            messages.error(request, 'Nenhum dashboard encontrado para deletar.')
+            messages.error(request, 'Nenhum dashboard encontrado.')
             return redirect('cliente_dashboard', slug=client_slug)
 
-        # Deletar dashboards
-        count = dashboards.count()
-        dashboards.delete()
+        if membership.role == OrganizationMember.Role.ADMINISTRADOR:
+            count = dashboards.count()
+            dashboards.delete()
+            message = f'{count} dashboard foi deletado' if count == 1 else f'{count} dashboards foram deletados'
+            messages.success(request, f'{message} com sucesso!')
+        else:
+            # Para bulk, criamos uma solicitação para cada um ou uma consolidada?
+            # Vamos criar uma para cada para simplificar a aprovação individual
+            for db in dashboards:
+                DeletionRequest.objects.create(
+                    organization=org,
+                    requested_by=request.user,
+                    content_type=DeletionRequest.ContentType.DASHBOARD,
+                    object_id=db.id,
+                    object_name=db.title,
+                    reason=request.POST.get('reason', 'Exclusão em massa')
+                )
+            messages.info(request, f'{dashboards.count()} solicitações de exclusão enviadas aos administradores.')
 
-        message = f'{count} dashboard foi deletado' if count == 1 else f'{count} dashboards foram deletados'
-        messages.success(request, f'{message} com sucesso!')
         return redirect('cliente_dashboard', slug=client_slug)
 
     return redirect('cliente_dashboard', slug=client_slug)
+
+
+@login_required
+@organization_admin_required
+def listar_notificacoes(request):
+    """Lista solicitações de exclusão pendentes (apenas admin)."""
+    org = request.organization
+    solicitacoes = DeletionRequest.objects.filter(
+        organization=org,
+        status=DeletionRequest.Status.PENDING
+    ).select_related('requested_by')
+
+    historico = DeletionRequest.objects.filter(
+        organization=org
+    ).exclude(status=DeletionRequest.Status.PENDING).select_related('requested_by', 'reviewed_by')[:20]
+
+    return render(request, 'notificacoes.html', {
+        'solicitacoes': solicitacoes,
+        'historico': historico,
+        'organization': org
+    })
+
+
+@login_required
+@organization_admin_required
+def revisar_solicitacao(request, request_id):
+    """Aprova ou rejeita uma solicitação de exclusão."""
+    org = request.organization
+    solicitacao = get_object_or_404(DeletionRequest, id=request_id, organization=org)
+
+    if request.method == 'POST':
+        acao = request.POST.get('action')
+        notas = request.POST.get('notes', '')
+
+        if acao == 'approve':
+            # Tentar deletar o objeto
+            deleted = False
+            try:
+                if solicitacao.content_type == DeletionRequest.ContentType.CLIENTE:
+                    obj = Cliente.objects.get(id=solicitacao.object_id, organization=org)
+                    obj.delete()
+                    deleted = True
+                elif solicitacao.content_type == DeletionRequest.ContentType.CATEGORIA:
+                    obj = Categoria.objects.get(id=solicitacao.object_id, organization=org)
+                    obj.delete()
+                    deleted = True
+                elif solicitacao.content_type == DeletionRequest.ContentType.DASHBOARD:
+                    obj = Dashboard.objects.get(id=solicitacao.object_id, organization=org)
+                    obj.delete()
+                    deleted = True
+            except (Cliente.DoesNotExist, Categoria.DoesNotExist, Dashboard.DoesNotExist):
+                messages.warning(request, 'O item já foi removido ou não existe mais.')
+                solicitacao.status = DeletionRequest.Status.APPROVED # Marcar como aprovado mesmo assim se sumiu
+            
+            if deleted:
+                solicitacao.status = DeletionRequest.Status.APPROVED
+                messages.success(request, f'Solicitação aprovada e item "{solicitacao.object_name}" removido.')
+            
+        elif acao == 'reject':
+            solicitacao.status = DeletionRequest.Status.REJECTED
+            messages.info(request, f'Solicitação para "{solicitacao.object_name}" rejeitada.')
+
+        solicitacao.reviewed_by = request.user
+        solicitacao.review_notes = notas
+        solicitacao.save()
+
+    return redirect('listar_notificacoes')

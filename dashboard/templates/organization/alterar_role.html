@@ -25,9 +25,8 @@
             <div class="form-group">
                 <label for="role">Novo Nível de Acesso</label>
                 <select name="role" id="role" class="form-input" required>
-                    <option value="admin" {% if membership.role == "admin" %}selected{% endif %}>Admin - Gerencia tudo</option>
-                    <option value="member" {% if membership.role == "member" %}selected{% endif %}>Member - Cria e edita</option>
-                    <option value="viewer" {% if membership.role == "viewer" %}selected{% endif %}>Viewer - Apenas visualiza</option>
+                    <option value="administrador" {% if membership.role == "administrador" %}selected{% endif %}>Administrador - Gerencia tudo</option>
+                    <option value="membro" {% if membership.role == "membro" %}selected{% endif %}>Membro - Cria e edita</option>
                 </select>
             </div>
 

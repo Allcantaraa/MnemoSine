@@ -148,33 +148,20 @@ function confirmBulkDelete() {
         return;
     }
 
-    const message = selectedCheckboxes.length === 1 
-        ? 'Tem certeza que deseja deletar este dashboard?' 
-        : `Tem certeza que deseja deletar ${selectedCheckboxes.length} dashboards?`;
+    const modal = document.getElementById('bulkDeleteModal');
+    const countSpan = document.getElementById('bulkDeleteCount');
+    const input = document.getElementById('bulkDeleteDashboardsInput');
+    
+    if (!modal || !countSpan || !input) return;
 
-    if (confirm(message)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        const config = document.getElementById('cliente-dashboards-config');
-        const bulkUrl = config?.dataset?.bulkDeleteUrl;
-        if (!bulkUrl) return;
-        form.action = bulkUrl;
-        
-        const csrfTokenInput = document.createElement('input');
-        csrfTokenInput.type = 'hidden';
-        csrfTokenInput.name = 'csrfmiddlewaretoken';
-        csrfTokenInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-        form.appendChild(csrfTokenInput);
-        
-        const dashboardIdsInput = document.createElement('input');
-        dashboardIdsInput.type = 'hidden';
-        dashboardIdsInput.name = 'dashboard_ids';
-        dashboardIdsInput.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
-        form.appendChild(dashboardIdsInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
+    countSpan.innerText = selectedCheckboxes.length;
+    input.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
+    
+    modal.classList.add('active');
+}
+
+function closeBulkDeleteModal() {
+    document.getElementById('bulkDeleteModal')?.classList.remove('active');
 }
 
 // Event Listeners Initialization
@@ -195,10 +182,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.clearSelection = clearSelection;
     window.confirmBulkDelete = confirmBulkDelete;
 
+    window.closeBulkDeleteModal = closeBulkDeleteModal;
+
     // Adicionando ouvintes específicos para os botões de fechar que podem ter IDs diferentes
     document.getElementById('dashImageModalClose')?.addEventListener('click', closeImageModal);
     document.getElementById('dashMoveModalClose')?.addEventListener('click', closeMoveModal);
     document.getElementById('dashMoveModalCancel')?.addEventListener('click', closeMoveModal);
+    document.getElementById('bulkDeleteClose')?.addEventListener('click', closeBulkDeleteModal);
+    document.getElementById('bulkDeleteCancel')?.addEventListener('click', closeBulkDeleteModal);
 
     const searchInput = document.getElementById('dashboardSearch');
     const categoryChips = document.querySelectorAll('.category-chips .chip');

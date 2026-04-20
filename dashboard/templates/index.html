@@ -1,5 +1,6 @@
 {% extends "global/base.html" %}
 {% load static %}
+{% load org_tags %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'global/css/pages/index.css' %}">
@@ -159,11 +160,7 @@
         <div class="no-org-state">
             <div class="state-icon"></div>
             <h2>Nenhuma organização selecionada</h2>
-            <p>Selecione uma organização na barra lateral ou crie uma nova para começar</p>
-            <div class="action-buttons">
-                <a href="{% url 'criar_organizacao' %}" class="btn-primary"><i class="fa-solid fa-building"></i> Criar Organização</a>
-                <a href="{% url 'entrar_organizacao' %}" class="btn-secondary"><i class="fa-solid fa-arrow-right-to-bracket"></i> Entrar em Organização</a>
-            </div>
+            <p>Selecione uma organização na barra lateral para começar.</p>
         </div>
     {% endif %}
 </div>
@@ -181,12 +178,34 @@
 <div id="deleteClientModal" class="image-modal">
     <div class="modal-content">
         <button type="button" class="close-modal" id="deleteClientClose">&times;</button>
-        <h3 class="move-modal-title">Apagar Cliente</h3>
-        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">Tem certeza que deseja apagar o cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>? Isso removerá permanentemente todos os dashboards vinculados a ele.</p>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Cliente
+            {% else %}
+                Solicitar Exclusão de Cliente
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar o cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>? Isso removerá permanentemente todos os dashboards vinculados a ele.
+            {% else %}
+                Você está solicitando a exclusão do cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
         <form id="deleteClientForm" method="POST" action="">
             {% csrf_token %}
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="deleteReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="deleteReason" class="form-input" placeholder="Explique por que este cliente deve ser removido..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
             <div class="move-form-actions">
-                <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
                 <button type="button" class="btn-move-cancel" id="deleteClientCancel">Cancelar</button>
             </div>
         </form>

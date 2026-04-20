@@ -14,22 +14,12 @@
                 <h1>Membros da Organização</h1>
                 <p class="subtitle">{{ organization.name }}</p>
             </div>
-            <div class="code-badge">
-                <span class="code-label">Código de Convite</span>
-                <span class="code-value" id="inviteCode">{{ organization.code }}</span>
-                <button type="button" class="copy-btn" onclick="copyInviteCode()">Copiar</button>
-            </div>
         </div>
 
         <div class="action-bar">
             {% if request.user|has_org_role:organization %}
                 <button type="button" class="btn-create-user" onclick="openCreateUserModal()">Criar Usuário</button>
-                <button type="button" class="btn-generate" onclick="openSimpleModal('generateCodeModal')">Gerar Novo Código</button>
-                {% if organization.created_by == request.user %}
-                    <button type="button" class="btn-delete-org" onclick="openSimpleModal('deleteOrgModal')">Deletar Organização</button>
-                {% endif %}
             {% endif %}
-            <button type="button" class="btn-leave" onclick="openSimpleModal('leaveOrgModal')">Sair da Organização</button>
         </div>
 
         {% if membros %}
@@ -67,9 +57,8 @@
                                             <form method="POST" action="{% url 'alterar_role_membro' membro.user.id %}" class="role-form">
                                                 {% csrf_token %}
                                                 <select name="role" class="role-select">
-                                                    <option value="admin" {% if membro.role == "admin" %}selected{% endif %}>Admin</option>
-                                                    <option value="member" {% if membro.role == "member" %}selected{% endif %}>Member</option>
-                                                    <option value="viewer" {% if membro.role == "viewer" %}selected{% endif %}>Viewer</option>
+                                                    <option value="administrador" {% if membro.role == "administrador" %}selected{% endif %}>Administrador</option>
+                                                    <option value="membro" {% if membro.role == "membro" %}selected{% endif %}>Membro</option>
                                                 </select>
                                                 <button type="submit" class="btn-update">Salvar</button>
                                             </form>
@@ -129,9 +118,8 @@
                     <label class="field field-full">
                         <span>Perfil na organização</span>
                         <select class="token-input" name="role">
-                            <option value="member" selected>Member</option>
-                            <option value="viewer">Viewer</option>
-                            <option value="admin">Admin</option>
+                            <option value="membro" selected>Membro</option>
+                            <option value="administrador">Administrador</option>
                         </select>
                     </label>
                 </div>
@@ -139,55 +127,6 @@
                     <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCreateUserModal()">Cancelar</button>
                     <button type="submit" class="modal-btn modal-btn-submit">Criar usuário</button>
                 </div>
-            </form>
-        </div>
-    </div>
-{% endif %}
-
-{% if request.user|has_org_role:organization %}
-    <div id="generateCodeModal" class="modal-backdrop" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-modal="true">
-            <div class="modal-head">
-                <h2>Gerar novo código</h2>
-                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('generateCodeModal')" aria-label="Fechar modal">X</button>
-            </div>
-            <p class="modal-message">Um novo código de convite será criado e o anterior deixará de funcionar.</p>
-            <form method="POST" action="{% url 'gerar_novo_codigo' %}" class="modal-actions">
-                {% csrf_token %}
-                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('generateCodeModal')">Cancelar</button>
-                <button type="submit" class="modal-btn modal-btn-submit">Gerar código</button>
-            </form>
-        </div>
-    </div>
-{% endif %}
-
-<div id="leaveOrgModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-card" role="dialog" aria-modal="true">
-        <div class="modal-head">
-            <h2>Sair da organização</h2>
-            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('leaveOrgModal')" aria-label="Fechar modal">X</button>
-        </div>
-        <p class="modal-message">Você perderá acesso aos dados desta organização até entrar novamente.</p>
-        <form method="POST" action="{% url 'sair_organizacao' %}" class="modal-actions">
-            {% csrf_token %}
-            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('leaveOrgModal')">Cancelar</button>
-            <button type="submit" class="modal-btn modal-btn-submit">Sair</button>
-        </form>
-    </div>
-</div>
-
-{% if organization.created_by == request.user %}
-    <div id="deleteOrgModal" class="modal-backdrop" aria-hidden="true">
-        <div class="modal-card" role="dialog" aria-modal="true">
-            <div class="modal-head">
-                <h2>Deletar organização</h2>
-                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('deleteOrgModal')" aria-label="Fechar modal">X</button>
-            </div>
-            <p class="modal-message">Esta ação é irreversível e removerá todos os membros e dados vinculados.</p>
-            <form method="POST" action="{% url 'deletar_organizacao' %}" class="modal-actions">
-                {% csrf_token %}
-                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSimpleModal('deleteOrgModal')">Cancelar</button>
-                <button type="submit" class="modal-btn modal-btn-submit modal-btn-danger">Deletar</button>
             </form>
         </div>
     </div>

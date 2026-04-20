@@ -121,11 +121,10 @@ class OrganizationUserCreateForm(forms.Form):
     role = forms.ChoiceField(
         label='Perfil na organização',
         choices=(
-            ('admin', 'Admin'),
-            ('member', 'Member'),
-            ('viewer', 'Viewer'),
+            ('administrador', 'Administrador'),
+            ('membro', 'Membro'),
         ),
-        initial='member',
+        initial='membro',
         widget=forms.Select(attrs={'class': 'form-input'})
     )
 

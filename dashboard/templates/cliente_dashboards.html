@@ -1,5 +1,6 @@
 {% extends "global/base.html" %}
 {% load static %}
+{% load org_tags %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'global/css/pages/cliente-dashboards.css' %}">
@@ -59,7 +60,12 @@
                 <i class="fa-solid fa-arrow-right"></i> Mover para Cliente
             </button>
             <button type="button" class="btn-bulk-delete" id="btnBulkDelete">
-                <i class="fa-solid fa-trash"></i> Deletar Selecionados
+                <i class="fa-solid fa-trash"></i> 
+                {% if request.user|has_org_role:request.organization %}
+                    Deletar Selecionados
+                {% else %}
+                    Solicitar Exclusão
+                {% endif %}
             </button>
             <button type="button" class="btn-bulk-cancel" id="btnBulkCancel">
                 Cancelar
@@ -194,13 +200,34 @@
 <div id="deleteCategoryModal" class="image-modal">
     <div class="modal-content">
         <button type="button" class="close-modal" onclick="closeDeleteCategoryModal()">&times;</button>
-        <h3 class="move-modal-title">Apagar Categoria</h3>
-        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">Tem certeza que deseja apagar a categoria <strong id="deleteCategoryName" style="color: var(--app-text);"></strong>? Isso não removerá os dashboards vinculados a ela.</p>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Categoria
+            {% else %}
+                Solicitar Exclusão de Categoria
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar a categoria <strong id="deleteCategoryName" style="color: var(--app-text);"></strong>? Isso não removerá os dashboards vinculados a ela.
+            {% else %}
+                Você está solicitando a exclusão da categoria <strong id="deleteCategoryName" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
         <form id="deleteCategoryForm" method="POST" action="">
             {% csrf_token %}
-            <input type="hidden" name="confirmation" value="yes">
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="deleteCategoryReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="deleteCategoryReason" class="form-input" placeholder="Explique por que esta categoria deve ser removida..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
             <div class="move-form-actions">
-                <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
                 <button type="button" class="btn-move-cancel" onclick="closeDeleteCategoryModal()">Cancelar</button>
             </div>
         </form>
@@ -211,13 +238,74 @@
 <div id="deleteDashboardModal" class="image-modal">
     <div class="modal-content">
         <button type="button" class="close-modal" onclick="closeDeleteDashboardModal()">&times;</button>
-        <h3 class="move-modal-title">Apagar Dashboard</h3>
-        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">Tem certeza que deseja apagar o dashboard <strong id="deleteDashboardTitle" style="color: var(--app-text);"></strong>?</p>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Dashboard
+            {% else %}
+                Solicitar Exclusão de Dashboard
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar o dashboard <strong id="deleteDashboardTitle" style="color: var(--app-text);"></strong>?
+            {% else %}
+                Você está solicitando a exclusão do dashboard <strong id="deleteDashboardTitle" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
         <form id="deleteDashboardForm" method="POST" action="">
             {% csrf_token %}
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="deleteDashboardReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="deleteDashboardReason" class="form-input" placeholder="Explique por que este dashboard deve ser removido..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
             <div class="move-form-actions">
-                <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
                 <button type="button" class="btn-move-cancel" onclick="closeDeleteDashboardModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Delete Modal -->
+<div id="bulkDeleteModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" id="bulkDeleteClose">&times;</button>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Dashboards Selecionados
+            {% else %}
+                Solicitar Exclusão de Dashboards
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar <strong id="bulkDeleteCount" style="color: var(--app-text);"></strong> dashboard(s)? Esta ação é permanente.
+            {% else %}
+                Você está solicitando a exclusão de <strong id="bulkDeleteCount" style="color: var(--app-text);"></strong> dashboard(s). Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
+        <form id="bulkDeleteForm" method="POST" action="{% url 'deletar_dashboards_bulk' client_slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="dashboard_ids" id="bulkDeleteDashboardsInput" value="">
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="bulkDeleteReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="bulkDeleteReason" class="form-input" placeholder="Explique por que estes dashboards devem ser removidos..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
+            <div class="move-form-actions">
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
+                <button type="button" class="btn-move-cancel" id="bulkDeleteCancel">Cancelar</button>
             </div>
         </form>
     </div>

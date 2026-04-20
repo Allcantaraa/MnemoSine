@@ -41,7 +41,8 @@ def organization_required(view_func):
                 request.organization = org
             except Organization.DoesNotExist:
                 # Organização foi deletada, limpar sessão e tentar pegar outra
-                del request.session['active_org_id']
+                if 'active_org_id' in request.session:
+                    del request.session['active_org_id']
                 membership = OrganizationMember.objects.filter(user=request.user).first()
                 if membership:
                     request.organization = membership.organization
@@ -49,7 +50,7 @@ def organization_required(view_func):
                     messages.info(request, f'Organização anterior deletada. Carregando: {membership.organization.name}')
                 else:
                     messages.error(request, 'Você não pertence a nenhuma organização.')
-                    return redirect('criar_organizacao')
+                    return redirect('index') # Mudado de criar_organizacao para index
         else:
             # Tenta pegar a primeira org do usuário
             membership = OrganizationMember.objects.filter(user=request.user).first()
@@ -58,14 +59,14 @@ def organization_required(view_func):
                 request.session['active_org_id'] = membership.organization.id
             else:
                 messages.error(request, 'Você não pertence a nenhuma organização.')
-                return redirect('criar_organizacao')
+                return redirect('index') # Mudado de criar_organizacao para index
 
         return view_func(request, *args, **kwargs)
     return wrapped_view
 
 
 def organization_admin_required(view_func):
-    """Decorador que verifica se o usuário é admin de uma organização."""
+    """Decorador que verifica se o usuário é administrador de uma organização."""
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -77,21 +78,32 @@ def organization_admin_required(view_func):
         request.user_organizations = OrganizationMember.objects.filter(user=request.user).select_related('organization')
 
         if not active_org_id:
-            messages.error(request, 'Selecione uma organização.')
-            return redirect('index')
+            # Tenta pegar a primeira org onde o usuário é admin
+            membership = OrganizationMember.objects.filter(
+                user=request.user, 
+                role=OrganizationMember.Role.ADMINISTRADOR
+            ).first()
+            
+            if membership:
+                active_org_id = membership.organization.id
+                request.session['active_org_id'] = active_org_id
+            else:
+                messages.error(request, 'Selecione uma organização ou você não tem permissão de administrador.')
+                return redirect('index')
 
         try:
             org = Organization.objects.get(id=active_org_id)
             membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
-            if membership.role != OrganizationMember.Role.ADMIN:
+            if membership.role != OrganizationMember.Role.ADMINISTRADOR:
                 messages.error(request, 'Você não tem permissão para acessar essa área.')
                 return redirect('index')
 
             request.organization = org
         except Organization.DoesNotExist:
             # Organização foi deletada, limpar sessão
-            del request.session['active_org_id']
+            if 'active_org_id' in request.session:
+                del request.session['active_org_id']
             messages.error(request, 'Organização deletada. Selecione outra.')
             return redirect('index')
         except OrganizationMember.DoesNotExist:
@@ -103,7 +115,7 @@ def organization_admin_required(view_func):
 
 
 def organization_member_or_admin_required(view_func):
-    """Decorador que verifica se o usuário é member ou admin (não viewer)."""
+    """Decorador que verifica se o usuário é membro ou administrador."""
     @wraps(view_func)
     def wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -120,16 +132,16 @@ def organization_member_or_admin_required(view_func):
 
         try:
             org = Organization.objects.get(id=active_org_id)
-            membership = OrganizationMember.objects.get(user=request.user, organization=org)
-
-            if membership.role == OrganizationMember.Role.VIEWER:
+            # Apenas verifica se o usuário é membro da organização
+            if not OrganizationMember.objects.filter(user=request.user, organization=org).exists():
                 messages.error(request, 'Você não tem permissão para editar.')
                 return redirect('index')
 
             request.organization = org
         except Organization.DoesNotExist:
             # Organização foi deletada, limpar sessão
-            del request.session['active_org_id']
+            if 'active_org_id' in request.session:
+                del request.session['active_org_id']
             messages.error(request, 'Organização deletada. Selecione outra.')
             return redirect('index')
         except OrganizationMember.DoesNotExist:

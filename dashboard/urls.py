@@ -30,14 +30,13 @@ urlpatterns = [
     path('clientes/<slug:client_slug>/dashboards/deletar-bulk/', views.deletar_dashboards_bulk, name='deletar_dashboards_bulk'),
 
     # Organization management
-    path('organization/criar', organization_views.criar_organizacao, name='criar_organizacao'),
     path('organization/membros', organization_views.listar_membros, name='listar_membros'),
     path('organization/usuarios/criar', organization_views.criar_usuario_organizacao, name='criar_usuario_organizacao'),
     path('organization/membros/<int:user_id>/role', organization_views.alterar_role_membro, name='alterar_role_membro'),
     path('organization/membros/<int:user_id>/remover', organization_views.remover_membro, name='remover_membro'),
-    path('organization/codigo-novo', organization_views.gerar_novo_codigo, name='gerar_novo_codigo'),
-    path('organization/entrar', organization_views.entrar_organizacao, name='entrar_organizacao'),
     path('organization/selecionar', organization_views.selecionar_organizacao, name='selecionar_organizacao'),
-    path('organization/sair', organization_views.sair_organizacao, name='sair_organizacao'),
-    path('organization/deletar', organization_views.deletar_organizacao, name='deletar_organizacao'),
+
+    # Notifications & Deletion Requests
+    path('notificacoes/', views.listar_notificacoes, name='listar_notificacoes'),
+    path('notificacoes/<int:request_id>/revisar/', views.revisar_solicitacao, name='revisar_solicitacao'),
 ]
