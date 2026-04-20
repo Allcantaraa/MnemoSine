@@ -74,7 +74,7 @@
     }
 
     .org-selector-header:hover {
-        background-color: #eff1f5;
+        background-color: var(--app-bg);
         border-color: #c92a2a;
     }
 
@@ -89,7 +89,7 @@
     .org-label {
         font-size: 0.7rem;
         font-weight: 700;
-        color: #999;
+        color: var(--app-muted);
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
@@ -126,7 +126,7 @@
         border: 1px solid var(--app-border);
         border-top: none;
         border-radius: 0 0 8px 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        box-shadow: var(--app-shadow);
         z-index: 1000;
         margin-top: -1px;
     }
@@ -152,7 +152,7 @@
         padding: 0.75rem;
         background: none;
         border: none;
-        color: #6c757d;
+        color: var(--app-muted);
         cursor: pointer;
         text-align: left;
         font-size: 0.9rem;
@@ -170,7 +170,7 @@
     }
 
     .org-option:hover {
-        background-color: #f8f9fa;
+        background-color: var(--app-bg);
         color: #c92a2a;
     }
 

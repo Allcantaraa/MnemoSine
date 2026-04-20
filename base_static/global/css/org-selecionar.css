@@ -6,12 +6,12 @@
 
 .org-select-page h1 {
     font-size: 1.5rem;
-    color: #2c3e50;
+    color: var(--app-text);
     margin: 0 0 0.5rem 0;
 }
 
 .org-select-page .lead {
-    color: #6c757d;
+    color: var(--app-muted);
     margin: 0 0 1.5rem 0;
     font-size: 0.95rem;
 }
@@ -38,12 +38,12 @@
     width: 100%;
     text-align: left;
     padding: 1rem 1.25rem;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--app-border);
     border-radius: 10px;
-    background: white;
+    background: var(--app-surface);
     font-size: 1rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: var(--app-text);
     cursor: pointer;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }

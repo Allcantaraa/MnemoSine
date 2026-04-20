@@ -1,4 +1,83 @@
 .image-form-row {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--app-border);
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.dashboard-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--app-text);
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--app-border);
+    background-color: var(--app-surface);
+    color: var(--app-text);
+}
+
+/* Category Selection Chips */
+.category-chip-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.selectable-chip {
+    cursor: pointer;
+    position: relative;
+}
+
+.selectable-chip input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.chip-label {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 2px solid var(--app-border);
+    background: var(--app-bg);
+    color: var(--app-muted);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.selectable-chip:hover .chip-label {
+    border-color: #c92a2a;
+    color: #c92a2a;
+}
+
+.selectable-chip input:checked + .chip-label {
+    background-color: #c92a2a;
+    border-color: #c92a2a;
+    color: white;
+}
+
+.help-text {
+    font-size: 0.85rem;
+    color: var(--app-muted);
+}
+
+.field-errors {
+    color: #c92a2a;
+    font-size: 0.85rem;
 }

@@ -1,6 +1,35 @@
+function openDeleteClientModal(actionUrl, name) {
+    const modal = document.getElementById('deleteClientModal');
+    const nameSpan = document.getElementById('deleteClientName');
+    const form = document.getElementById('deleteClientForm');
+    if (!modal || !nameSpan || !form) return;
+
+    nameSpan.innerText = name;
+    form.action = actionUrl;
+    modal.classList.add('active');
+}
+
+function closeDeleteClientModal() {
+    document.getElementById('deleteClientModal')?.classList.remove('active');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Image modal functionality
-    const imageModal = document.getElementById('imageModal');
+    // Make globally available
+    window.openDeleteClientModal = openDeleteClientModal;
+    window.closeDeleteClientModal = closeDeleteClientModal;
+
+    document.getElementById('deleteClientClose')?.addEventListener('click', closeDeleteClientModal);
+    document.getElementById('deleteClientCancel')?.addEventListener('click', closeDeleteClientModal);
+
+    // Fechar ao clicar no overlay
+    document.getElementById('deleteClientModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeDeleteClientModal();
+    });
+
+    // Adicionar fechamento de modal de imagem por ID específico se necessário
+    document.getElementById('indexImageModalClose')?.addEventListener('click', function() {
+        document.getElementById('imageModal')?.classList.remove('active');
+    });
     document.getElementById('indexImageModalClose')?.addEventListener('click', closeImageModal);
     if (imageModal) {
         imageModal.addEventListener('click', function(e) {

@@ -104,7 +104,9 @@
                             <div class="client-actions">
                                 <a href="{% url 'cliente_dashboard' cliente.slug %}" class="action-link" title="Ver dashboards"><i class="fa-solid fa-eye"></i></a>
                                 <a href="{% url 'atualizar_cliente' cliente.slug %}" class="action-link" title="Editar"><i class="fa-solid fa-pencil"></i></a>
-                                <a href="{% url 'deletar_cliente' cliente.slug %}" class="action-link action-delete" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                                <button type="button" class="action-link action-delete" title="Deletar" onclick="openDeleteClientModal('{% url 'deletar_cliente' cliente.slug %}', '{{ cliente.name|escapejs }}')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -172,6 +174,22 @@
         <button type="button" class="close-modal" id="indexImageModalClose" aria-label="Fechar">&times;</button>
         <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
         <p id="modalTitle" class="modal-title"></p>
+    </div>
+</div>
+
+<!-- Delete Client Modal -->
+<div id="deleteClientModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" id="deleteClientClose">&times;</button>
+        <h3 class="move-modal-title">Apagar Cliente</h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">Tem certeza que deseja apagar o cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>? Isso removerá permanentemente todos os dashboards vinculados a ele.</p>
+        <form id="deleteClientForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                <button type="button" class="btn-move-cancel" id="deleteClientCancel">Cancelar</button>
+            </div>
+        </form>
     </div>
 </div>
 

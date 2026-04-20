@@ -8,11 +8,11 @@
 }
 
 .org-flow-card {
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--app-shadow);
 }
 
 .org-flow-card h1 {
@@ -25,7 +25,7 @@
 }
 
 .org-flow-card:not(.org-flow-card--danger) h1 {
-    color: #2c3e50;
+    color: var(--app-text);
 }
 
 .org-flow-alert {
@@ -39,6 +39,11 @@
     border: 2px solid #f9a8a8;
 }
 
+[data-theme="dark"] .org-flow-alert--strong {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.2);
+}
+
 .org-flow-alert--strong p {
     color: #dc3545;
     margin: 0;
@@ -50,13 +55,18 @@
     border: 1px solid #f9a8a8;
 }
 
+[data-theme="dark"] .org-flow-alert--soft {
+    background: rgba(220, 53, 69, 0.05);
+    border-color: rgba(220, 53, 69, 0.2);
+}
+
 .org-flow-alert--soft p {
     color: #dc3545;
     margin: 0;
 }
 
 .org-flow-text {
-    color: #6c757d;
+    color: var(--app-muted);
     line-height: 1.6;
     margin-bottom: 2rem;
 }
@@ -66,7 +76,7 @@
 }
 
 .org-flow-list {
-    color: #6c757d;
+    color: var(--app-muted);
     margin-bottom: 2rem;
     padding-left: 1.5rem;
 }

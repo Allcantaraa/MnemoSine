@@ -7,23 +7,23 @@
 }
 
 .cliente-form-card {
-    background: white;
+    background: var(--app-surface);
     padding: 2.5rem;
     border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--app-shadow);
     max-width: 600px;
     width: 100%;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--app-border);
 }
 
 .cliente-form-card h1 {
     font-size: 1.8rem;
-    color: #2c3e50;
+    color: var(--app-text);
     margin: 0 0 0.5rem 0;
 }
 
 .cliente-form-card .lead {
-    color: #6c757d;
+    color: var(--app-muted);
     margin: 0 0 2rem 0;
     font-size: 0.95rem;
 }
@@ -42,7 +42,7 @@
 
 .cliente-form label {
     font-weight: 500;
-    color: #2c3e50;
+    color: var(--app-text);
     font-size: 0.95rem;
 }
 
@@ -51,6 +51,11 @@
     border: 1px solid #f9a8a8;
     border-radius: 8px;
     padding: 1rem;
+}
+
+[data-theme="dark"] .cliente-error-banner {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.2);
 }
 
 .cliente-error-banner p {

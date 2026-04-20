@@ -7,13 +7,14 @@
         }
 
         .delete-card {
-            background: white;
+            background: var(--app-surface);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--app-shadow);
             padding: 3rem 2rem;
             max-width: 500px;
             width: 100%;
             text-align: center;
+            border: 1px solid var(--app-border);
         }
 
         .delete-icon {
@@ -25,13 +26,13 @@
         }
 
         .delete-card h2 {
-            color: #2c3e50;
+            color: var(--app-text);
             margin-bottom: 0.5rem;
             font-size: 1.75rem;
         }
 
         .delete-message {
-            color: #6c757d;
+            color: var(--app-muted);
             margin-bottom: 2rem;
             font-size: 1rem;
         }
@@ -44,9 +45,14 @@
             margin-bottom: 2rem;
         }
 
-        .cliente-name {
+        [data-theme="dark"] .delete-content {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-color: rgba(231, 76, 60, 0.2);
+        }
+
+        .cliente-name, .dashboard-title {
             font-weight: 700;
-            color: #2c3e50;
+            color: var(--app-text);
             font-size: 1.1rem;
             margin-bottom: 0.75rem;
         }

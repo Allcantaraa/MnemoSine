@@ -7,11 +7,11 @@
 }
 
 .perfil-hero {
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--app-shadow);
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -46,30 +46,30 @@
 
 .perfil-hero h1 {
     font-size: 1.8rem;
-    color: #2c3e50;
+    color: var(--app-text);
     margin: 0 0 0.5rem 0;
 }
 
 .perfil-hero .perfil-email {
-    color: #6c757d;
+    color: var(--app-muted);
     font-size: 1rem;
     margin: 0;
 }
 
 .perfil-panel {
-    background: white;
-    border: 1px solid #e9ecef;
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--app-shadow);
 }
 
 .perfil-panel h2 {
     font-size: 1.3rem;
-    color: #2c3e50;
+    color: var(--app-text);
     margin: 0 0 1.5rem 0;
     padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
+    border-bottom: 1px solid var(--app-border);
 }
 
 .perfil-form {
@@ -86,7 +86,7 @@
 
 .perfil-form label {
     font-weight: 500;
-    color: #2c3e50;
+    color: var(--app-text);
     font-size: 0.95rem;
 }
 
@@ -95,6 +95,11 @@
     border: 1px solid #f9a8a8;
     border-radius: 8px;
     padding: 1rem;
+}
+
+[data-theme="dark"] .perfil-error-banner {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.2);
 }
 
 .perfil-error-banner p {

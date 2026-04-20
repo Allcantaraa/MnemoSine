@@ -12,7 +12,7 @@
         <h1>{{ cliente.name }} - Dashboards</h1>
         <div class="action-buttons">
             <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">+ Novo Dashboard</a>
-            <a href="{% url "criar_categoria" client_slug %}" class="btn-secondary">+ Nova Categoria</a>
+            <button type="button" class="btn-secondary" onclick="openCategoryModal('{% url 'criar_categoria' client_slug %}')">+ Nova Categoria</button>
         </div>
     </div>
 
@@ -30,10 +30,21 @@
                     <span>Todas</span>
                 </a>
                 {% for categoria in categorias %}
-                    <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
-                        <i class="fa-solid fa-tag"></i>
-                        <span>{{ categoria.name }}</span>
-                    </a>
+                    <div class="chip-wrapper">
+                        <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>{{ categoria.name }}</span>
+                        </a>
+                        <div class="chip-actions">
+    <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
+    <i class="fa-solid fa-pencil"></i>
+</button>
+
+<button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
+    <i class="fa-solid fa-trash"></i>
+</button>
+</div>
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
@@ -102,13 +113,18 @@
                         <div class="dashboard-actions">
                             <a href="javascript:void(0)" class="btn-view" data-image="{{ dashboard.image.url }}" title="Ver imagem do dashboard"><i class="fa-solid fa-eye"></i></a>
                             <a href="{% url "atualizar_dashboard" client_slug dashboard.slug %}" class="btn-edit" title="Editar"><i class="fa-solid fa-pencil"></i></a>
-                            <a href="{% url "deletar_dashboard" client_slug dashboard.slug %}" class="btn-delete" title="Deletar"><i class="fa-solid fa-trash"></i></a>
+                            <button type="button" class="btn-delete" title="Deletar" onclick="openDeleteDashboardModal('{% url 'deletar_dashboard' client_slug dashboard.slug %}', '{{ dashboard.title|escapejs }}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                             <a href="{% url "baixar_dashboard_json" client_slug dashboard.slug %}" class="btn-download" title="Download JSON"><i class="fa-solid fa-download"></i></a>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
+
+        <!-- Config for JS -->
+        <div id="cliente-dashboards-config" data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" style="display: none;"></div>
     {% else %}
         <div class="empty-state">
             <p>Este cliente não tem dashboards ainda</p>
@@ -151,6 +167,58 @@
             <div class="move-form-actions">
                 <button type="submit" class="btn-primary">Mover</button>
                 <button type="button" class="btn-move-cancel" id="dashMoveModalCancel">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeCategoryModal()">&times;</button>
+        <h3 id="categoryModalTitle" class="move-modal-title">Nova Categoria</h3>
+        <form id="categoryForm" class="move-form" method="POST" action="{% url 'criar_categoria' client_slug %}">
+            {% csrf_token %}
+            <div class="modal-form-group">
+                <label for="id_name" class="move-form-label">Nome da Categoria:</label>
+                <input type="text" name="name" id="id_category_name" class="form-input" required placeholder="Ex: Financeiro, Vendas...">
+            </div>
+            <div class="move-form-actions">
+                <button type="submit" id="btnSaveCategory" class="btn-primary">Criar</button>
+                <button type="button" class="btn-move-cancel" onclick="closeCategoryModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div id="deleteCategoryModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeDeleteCategoryModal()">&times;</button>
+        <h3 class="move-modal-title">Apagar Categoria</h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">Tem certeza que deseja apagar a categoria <strong id="deleteCategoryName" style="color: var(--app-text);"></strong>? Isso não removerá os dashboards vinculados a ela.</p>
+        <form id="deleteCategoryForm" method="POST" action="">
+            {% csrf_token %}
+            <input type="hidden" name="confirmation" value="yes">
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                <button type="button" class="btn-move-cancel" onclick="closeDeleteCategoryModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Dashboard Modal -->
+<div id="deleteDashboardModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeDeleteDashboardModal()">&times;</button>
+        <h3 class="move-modal-title">Apagar Dashboard</h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">Tem certeza que deseja apagar o dashboard <strong id="deleteDashboardTitle" style="color: var(--app-text);"></strong>?</p>
+        <form id="deleteDashboardForm" method="POST" action="">
+            {% csrf_token %}
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                <button type="button" class="btn-move-cancel" onclick="closeDeleteDashboardModal()">Cancelar</button>
             </div>
         </form>
     </div>

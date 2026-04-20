@@ -159,13 +159,12 @@ def deletar_cliente(request, slug):
     org = request.organization
     cliente = get_object_or_404(Cliente, slug=slug, organization=org)
 
-    confirmation = request.POST.get('confirmation', 'no')
-
-    if confirmation == 'yes':
+    if request.method == 'POST':
         cliente.delete()
+        messages.success(request, f'Cliente "{cliente.name}" removido com sucesso.')
         return redirect('index')
 
-    return render(request, 'modals/deletar_cliente.html', {'cliente': cliente, 'confirmation': confirmation})
+    return redirect('index')
 
 
 @login_required
@@ -195,7 +194,7 @@ def criar_categoria(request, client_slug):
 
 @login_required
 @organization_member_or_admin_required
-def atualizar_categoria(request, categoria_slug, client_slug):
+def atualizar_categoria(request, client_slug, categoria_slug):
     """Atualiza uma categoria."""
     org = request.organization
     categoria = get_object_or_404(Categoria, slug=categoria_slug, organization=org)
@@ -221,17 +220,12 @@ def deletar_categoria(request, client_slug, categoria_slug):
     org = request.organization
     categoria = get_object_or_404(Categoria, slug=categoria_slug, organization=org)
 
-    confirmation = request.POST.get('confirmation', 'no')
-
-    if confirmation == 'yes':
+    if request.method == 'POST':
         categoria.delete()
+        messages.success(request, f'Categoria "{categoria.name}" removida com sucesso.')
         return redirect('cliente_dashboard', slug=client_slug)
 
-    return render(request, 'modals/deletar_categoria.html', {
-        'categoria': categoria,
-        'confirmation': confirmation,
-        'client_slug': client_slug
-    })
+    return redirect('cliente_dashboard', slug=client_slug)
 
 
 @login_required
@@ -320,17 +314,12 @@ def deletar_dashboard(request, client_slug, dashboard_slug):
     org = request.organization
     dashboard = get_object_or_404(Dashboard, slug=dashboard_slug, organization=org, client__slug=client_slug)
 
-    confirmation = request.POST.get('confirmation', 'no')
-
-    if confirmation == 'yes':
+    if request.method == 'POST':
         dashboard.delete()
+        messages.success(request, f'Dashboard "{dashboard.title}" removido com sucesso.')
         return redirect('cliente_dashboard', slug=client_slug)
 
-    return render(request, 'modals/deletar_dashboard.html', {
-        'dashboard': dashboard,
-        'confirmation': confirmation,
-        'client_slug': client_slug
-    })
+    return redirect('cliente_dashboard', slug=client_slug)
 
 
 @login_required
