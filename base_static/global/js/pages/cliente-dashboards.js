@@ -1,5 +1,4 @@
-// Global Modal Management Functions
-function openCategoryModal() {
+function openCategoryModal(actionUrl) {
     const modal = document.getElementById('categoryModal');
     const title = document.getElementById('categoryModalTitle');
     const form = document.getElementById('categoryForm');
@@ -11,18 +10,8 @@ function openCategoryModal() {
     btn.innerText = 'Criar';
     input.value = '';
     
-    const pathParts = window.location.pathname.split('/').filter(p => p !== '');
-    // URL patterns: /clientes/SLUG/ ou /dashboard/clientes/SLUG/
-    // Se parts: ["clientes", "slug"] -> index 1
-    // Se parts: ["dashboard", "clientes", "slug"] -> index 2
-    const clientSlug = pathParts[0] === 'dashboard' ? pathParts[2] : pathParts[1];
-    
-    if (!clientSlug) {
-        console.error("Não foi possível identificar o slug do cliente a partir da URL:", window.location.pathname);
-        return;
-    }
-    
-    form.action = `/dashboard/categoria/${clientSlug}/criar/`;
+    // Recebe a rota correta direto do Django
+    form.action = actionUrl;
     
     modal.classList.add('active');
 }
@@ -31,7 +20,7 @@ function closeCategoryModal() {
     document.getElementById('categoryModal')?.classList.remove('active');
 }
 
-function openEditCategoryModal(slug, name) {
+function openEditCategoryModal(actionUrl, name) {
     const modal = document.getElementById('categoryModal');
     const title = document.getElementById('categoryModalTitle');
     const form = document.getElementById('categoryForm');
@@ -43,23 +32,19 @@ function openEditCategoryModal(slug, name) {
     btn.innerText = 'Atualizar';
     input.value = name;
     
-    const pathParts = window.location.pathname.split('/').filter(p => p !== '');
-    const clientSlug = pathParts[0] === 'dashboard' ? pathParts[2] : pathParts[1];
-    form.action = `/dashboard/categoria/${clientSlug}/atualizar/${slug}/`;
+    form.action = actionUrl;
     
     modal.classList.add('active');
 }
 
-function openDeleteCategoryModal(slug, name) {
+function openDeleteCategoryModal(actionUrl, name) {
     const modal = document.getElementById('deleteCategoryModal');
     const nameSpan = document.getElementById('deleteCategoryName');
     const form = document.getElementById('deleteCategoryForm');
     if (!modal || !nameSpan || !form) return;
 
     nameSpan.innerText = name;
-    const pathParts = window.location.pathname.split('/').filter(p => p !== '');
-    const clientSlug = pathParts[0] === 'dashboard' ? pathParts[2] : pathParts[1];
-    form.action = `/dashboard/categoria/${clientSlug}/deletar/${slug}/`;
+    form.action = actionUrl;
     
     modal.classList.add('active');
 }

@@ -19,7 +19,7 @@
         <h1>{{ cliente.name }} - Dashboards</h1>
         <div class="action-buttons">
             <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">+ Novo Dashboard</a>
-            <button type="button" class="btn-secondary" onclick="openCategoryModal()">+ Nova Categoria</button>
+            <button type="button" class="btn-secondary" onclick="openCategoryModal('{% url 'criar_categoria' client_slug %}')">+ Nova Categoria</button>
         </div>
     </div>
 
@@ -43,12 +43,13 @@
                             <span>{{ categoria.name }}</span>
                         </a>
                         <div class="chip-actions">
-                            <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{{ categoria.slug|escapejs }}', '{{ categoria.name|escapejs }}')" title="Editar">
-                                <i class="fa-solid fa-pencil"></i>
-                            </button>
-                            <button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{{ categoria.slug|escapejs }}', '{{ categoria.name|escapejs }}')" title="Deletar">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
+    <i class="fa-solid fa-pencil"></i>
+</button>
+
+<button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
+    <i class="fa-solid fa-trash"></i>
+</button>
                         </div>
                     </div>
                 {% endfor %}
