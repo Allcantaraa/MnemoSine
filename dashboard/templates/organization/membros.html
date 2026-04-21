@@ -18,8 +18,71 @@
 
         <div class="action-bar">
             {% if request.user|has_org_role:organization %}
-                <button type="button" class="btn-create-user" onclick="openCreateUserModal()">Criar Usuário</button>
-            {% endif %}
+                <div class="bulk-actions">
+                    <button type="button" class="btn-create-user" onclick="openCreateUserModal()">
+                        <i class="fa-solid fa-user-plus"></i> Criar Usuário
+                    </button>
+                    <button type="button" class="btn-import-csv" onclick="openImportCsvModal()">
+                        <i class="fa-solid fa-file-csv"></i> Importar CSV
+                    </button>
+                </div>
+                <div id="importCsvModal" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="importCsvTitle">
+            <div class="modal-head">
+                <h2 id="importCsvTitle">Importar Usuários via CSV</h2>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeImportCsvModal()">
+                    <svg viewBox="0 0 24 24" width="16" height="16"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <p class="modal-help-text">
+                    O arquivo deve ser um CSV com delimitador <strong>ponto e vírgula (;)</strong> e colunas: 
+                    <code>nome;email;senha;confirmacao_senha;perfil</code>
+                </p>
+                
+                <div id="dropZone" class="drop-zone">
+                    <i class="fa-solid fa-cloud-arrow-up fa-3x"></i>
+                    <p>Arraste o arquivo CSV aqui ou clique para selecionar</p>
+                    <input type="file" id="csvFileInput" accept=".csv" style="opacity: 0; position: absolute; z-index: -1; width: 0; height: 0;">
+                </div>
+                
+                <div id="csvPreview" class="csv-preview" style="display: none;">
+                    <h3>Visualização dos Dados</h3>
+                    <div class="table-scroll">
+                        <table id="previewTable">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>E-mail</th>
+                                    <th>Perfil</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="processProgress" class="process-progress" style="display: none;">
+                    <div class="progress-bar-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                    <p id="progressStatus">Processando...</p>
+                </div>
+
+                <div id="importErrors" class="import-errors" style="display: none;">
+                    <h3>Erros Encontrados:</h3>
+                    <ul id="errorList"></ul>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeImportCsvModal()">Cancelar</button>
+                <button type="button" id="btnConfirmImport" class="modal-btn modal-btn-submit" disabled>Confirmar Importação</button>
+            </div>
+        </div>
+    </div>
+{% endif %}
         </div>
 
         {% if membros %}

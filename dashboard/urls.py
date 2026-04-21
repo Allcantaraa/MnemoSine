@@ -35,6 +35,7 @@ urlpatterns = [
     path('organization/membros/<int:user_id>/role', organization_views.alterar_role_membro, name='alterar_role_membro'),
     path('organization/membros/<int:user_id>/remover', organization_views.remover_membro, name='remover_membro'),
     path('organization/selecionar', organization_views.selecionar_organizacao, name='selecionar_organizacao'),
+    path('organization/importar-csv', organization_views.importar_usuarios_csv, name='importar_usuarios_csv'),
 
     # Notifications & Deletion Requests
     path('notificacoes/', views.listar_notificacoes, name='listar_notificacoes'),
