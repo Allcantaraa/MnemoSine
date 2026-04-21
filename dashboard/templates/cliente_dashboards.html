@@ -10,8 +10,10 @@
 
 <div id="cliente-dashboards-config" 
      data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" 
-     data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}" 
-     hidden aria-hidden="true"></div>
+     data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}"
+     data-bulk-favorite-url="{% url 'favoritar_dashboards_bulk' client_slug %}" 
+     hidden aria-hidden="true">
+</div>
 
     <div id="cliente-dashboards-config" data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" hidden aria-hidden="true"></div>
     <div class="dashboards-container">
@@ -71,6 +73,10 @@
         <i class="fa-solid fa-copy"></i> Duplicar Selecionados
     </button>
 
+    <button type="button" class="btn-bulk-favorite" id="btnBulkFavorite">
+        <i class="fa-solid fa-star"></i> Favoritar Selecionados
+    </button>
+
     <button type="button" class="btn-bulk-delete" id="btnBulkDelete">
         <i class="fa-solid fa-trash"></i> 
         {% if request.user|has_org_role:request.organization %}
@@ -92,6 +98,12 @@
                     <div class="dashboard-checkbox">
                         <input type="checkbox" class="dashboard-select" data-dashboard-id="{{ dashboard.id }}">
                     </div>
+                    <button type="button" 
+                        class="dashboard-favorite {% if dashboard.is_favorite %}active{% endif %}" 
+                        data-url="{% url 'toggle_favorite_dashboard' client_slug dashboard.slug %}"
+                        title="Favoritar Dashboard">
+                        <i class="fa-{% if dashboard.is_favorite %}solid{% else %}regular{% endif %} fa-star"></i>
+                    </button>
                     <div class="dashboard-image">
                         {% if dashboard.image %}
                             <img src="{{ dashboard.image.url }}" alt="{{ dashboard.title }}">

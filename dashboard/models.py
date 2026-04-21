@@ -157,6 +157,7 @@ class Dashboard(models.Model):
     json = models.FileField(upload_to='dashboards/json/%Y/%m/', blank=False, null=False)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='dashboards_created')
     created_at = models.DateTimeField(auto_now_add=True)
+    favorited_by = models.ManyToManyField(User, related_name='favorite_dashboards', blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(
         unique=True,

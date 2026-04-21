@@ -342,7 +342,7 @@
         gap: 0.75rem;
     }
 
-    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-duplicate, .btn-bulk-cancel {
+    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-duplicate, .btn-bulk-favorite, .btn-bulk-cancel {
         padding: 0.6rem 1.25rem;
         border-radius: 8px;
         font-size: 0.9rem;
@@ -1108,4 +1108,62 @@
 
 [data-theme="dark"] .btn-bulk-duplicate:hover {
     background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Botão Bulk Favoritar */
+.btn-bulk-favorite {
+    background-color: #fff;
+    color: #eab308; /* Dourado */
+}
+
+.btn-bulk-favorite:hover {
+    background-color: #fefce8; /* Fundo amarelo bem clarinho no hover */
+}
+
+/* Modo Escuro */
+[data-theme="dark"] .btn-bulk-favorite {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #facc15;
+}
+
+[data-theme="dark"] .btn-bulk-favorite:hover {
+    background-color: rgba(234, 179, 8, 0.15);
+}
+
+/* --- Estrela de Favorito Individual no Card --- */
+.dashboard-favorite {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(4px);
+    border: none;
+    cursor: pointer;
+    color: var(--app-muted, #94a3b8);
+    transition: all 0.2s ease;
+}
+
+.dashboard-favorite:hover {
+    transform: scale(1.05);
+    color: #facc15; /* Amarelo no hover */
+}
+
+.dashboard-favorite.active {
+    color: #eab308; /* Amarelo fixo quando favoritado */
+}
+
+[data-theme="dark"] .dashboard-favorite {
+    background: rgba(30, 41, 59, 0.8); /* Fundo escuro translúcido para o modo dark */
+}
+
+[data-theme="dark"] .dashboard-favorite.active {
+    filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.4));
 }

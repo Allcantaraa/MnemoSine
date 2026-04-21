@@ -8,6 +8,7 @@ urlpatterns = [
     # Dashboard listings
     path('clientes/<slug:slug>/', views.dashboards, name='cliente_dashboard'),
     path('dashboard/<slug:slug>/', views.dashboard, name='detalhes_dashboard'),
+    path('clientes/<slug:client_slug>/dashboard/favoritar/<slug:dashboard_slug>/', views.toggle_favorite_dashboard, name='toggle_favorite_dashboard'),
 
     # Clientes CRUD
     path('clientes/criar', views.criar_cliente, name='criar_cliente'),
@@ -29,6 +30,7 @@ urlpatterns = [
     path('clientes/<slug:client_slug>/dashboards/mover/', views.mover_dashboards, name='mover_dashboards'),
     path('clientes/<slug:client_slug>/dashboards/deletar-bulk/', views.deletar_dashboards_bulk, name='deletar_dashboards_bulk'),
     path('clientes/<slug:client_slug>/dashboards/duplicar-bulk/', views.duplicar_dashboards_bulk, name='duplicar_dashboards_bulk'),
+    path('clientes/<slug:client_slug>/dashboards/favoritar-bulk/', views.favoritar_dashboards_bulk, name='favoritar_dashboards_bulk'),
 
     # Organization management
     path('organization/membros', organization_views.listar_membros, name='listar_membros'),

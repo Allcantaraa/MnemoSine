@@ -168,6 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.confirmBulkDelete = confirmBulkDelete;
     window.confirmBulkDuplicate = confirmBulkDuplicate;
     window.closeBulkDeleteModal = closeBulkDeleteModal;
+    window.confirmBulkFavorite = confirmBulkFavorite;
 
     // Adicionando ouvintes específicos para os botões de fechar que podem ter IDs diferentes
     document.getElementById('dashImageModalClose')?.addEventListener('click', closeImageModal);
@@ -176,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('bulkDeleteClose')?.addEventListener('click', closeBulkDeleteModal);
     document.getElementById('bulkDeleteCancel')?.addEventListener('click', closeBulkDeleteModal);
     document.getElementById('btnBulkDuplicate')?.addEventListener('click', confirmBulkDuplicate);
+    document.getElementById('btnBulkFavorite')?.addEventListener('click', confirmBulkFavorite);
 
     const searchInput = document.getElementById('dashboardSearch');
     const categoryChips = document.querySelectorAll('.category-chips .chip');
@@ -285,6 +287,56 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.image-modal.active').forEach(m => m.classList.remove('active'));
         }
     });
+
+    // Toggle de Favorito Individual no Card
+    const favoriteButtons = document.querySelectorAll('.dashboard-favorite');
+
+    favoriteButtons.forEach(btn => {
+        btn.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            const url = this.getAttribute('data-url');
+            const icon = this.querySelector('i');
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+            // Feedback visual imediato (Optimistic UI)
+            this.classList.toggle('active');
+            if (this.classList.contains('active')) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+            } else {
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+            }
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                // Se o servidor retornar erro, revertemos a animação
+                if (!data.success) {
+                    console.error('Erro ao favoritar:', data.error);
+                    this.classList.toggle('active');
+                    icon.classList.toggle('fa-solid');
+                    icon.classList.toggle('fa-regular');
+                }
+            } catch (error) {
+                console.error('Erro na requisição:', error);
+                // Reverte em caso de falha de rede
+                this.classList.toggle('active');
+                icon.classList.toggle('fa-solid');
+                icon.classList.toggle('fa-regular');
+            }
+        });
+    });
+
 });
 
 
@@ -325,4 +377,38 @@ function confirmBulkDuplicate() {
         document.body.appendChild(form);
         form.submit();
     }
+}
+
+function confirmBulkFavorite() {
+    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
+    if (selectedCheckboxes.length === 0) {
+        alert('Selecione ao menos um dashboard para favoritar.');
+        return;
+    }
+
+    // Não precisa de confirm() para favoritar, pois é uma ação inofensiva.
+    // Basta submeter o form direto.
+    const form = document.createElement('form');
+    form.method = 'POST';
+    
+    const config = document.getElementById('cliente-dashboards-config');
+    const bulkFavoriteUrl = config?.dataset?.bulkFavoriteUrl;
+    if (!bulkFavoriteUrl) return;
+    
+    form.action = bulkFavoriteUrl;
+    
+    const csrfTokenInput = document.createElement('input');
+    csrfTokenInput.type = 'hidden';
+    csrfTokenInput.name = 'csrfmiddlewaretoken';
+    csrfTokenInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+    form.appendChild(csrfTokenInput);
+    
+    const dashboardIdsInput = document.createElement('input');
+    dashboardIdsInput.type = 'hidden';
+    dashboardIdsInput.name = 'dashboard_ids';
+    dashboardIdsInput.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
+    form.appendChild(dashboardIdsInput);
+    
+    document.body.appendChild(form);
+    form.submit();
 }

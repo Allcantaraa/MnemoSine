@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.http import JsonResponse
 from django.http import FileResponse
 import os
-
 from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, DeletionRequest
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
@@ -67,7 +67,6 @@ def dashboards(request, slug):
     org = request.organization
     cliente = get_object_or_404(Cliente, slug=slug, organization=org)
     
-    # Filtro de categoria
     category_filter = request.GET.get('category', '')
     
     dashboards_qs = Dashboard.objects.filter(client=cliente)
@@ -79,7 +78,13 @@ def dashboards(request, slug):
         except Categoria.DoesNotExist:
             pass
 
+    # Mantemos o distinct para evitar duplicatas por causa do filtro de categorias
     dashboards_qs = dashboards_qs.distinct()
+    
+    # NOVIDADE: Anotamos se o usuário atual favoritou (retorna 1 ou 0) e ordenamos por isso primeiro
+    dashboards_qs = dashboards_qs.annotate(
+        is_favorite=Count('favorited_by', filter=Q(favorited_by=request.user))
+    ).order_by('-is_favorite', '-created_at') # Favoritos primeiro, depois os mais recentes
     
     categorias = Categoria.objects.filter(organization=org)
     all_clients = Cliente.objects.filter(organization=org).order_by('name')
@@ -94,6 +99,61 @@ def dashboards(request, slug):
         'organization': org
     })
 
+
+@login_required
+@organization_member_or_admin_required
+def toggle_favorite_dashboard(request, client_slug, dashboard_slug):
+    """Adiciona ou remove um dashboard dos favoritos do usuário via Fetch API."""
+    if request.method == 'POST':
+        org = request.organization
+        dashboard = get_object_or_404(Dashboard, slug=dashboard_slug, organization=org, client__slug=client_slug)
+        
+        if request.user in dashboard.favorited_by.all():
+            dashboard.favorited_by.remove(request.user)
+            is_favorite = False
+        else:
+            dashboard.favorited_by.add(request.user)
+            is_favorite = True
+            
+        return JsonResponse({'success': True, 'is_favorite': is_favorite})
+        
+    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
+
+@login_required
+@organization_member_or_admin_required
+def favoritar_dashboards_bulk(request, client_slug):
+    """Adiciona vários dashboards aos favoritos do usuário em massa."""
+    org = request.organization
+    cliente = get_object_or_404(Cliente, slug=client_slug, organization=org)
+
+    if request.method == 'POST':
+        dashboard_ids = request.POST.get('dashboard_ids', '').split(',')
+        dashboard_ids = [id for id in dashboard_ids if id and id.isdigit()]
+
+        if not dashboard_ids:
+            messages.error(request, 'Nenhum dashboard selecionado.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        dashboards = Dashboard.objects.filter(
+            id__in=dashboard_ids, 
+            organization=org, 
+            client=cliente
+        )
+
+        if not dashboards.exists():
+            messages.error(request, 'Nenhum dashboard encontrado.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        count = 0
+        for dashboard in dashboards:
+            # O .add() do Django já é inteligente e não duplica se o usuário já estiver favoritado
+            dashboard.favorited_by.add(request.user)
+            count += 1
+
+        message = f'{count} dashboard adicionado' if count == 1 else f'{count} dashboards adicionados'
+        messages.success(request, f'{message} aos favoritos com sucesso!')
+
+    return redirect('cliente_dashboard', slug=client_slug)
 
 @login_required
 @organization_required
