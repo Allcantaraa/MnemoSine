@@ -12,6 +12,25 @@ from dashboard.decorators import organization_required, organization_member_or_a
 
 @login_required
 @organization_member_or_admin_required
+def toggle_favorite_cliente(request, slug):
+    """Adiciona ou remove um cliente dos favoritos do usuário via Fetch API."""
+    if request.method == 'POST':
+        org = request.organization
+        cliente = get_object_or_404(Cliente, slug=slug, organization=org)
+        
+        if request.user in cliente.favorited_by.all():
+            cliente.favorited_by.remove(request.user)
+            is_favorite = False
+        else:
+            cliente.favorited_by.add(request.user)
+            is_favorite = True
+            
+        return JsonResponse({'success': True, 'is_favorite': is_favorite})
+        
+    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
+
+@login_required
+@organization_member_or_admin_required
 def api_recomendacoes_dashboards(request):
     """API que retorna recomendações baseadas no termo de busca em toda a organização."""
     org = request.organization
@@ -45,22 +64,23 @@ def index(request):
     """Página principal com KPIs, clientes e filtros."""
     org = request.organization
 
-    # Filtros
     search_query = request.GET.get('search', '').strip()
     category_filter = request.GET.get('category', '')
 
-    # KPIs
     total_clientes = Cliente.objects.filter(organization=org).count()
     total_dashboards = Dashboard.objects.filter(organization=org).count()
     membros_count = OrganizationMember.objects.filter(organization=org).count()
 
-    # Clientes
-    clientes = Cliente.objects.filter(organization=org).order_by('-created_at')
+    # Anotamos os favoritos
+    clientes_qs = Cliente.objects.filter(organization=org).annotate(
+        is_favorite=Count('favorited_by', filter=Q(favorited_by=request.user))
+    ).order_by('-is_favorite', '-created_at')
 
-    # Categorias para filtro
+    # Separamos em duas listas para o template
+    clientes_favoritos = [c for c in clientes_qs if c.is_favorite]
+    clientes_normais = [c for c in clientes_qs if not c.is_favorite]
+
     categorias = Categoria.objects.filter(organization=org)
-
-    # Filtrar dashboards por categoria se selecionado
     dashboards_qs = Dashboard.objects.filter(organization=org)
 
     if category_filter:
@@ -70,14 +90,14 @@ def index(request):
         except Categoria.DoesNotExist:
             pass
 
-    # Filtrar por texto (título)
     if search_query:
         dashboards_qs = dashboards_qs.filter(title__icontains=search_query)
 
     dashboards_qs = dashboards_qs.distinct()
 
     return render(request, 'index.html', {
-        'clientes': clientes,
+        'clientes_favoritos': clientes_favoritos, # Nova variável
+        'clientes_normais': clientes_normais,     # Nova variável
         'dashboards': dashboards_qs,
         'categorias': categorias,
         'total_clientes': total_clientes,

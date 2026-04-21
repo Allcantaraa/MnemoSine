@@ -1,0 +1,47 @@
+<div class="client-card">
+    <div class="client-logo-container">
+        {% if cliente.logo %}
+            <img src="{{ cliente.logo.url }}" alt="{{ cliente.name }}" class="client-logo">
+        {% else %}
+            <div class="client-logo-placeholder">
+                <span>{{ cliente.name|slice:":1"|upper }}</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="client-content">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <h3 class="client-name">{{ cliente.name }}</h3>
+            <button type="button" 
+                    class="btn-client-favorite {% if cliente.is_favorite %}active{% endif %}" 
+                    data-url="{% url 'toggle_favorite_cliente' cliente.slug %}"
+                    title="Favoritar Cliente">
+                <i class="fa-{% if cliente.is_favorite %}solid{% else %}regular{% endif %} fa-star"></i>
+            </button>
+        </div>
+        
+        {% if cliente.description %}
+            <p class="client-description">{{ cliente.description }}</p>
+        {% endif %}
+    </div>
+
+    <div class="client-footer">
+        <div class="client-status">
+            {% if cliente.tier == 'platinum' %}
+                <span class="badge badge-platinum">Platinum</span>
+            {% elif cliente.tier == 'gold' %}
+                <span class="badge badge-gold">Gold</span>
+            {% else %}
+                <span class="badge badge-silver">Silver</span>
+            {% endif %}
+        </div>
+
+        <div class="client-actions">
+            <a href="{% url 'cliente_dashboard' cliente.slug %}" class="action-link" title="Ver dashboards"><i class="fa-solid fa-eye"></i></a>
+            <a href="{% url 'atualizar_cliente' cliente.slug %}" class="action-link" title="Editar"><i class="fa-solid fa-pencil"></i></a>
+            <button type="button" class="action-link action-delete" title="Deletar" onclick="openDeleteClientModal('{% url 'deletar_cliente' cliente.slug %}', '{{ cliente.name|escapejs }}')">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+    </div>
+</div>

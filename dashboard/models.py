@@ -105,6 +105,7 @@ class Cliente(models.Model):
     logo = models.ImageField(upload_to='pictures/%Y/%m/', blank=True)
     description = models.TextField(max_length=100, blank=True, null=True)
     tier = models.CharField(max_length=10, choices=Tier.choices, default=Tier.SILVER)
+    favorited_by = models.ManyToManyField(User, related_name='favorite_clients', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(unique=True, default='', null=False, blank=True, max_length=255)

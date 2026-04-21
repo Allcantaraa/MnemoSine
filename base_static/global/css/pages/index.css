@@ -778,3 +778,27 @@
     background-color: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.2);
 }
+
+.btn-client-favorite {
+    background: transparent;
+    border: none;
+    color: var(--app-muted, #94a3b8);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    margin-left: 0.5rem;
+}
+
+.btn-client-favorite:hover {
+    transform: scale(1.15);
+    color: #facc15;
+}
+
+.btn-client-favorite.active {
+    color: #eab308;
+}
+
+[data-theme="dark"] .btn-client-favorite.active {
+    filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.4));
+}

@@ -63,58 +63,38 @@
         </div>
 
         <!-- Clients Section -->
-        {% if clientes %}
+{% if clientes_favoritos or clientes_normais %}
+            
+            {% if clientes_favoritos %}
+                <div class="section-header" style="margin-top: 1rem;">
+                    <h2><i class="fa-solid fa-star" style="color: #eab308; margin-right: 0.5rem;"></i> Clientes Favoritos</h2>
+                    <span class="client-count">{{ clientes_favoritos|length }} cliente{{ clientes_favoritos|length|pluralize }}</span>
+                </div>
+
+                <div class="clients-grid" style="margin-bottom: 2rem;">
+                    {% for cliente in clientes_favoritos %}
+                        {% include "global/partials/_cliente_card.html" with cliente=cliente %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <div class="section-header">
                 <h2>Diretório de Clientes</h2>
-                <span class="client-count">{{ clientes.count }} cliente{{ clientes.count|pluralize }}</span>
+                <span class="client-count">{{ clientes_normais|length }} cliente{{ clientes_normais|length|pluralize }}</span>
             </div>
 
             <div class="clients-grid">
-                {% for cliente in clientes %}
-                    <div class="client-card">
-                        <div class="client-logo-container">
-                            {% if cliente.logo %}
-                                <img src="{{ cliente.logo.url }}" alt="{{ cliente.name }}" class="client-logo">
-                            {% else %}
-                                <div class="client-logo-placeholder">
-                                    <span>{{ cliente.name|slice:":1"|upper }}</span>
-                                </div>
-                            {% endif %}
+                {% for cliente in clientes_normais %}
+                    {% include "global/partials/_cliente_card.html" with cliente=cliente %}
+                {% empty %}
+                    {% if not clientes_favoritos %}
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <p>Nenhum cliente encontrado.</p>
                         </div>
-
-                        <div class="client-content">
-                            <h3 class="client-name">{{ cliente.name }}</h3>
-                            {% if cliente.description %}
-                                <p class="client-description">{{ cliente.description }}</p>
-                            {% endif %}
-                        </div>
-
-                        <div class="client-footer">
-                            <div class="client-status">
-                                {% if cliente.tier == 'platinum' %}
-                                    <span class="badge badge-platinum">Platinum</span>
-                                {% elif cliente.tier == 'gold' %}
-                                    <span class="badge badge-gold">Gold</span>
-                                {% elif cliente.tier == 'silver' %}
-                                    <span class="badge badge-silver">Silver</span>
-                                {% else %}
-                                    <span class="badge badge-silver">Silver</span>
-                                {% endif %}
-                            </div>
-
-                            <div class="client-actions">
-                                <a href="{% url 'cliente_dashboard' cliente.slug %}" class="action-link" title="Ver dashboards"><i class="fa-solid fa-eye"></i></a>
-                                <a href="{% url 'atualizar_cliente' cliente.slug %}" class="action-link" title="Editar"><i class="fa-solid fa-pencil"></i></a>
-                                <button type="button" class="action-link action-delete" title="Deletar" onclick="openDeleteClientModal('{% url 'deletar_cliente' cliente.slug %}', '{{ cliente.name|escapejs }}')">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
 
-            <!-- Dashboards Section (if filtered) -->
             {% if dashboards %}
                 <div class="dashboards-section">
                     <h2>Dashboards Filtrados</h2>
@@ -148,6 +128,7 @@
                     </div>
                 </div>
             {% endif %}
+
         {% else %}
             <div class="empty-state">
                 <div class="empty-icon"></div>
@@ -156,6 +137,7 @@
                 <a href="{% url 'criar_cliente' %}" class="btn-primary btn-large"><i class="fa-solid fa-plus"></i> Criar Primeiro Cliente</a>
             </div>
         {% endif %}
+
     {% else %}
         <div class="no-org-state">
             <div class="state-icon"></div>
@@ -163,7 +145,6 @@
             <p>Selecione uma organização na barra lateral para começar.</p>
         </div>
     {% endif %}
-</div>
 
 <!-- Image Modal for Filtered Dashboards -->
 <div id="imageModal" class="image-modal">

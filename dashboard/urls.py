@@ -4,6 +4,7 @@ from dashboard import views, organization_views
 urlpatterns = [
     # Index
     path('', views.index, name='index'),
+    path('clientes/<slug:slug>/favoritar/', views.toggle_favorite_cliente, name='toggle_favorite_cliente'),
 
     # Dashboard listings
     path('clientes/<slug:slug>/', views.dashboards, name='cliente_dashboard'),
