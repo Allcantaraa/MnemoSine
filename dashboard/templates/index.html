@@ -7,8 +7,16 @@
 {% endblock %}
 
 {% block content %}
+
+<div id="index-bulk-config" 
+     data-bulk-move-url="{% url 'mover_clientes_bulk' %}"
+     data-bulk-duplicate-url="{% url 'duplicar_clientes_bulk' %}"
+     data-bulk-favorite-url="{% url 'favoritar_clientes_bulk' %}"
+     data-bulk-delete-url="{% url 'deletar_clientes_bulk' %}"
+     hidden aria-hidden="true"></div>
+
 <div class="dashboard-container">
-    <!-- Page Header -->
+    
     <div class="page-header">
         <div class="header-content">
             <h1>Dashboard Principal</h1>
@@ -19,7 +27,30 @@
         {% endif %}
     </div>
 
-    <!-- KPIs Section -->
+    <div class="bulk-actions-bar" id="clientBulkActionsBar" style="display: none;">
+        <div class="bulk-actions-info">
+            <span id="selectedClientCount">0</span> cliente(s) selecionado(s)
+        </div>
+        <div class="bulk-actions-buttons">
+            <button type="button" class="btn-bulk-move" onclick="openClientMoveModal()">
+                <i class="fa-solid fa-arrow-right"></i> Mover p/ Organização
+            </button>
+            <button type="button" class="btn-bulk-duplicate" onclick="confirmClientBulk('duplicate')">
+                <i class="fa-solid fa-copy"></i> Duplicar
+            </button>
+            <button type="button" class="btn-bulk-favorite" onclick="confirmClientBulk('favorite')">
+                <i class="fa-solid fa-star"></i> Favoritar
+            </button>
+            <button type="button" class="btn-bulk-delete" onclick="openClientBulkDeleteModal()">
+                <i class="fa-solid fa-trash"></i> 
+                {% if request.user|has_org_role:request.organization %}Deletar{% else %}Solicitar Exclusão{% endif %}
+            </button>
+            <button type="button" class="btn-bulk-cancel" onclick="clearClientSelection()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
     {% if request.organization %}
         <div class="kpis-grid">
             <div class="kpi-card">
@@ -39,7 +70,6 @@
             </div>
         </div>
 
-        <!-- Filters and Search Bar -->
         <div class="filters-bar">
             <div class="search-input">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -62,8 +92,7 @@
             {% endif %}
         </div>
 
-        <!-- Clients Section -->
-{% if clientes_favoritos or clientes_normais %}
+        {% if clientes_favoritos or clientes_normais %}
             
             {% if clientes_favoritos %}
                 <div class="section-header" style="margin-top: 1rem;">
@@ -110,7 +139,13 @@
                                 </div>
                                 <div class="dashboard-info">
                                     <h4>{{ dashboard.title }}</h4>
-                                    <p class="dashboard-client">{{ dashboard.client.name }}</p>
+                                    <p class="dashboard-client">
+                                        {% if dashboard.client %}
+                                            {{ dashboard.client.name }}
+                                        {% else %}
+                                            <span style="font-style: italic; color: var(--app-muted, #94a3b8);"><i class="fa-solid fa-ghost"></i> Cliente Excluído</span>
+                                        {% endif %}
+                                    </p>
                                     <p class="dashboard-category">
                                         {% for categoria in dashboard.categories.all %}
                                             {{ categoria.name }}{% if not forloop.last %}, {% endif %}
@@ -120,7 +155,11 @@
                                     </p>
                                     <div class="dashboard-card-actions">
                                         <a href="#" class="btn-view-dash js-open-dash-preview" data-preview-src="{{ dashboard.image.url }}" data-preview-title="{{ dashboard.title }}" title="Ver imagem"><i class="fa-solid fa-eye"></i></a>
-                                        <a href="{% url 'baixar_dashboard_json' dashboard.client.slug dashboard.slug %}" class="btn-download-dash" title="Download JSON"><i class="fa-solid fa-download"></i></a>
+                                        {% if dashboard.client %}
+                                            <a href="{% url 'baixar_dashboard_json' dashboard.client.slug dashboard.slug %}" class="btn-download-dash" title="Download JSON"><i class="fa-solid fa-download"></i></a>
+                                        {% else %}
+                                            <span class="btn-download-dash" title="Sem cliente vinculado" style="opacity: 0.4; cursor: not-allowed;"><i class="fa-solid fa-download"></i></span>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -146,8 +185,7 @@
         </div>
     {% endif %}
 
-<!-- Image Modal for Filtered Dashboards -->
-<div id="imageModal" class="image-modal">
+</div> <div id="imageModal" class="image-modal">
     <div class="modal-content">
         <button type="button" class="close-modal" id="indexImageModalClose" aria-label="Fechar">&times;</button>
         <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
@@ -155,20 +193,15 @@
     </div>
 </div>
 
-<!-- Delete Client Modal -->
 <div id="deleteClientModal" class="image-modal">
     <div class="modal-content">
         <button type="button" class="close-modal" id="deleteClientClose">&times;</button>
         <h3 class="move-modal-title">
-            {% if request.user|has_org_role:request.organization %}
-                Apagar Cliente
-            {% else %}
-                Solicitar Exclusão de Cliente
-            {% endif %}
+            {% if request.user|has_org_role:request.organization %}Apagar Cliente{% else %}Solicitar Exclusão de Cliente{% endif %}
         </h3>
         <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
             {% if request.user|has_org_role:request.organization %}
-                Tem certeza que deseja apagar o cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>? Isso removerá permanentemente todos os dashboards vinculados a ele.
+                Tem certeza que deseja apagar o cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>? Isso deixará os dashboards vinculados a ele sem dono.
             {% else %}
                 Você está solicitando a exclusão do cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
             {% endif %}
@@ -188,6 +221,60 @@
                     <button type="submit" class="btn-primary">Enviar Solicitação</button>
                 {% endif %}
                 <button type="button" class="btn-move-cancel" id="deleteClientCancel">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="moveClientBulkModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeClientMoveModal()">&times;</button>
+        <h3 class="move-modal-title">Mover Clientes</h3>
+        <form id="moveClientBulkForm" method="POST" action="{% url 'mover_clientes_bulk' %}">
+            {% csrf_token %}
+            <input type="hidden" name="client_ids" id="moveClientIdsInput">
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="destinationOrg" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Selecione a Organização de Destino:</label>
+                <select id="destinationOrg" name="destination_org" class="form-input" required>
+                    <option value="">-- Escolha uma Organização --</option>
+                    {% for membership in request.user_organizations %}
+                        {% if membership.organization.id != request.organization.id %}
+                            <option value="{{ membership.organization.id }}">{{ membership.organization.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary">Mover</button>
+                <button type="button" class="btn-move-cancel" onclick="closeClientMoveModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="deleteClientBulkModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeClientBulkDeleteModal()">&times;</button>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}Apagar Clientes{% else %}Solicitar Exclusão{% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            Esta ação afetará <strong id="bulkClientDeleteCount"></strong> cliente(s).
+        </p>
+        <form id="deleteClientBulkForm" method="POST" action="{% url 'deletar_clientes_bulk' %}">
+            {% csrf_token %}
+            <input type="hidden" name="client_ids" id="deleteClientIdsInput">
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="bulkClientDeleteReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo:</label>
+                    <textarea name="reason" id="bulkClientDeleteReason" class="form-input" required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary" {% if request.user|has_org_role:request.organization %}style="background-color: #c92a2a;"{% endif %}>
+                    {% if request.user|has_org_role:request.organization %}Apagar{% else %}Enviar Solicitação{% endif %}
+                </button>
+                <button type="button" class="btn-move-cancel" onclick="closeClientBulkDeleteModal()">Cancelar</button>
             </div>
         </form>
     </div>

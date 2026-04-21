@@ -10,6 +10,110 @@ from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, 
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
 
+
+@login_required
+@organization_member_or_admin_required
+def mover_clientes_bulk(request):
+    """Move clientes para outra organização."""
+    org = request.organization
+    if request.method == 'POST':
+        client_ids = request.POST.get('client_ids', '').split(',')
+        client_ids = [id for id in client_ids if id and id.isdigit()]
+        dest_org_id = request.POST.get('destination_org')
+
+        if not client_ids or not dest_org_id:
+            messages.error(request, 'Selecione clientes e uma organização de destino.')
+            return redirect('index')
+
+        # Verifica se o usuário tem acesso à organização de destino
+        dest_membership = OrganizationMember.objects.filter(user=request.user, organization_id=dest_org_id).first()
+        if not dest_membership:
+            messages.error(request, 'Você não tem acesso à organização de destino.')
+            return redirect('index')
+
+        clientes = Cliente.objects.filter(id__in=client_ids, organization=org)
+        count = clientes.count()
+        clientes.update(organization=dest_membership.organization)
+        
+        messages.success(request, f'{count} cliente(s) movido(s) para {dest_membership.organization.name}.')
+    return redirect('index')
+
+@login_required
+@organization_member_or_admin_required
+def duplicar_clientes_bulk(request):
+    """Duplica os clientes selecionados."""
+    org = request.organization
+    if request.method == 'POST':
+        client_ids = request.POST.get('client_ids', '').split(',')
+        client_ids = [id for id in client_ids if id and id.isdigit()]
+        
+        clientes = Cliente.objects.filter(id__in=client_ids, organization=org)
+        count = 0
+        for cliente in clientes:
+            cliente.pk = None
+            cliente.id = None
+            cliente.name = f"{cliente.name} (Cópia)"
+            cliente.slug = None # Força o model a gerar um novo slug
+            cliente.save()
+            count += 1
+            
+        messages.success(request, f'{count} cliente(s) duplicado(s) com sucesso!')
+    return redirect('index')
+
+@login_required
+@organization_member_or_admin_required
+def favoritar_clientes_bulk(request):
+    """Adiciona clientes aos favoritos em massa."""
+    org = request.organization
+    if request.method == 'POST':
+        client_ids = request.POST.get('client_ids', '').split(',')
+        client_ids = [id for id in client_ids if id and id.isdigit()]
+        
+        clientes = Cliente.objects.filter(id__in=client_ids, organization=org)
+        count = 0
+        for cliente in clientes:
+            cliente.favorited_by.add(request.user)
+            count += 1
+            
+        messages.success(request, f'{count} cliente(s) adicionado(s) aos favoritos!')
+    return redirect('index')
+
+@login_required
+@organization_member_or_admin_required
+def deletar_clientes_bulk(request):
+    """Deleta ou solicita exclusão de clientes em massa."""
+    org = request.organization
+    membership = OrganizationMember.objects.get(user=request.user, organization=org)
+    
+    if request.method == 'POST':
+        client_ids = request.POST.get('client_ids', '').split(',')
+        client_ids = [id for id in client_ids if id and id.isdigit()]
+        
+        clientes = Cliente.objects.filter(id__in=client_ids, organization=org)
+        
+        if not clientes.exists():
+            messages.error(request, 'Nenhum cliente válido selecionado.')
+            return redirect('index')
+
+        if membership.role == OrganizationMember.Role.ADMINISTRADOR:
+            count = clientes.count()
+            clientes.delete()
+            messages.success(request, f'{count} cliente(s) deletado(s) com sucesso!')
+        else:
+            for cli in clientes:
+                DeletionRequest.objects.create(
+                    organization=org,
+                    requested_by=request.user,
+                    content_type=DeletionRequest.ContentType.CLIENTE,
+                    object_id=cli.id,
+                    object_name=cli.name,
+                    reason=request.POST.get('reason', 'Exclusão em massa')
+                )
+            messages.info(request, f'{clientes.count()} solicitações de exclusão enviadas.')
+            
+    return redirect('index')
+
+
 @login_required
 @organization_member_or_admin_required
 def toggle_favorite_cliente(request, slug):

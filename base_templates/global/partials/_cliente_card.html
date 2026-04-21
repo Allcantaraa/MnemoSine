@@ -1,4 +1,7 @@
 <div class="client-card">
+    <div class="client-checkbox">
+        <input type="checkbox" class="client-select" data-client-id="{{ cliente.id }}">
+    </div>
     <div class="client-logo-container">
         {% if cliente.logo %}
             <img src="{{ cliente.logo.url }}" alt="{{ cliente.name }}" class="client-logo">

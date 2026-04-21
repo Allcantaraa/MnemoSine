@@ -5,6 +5,11 @@ urlpatterns = [
     # Index
     path('', views.index, name='index'),
     path('clientes/<slug:slug>/favoritar/', views.toggle_favorite_cliente, name='toggle_favorite_cliente'),
+    
+    path('clientes/bulk/mover/', views.mover_clientes_bulk, name='mover_clientes_bulk'),
+    path('clientes/bulk/duplicar/', views.duplicar_clientes_bulk, name='duplicar_clientes_bulk'),
+    path('clientes/bulk/favoritar/', views.favoritar_clientes_bulk, name='favoritar_clientes_bulk'),
+    path('clientes/bulk/deletar/', views.deletar_clientes_bulk, name='deletar_clientes_bulk'),
 
     # Dashboard listings
     path('clientes/<slug:slug>/', views.dashboards, name='cliente_dashboard'),
