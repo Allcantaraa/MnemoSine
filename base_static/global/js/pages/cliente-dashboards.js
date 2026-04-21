@@ -1,414 +1,551 @@
 function openCategoryModal(actionUrl) {
-    const modal = document.getElementById('categoryModal');
-    const title = document.getElementById('categoryModalTitle');
-    const form = document.getElementById('categoryForm');
-    const input = document.getElementById('id_category_name');
-    const btn = document.getElementById('btnSaveCategory');
-    if (!modal || !title || !form || !input || !btn) return;
+  const modal = document.getElementById("categoryModal");
+  const title = document.getElementById("categoryModalTitle");
+  const form = document.getElementById("categoryForm");
+  const input = document.getElementById("id_category_name");
+  const btn = document.getElementById("btnSaveCategory");
+  if (!modal || !title || !form || !input || !btn) return;
 
-    title.innerText = 'Nova Categoria';
-    btn.innerText = 'Criar';
-    input.value = '';
-    
-    // Recebe a rota correta direto do Django
-    form.action = actionUrl;
-    
-    modal.classList.add('active');
+  title.innerText = "Nova Categoria";
+  btn.innerText = "Criar";
+  input.value = "";
+
+  // Recebe a rota correta direto do Django
+  form.action = actionUrl;
+
+  modal.classList.add("active");
 }
 
 function closeCategoryModal() {
-    document.getElementById('categoryModal')?.classList.remove('active');
+  document.getElementById("categoryModal")?.classList.remove("active");
 }
 
 function openEditCategoryModal(actionUrl, name) {
-    const modal = document.getElementById('categoryModal');
-    const title = document.getElementById('categoryModalTitle');
-    const form = document.getElementById('categoryForm');
-    const input = document.getElementById('id_category_name');
-    const btn = document.getElementById('btnSaveCategory');
-    if (!modal || !title || !form || !input || !btn) return;
+  const modal = document.getElementById("categoryModal");
+  const title = document.getElementById("categoryModalTitle");
+  const form = document.getElementById("categoryForm");
+  const input = document.getElementById("id_category_name");
+  const btn = document.getElementById("btnSaveCategory");
+  if (!modal || !title || !form || !input || !btn) return;
 
-    title.innerText = 'Editar Categoria';
-    btn.innerText = 'Atualizar';
-    input.value = name;
-    
-    form.action = actionUrl;
-    
-    modal.classList.add('active');
+  title.innerText = "Editar Categoria";
+  btn.innerText = "Atualizar";
+  input.value = name;
+
+  form.action = actionUrl;
+
+  modal.classList.add("active");
 }
 
 function openDeleteCategoryModal(actionUrl, name) {
-    const modal = document.getElementById('deleteCategoryModal');
-    const nameSpan = document.getElementById('deleteCategoryName');
-    const form = document.getElementById('deleteCategoryForm');
-    if (!modal || !nameSpan || !form) return;
+  const modal = document.getElementById("deleteCategoryModal");
+  const nameSpan = document.getElementById("deleteCategoryName");
+  const form = document.getElementById("deleteCategoryForm");
+  if (!modal || !nameSpan || !form) return;
 
-    nameSpan.innerText = name;
-    form.action = actionUrl;
-    
-    modal.classList.add('active');
+  nameSpan.innerText = name;
+  form.action = actionUrl;
+
+  modal.classList.add("active");
 }
 
 function closeDeleteCategoryModal() {
-    document.getElementById('deleteCategoryModal')?.classList.remove('active');
+  document.getElementById("deleteCategoryModal")?.classList.remove("active");
 }
 
 function openDeleteDashboardModal(actionUrl, title) {
-    const modal = document.getElementById('deleteDashboardModal');
-    const titleSpan = document.getElementById('deleteDashboardTitle');
-    const form = document.getElementById('deleteDashboardForm');
-    if (!modal || !titleSpan || !form) return;
+  const modal = document.getElementById("deleteDashboardModal");
+  const titleSpan = document.getElementById("deleteDashboardTitle");
+  const form = document.getElementById("deleteDashboardForm");
+  if (!modal || !titleSpan || !form) return;
 
-    titleSpan.innerText = title;
-    form.action = actionUrl;
-    
-    modal.classList.add('active');
+  titleSpan.innerText = title;
+  form.action = actionUrl;
+
+  modal.classList.add("active");
 }
 
 function closeDeleteDashboardModal() {
-    document.getElementById('deleteDashboardModal')?.classList.remove('active');
+  document.getElementById("deleteDashboardModal")?.classList.remove("active");
 }
 
 function openImageModal(imageUrl, dashboardName) {
-    const imageModal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    if (!imageModal || !modalImage || !modalTitle) return;
+  const imageModal = document.getElementById("imageModal");
+  const modalImage = document.getElementById("modalImage");
+  const modalTitle = document.getElementById("modalTitle");
+  if (!imageModal || !modalImage || !modalTitle) return;
 
-    modalImage.src = imageUrl || '';
-    modalTitle.textContent = dashboardName;
-    imageModal.classList.add('active');
+  modalImage.src = imageUrl || "";
+  modalTitle.textContent = dashboardName;
+  imageModal.classList.add("active");
 }
 
 function closeImageModal() {
-    document.getElementById('imageModal')?.classList.remove('active');
+  document.getElementById("imageModal")?.classList.remove("active");
 }
 
 function openMoveModal() {
-    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
-    const dashboardIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id'));
-    
-    if (dashboardIds.length === 0) {
-        alert('Selecione ao menos um dashboard');
-        return;
-    }
+  const selectedCheckboxes = document.querySelectorAll(
+    ".dashboard-select:checked",
+  );
+  const dashboardIds = Array.from(selectedCheckboxes).map((cb) =>
+    cb.getAttribute("data-dashboard-id"),
+  );
 
-    const input = document.getElementById('selectedDashboardsInput');
-    if (input) input.value = dashboardIds.join(',');
-    
-    document.getElementById('moveModal')?.classList.add('active');
+  if (dashboardIds.length === 0) {
+    alert("Selecione ao menos um dashboard");
+    return;
+  }
+
+  const input = document.getElementById("selectedDashboardsInput");
+  if (input) input.value = dashboardIds.join(",");
+
+  document.getElementById("moveModal")?.classList.add("active");
 }
 
 function closeMoveModal() {
-    document.getElementById('moveModal')?.classList.remove('active');
+  document.getElementById("moveModal")?.classList.remove("active");
 }
 
 function updateBulkActionsBar() {
-    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
-    const bulkActionsBar = document.getElementById('bulkActionsBar');
-    const selectedCount = document.getElementById('selectedCount');
-    if (!bulkActionsBar || !selectedCount) return;
+  const selectedCheckboxes = document.querySelectorAll(
+    ".dashboard-select:checked",
+  );
+  const bulkActionsBar = document.getElementById("bulkActionsBar");
+  const selectedCount = document.getElementById("selectedCount");
+  if (!bulkActionsBar || !selectedCount) return;
 
-    selectedCount.textContent = selectedCheckboxes.length;
+  selectedCount.textContent = selectedCheckboxes.length;
 
-    if (selectedCheckboxes.length > 0) {
-        bulkActionsBar.classList.add('is-visible');
-    } else {
-        bulkActionsBar.classList.remove('is-visible');
-    }
+  if (selectedCheckboxes.length > 0) {
+    bulkActionsBar.classList.add("is-visible");
+  } else {
+    bulkActionsBar.classList.remove("is-visible");
+  }
 }
 
 function clearSelection() {
-    document.querySelectorAll('.dashboard-select').forEach(checkbox => {
-        checkbox.checked = false;
-        checkbox.closest('.dashboard-card')?.classList.remove('selected');
-    });
-    document.getElementById('bulkActionsBar')?.classList.remove('is-visible');
+  document.querySelectorAll(".dashboard-select").forEach((checkbox) => {
+    checkbox.checked = false;
+    checkbox.closest(".dashboard-card")?.classList.remove("selected");
+  });
+  document.getElementById("bulkActionsBar")?.classList.remove("is-visible");
 }
 
 function confirmBulkDelete() {
-    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
-    if (selectedCheckboxes.length === 0) {
-        alert('Selecione ao menos um dashboard');
-        return;
-    }
+  const selectedCheckboxes = document.querySelectorAll(
+    ".dashboard-select:checked",
+  );
+  if (selectedCheckboxes.length === 0) {
+    alert("Selecione ao menos um dashboard");
+    return;
+  }
 
-    const modal = document.getElementById('bulkDeleteModal');
-    const countSpan = document.getElementById('bulkDeleteCount');
-    const input = document.getElementById('bulkDeleteDashboardsInput');
-    
-    if (!modal || !countSpan || !input) return;
+  const modal = document.getElementById("bulkDeleteModal");
+  const countSpan = document.getElementById("bulkDeleteCount");
+  const input = document.getElementById("bulkDeleteDashboardsInput");
 
-    countSpan.innerText = selectedCheckboxes.length;
-    input.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
-    
-    modal.classList.add('active');
+  if (!modal || !countSpan || !input) return;
+
+  countSpan.innerText = selectedCheckboxes.length;
+  input.value = Array.from(selectedCheckboxes)
+    .map((cb) => cb.getAttribute("data-dashboard-id"))
+    .join(",");
+
+  modal.classList.add("active");
 }
 
 function closeBulkDeleteModal() {
-    document.getElementById('bulkDeleteModal')?.classList.remove('active');
+  document.getElementById("bulkDeleteModal")?.classList.remove("active");
 }
 
 // Event Listeners Initialization
-document.addEventListener('DOMContentLoaded', function() {
-    // Make functions globally available
-    window.openCategoryModal = openCategoryModal;
-    window.closeCategoryModal = closeCategoryModal;
-    window.openEditCategoryModal = openEditCategoryModal;
-    window.openDeleteCategoryModal = openDeleteCategoryModal;
-    window.closeDeleteCategoryModal = closeDeleteCategoryModal;
-    window.openDeleteDashboardModal = openDeleteDashboardModal;
-    window.closeDeleteDashboardModal = closeDeleteDashboardModal;
-    window.openImageModal = openImageModal;
-    window.closeImageModal = closeImageModal;
-    window.openMoveModal = openMoveModal;
-    window.closeMoveModal = closeMoveModal;
-    window.updateBulkActionsBar = updateBulkActionsBar;
-    window.clearSelection = clearSelection;
-    window.confirmBulkDelete = confirmBulkDelete;
-    window.confirmBulkDuplicate = confirmBulkDuplicate;
-    window.closeBulkDeleteModal = closeBulkDeleteModal;
-    window.confirmBulkFavorite = confirmBulkFavorite;
+document.addEventListener("DOMContentLoaded", function () {
+  // Make functions globally available
+  window.openCategoryModal = openCategoryModal;
+  window.closeCategoryModal = closeCategoryModal;
+  window.openEditCategoryModal = openEditCategoryModal;
+  window.openDeleteCategoryModal = openDeleteCategoryModal;
+  window.closeDeleteCategoryModal = closeDeleteCategoryModal;
+  window.openDeleteDashboardModal = openDeleteDashboardModal;
+  window.closeDeleteDashboardModal = closeDeleteDashboardModal;
+  window.openImageModal = openImageModal;
+  window.closeImageModal = closeImageModal;
+  window.openMoveModal = openMoveModal;
+  window.closeMoveModal = closeMoveModal;
+  window.updateBulkActionsBar = updateBulkActionsBar;
+  window.clearSelection = clearSelection;
+  window.confirmBulkDelete = confirmBulkDelete;
+  window.confirmBulkDuplicate = confirmBulkDuplicate;
+  window.closeBulkDeleteModal = closeBulkDeleteModal;
+  window.confirmBulkFavorite = confirmBulkFavorite;
 
-    // Adicionando ouvintes específicos para os botões de fechar que podem ter IDs diferentes
-    document.getElementById('dashImageModalClose')?.addEventListener('click', closeImageModal);
-    document.getElementById('dashMoveModalClose')?.addEventListener('click', closeMoveModal);
-    document.getElementById('dashMoveModalCancel')?.addEventListener('click', closeMoveModal);
-    document.getElementById('bulkDeleteClose')?.addEventListener('click', closeBulkDeleteModal);
-    document.getElementById('bulkDeleteCancel')?.addEventListener('click', closeBulkDeleteModal);
-    document.getElementById('btnBulkDuplicate')?.addEventListener('click', confirmBulkDuplicate);
-    document.getElementById('btnBulkFavorite')?.addEventListener('click', confirmBulkFavorite);
+  // Adicionando ouvintes específicos para os botões de fechar que podem ter IDs diferentes
+  document
+    .getElementById("dashImageModalClose")
+    ?.addEventListener("click", closeImageModal);
+  document
+    .getElementById("dashMoveModalClose")
+    ?.addEventListener("click", closeMoveModal);
+  document
+    .getElementById("dashMoveModalCancel")
+    ?.addEventListener("click", closeMoveModal);
+  document
+    .getElementById("bulkDeleteClose")
+    ?.addEventListener("click", closeBulkDeleteModal);
+  document
+    .getElementById("bulkDeleteCancel")
+    ?.addEventListener("click", closeBulkDeleteModal);
+  document
+    .getElementById("btnBulkDuplicate")
+    ?.addEventListener("click", confirmBulkDuplicate);
+  document
+    .getElementById("btnBulkFavorite")
+    ?.addEventListener("click", confirmBulkFavorite);
 
-    const searchInput = document.getElementById('dashboardSearch');
-    const categoryChips = document.querySelectorAll('.category-chips .chip');
-    const dashboardCards = document.querySelectorAll('.dashboard-card');
-    const dashboardsGrid = document.querySelector('.dashboards-grid');
-    const checkboxes = document.querySelectorAll('.dashboard-select');
+  const searchInput = document.getElementById("dashboardSearch");
+  const categoryChips = document.querySelectorAll(".category-chips .chip");
+  const dashboardCards = document.querySelectorAll(".dashboard-card");
+  const dashboardsGrid = document.querySelector(".dashboards-grid");
+  const checkboxes = document.querySelectorAll(".dashboard-select");
 
-    // Dashboard Search
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            filterDashboards();
-        });
-    }
+  // Dashboard Search
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      filterDashboards();
+    });
+  }
 
-    // Category Filter
-    let selectedCategory = '';
-    categoryChips.forEach(chip => {
-        chip.addEventListener('click', function(e) {
-            e.preventDefault();
-            categoryChips.forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            selectedCategory = this.getAttribute('data-category');
-            filterDashboards();
-        });
+  // Category Filter
+  let selectedCategory = "";
+  categoryChips.forEach((chip) => {
+    chip.addEventListener("click", function (e) {
+      e.preventDefault();
+      categoryChips.forEach((c) => c.classList.remove("active"));
+      this.classList.add("active");
+      selectedCategory = this.getAttribute("data-category");
+      filterDashboards();
+    });
+  });
+
+  function filterDashboards() {
+    const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
+    let visibleCount = 0;
+
+    dashboardCards.forEach((card) => {
+      const dashboardTitle = card.querySelector("h3").textContent.toLowerCase();
+      const dashboardCategories = card.getAttribute("data-categories") || "";
+      const matchesSearch =
+        dashboardTitle.includes(searchTerm) ||
+        dashboardCategories.includes(searchTerm);
+      const matchesCategory =
+        !selectedCategory ||
+        dashboardCategories.split(",").includes(selectedCategory.toLowerCase());
+
+      if (matchesSearch && matchesCategory) {
+        card.style.display = "";
+        visibleCount++;
+      } else {
+        card.style.display = "none";
+      }
     });
 
-    function filterDashboards() {
-        const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-        let visibleCount = 0;
-
-        dashboardCards.forEach(card => {
-            const dashboardTitle = card.querySelector('h3').textContent.toLowerCase();
-            const dashboardCategories = card.getAttribute('data-categories') || '';
-            const matchesSearch = dashboardTitle.includes(searchTerm) || dashboardCategories.includes(searchTerm);
-            const matchesCategory = !selectedCategory || dashboardCategories.split(',').includes(selectedCategory.toLowerCase());
-            
-            if (matchesSearch && matchesCategory) {
-                card.style.display = '';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        let noResultsMsg = document.querySelector('.no-results-message');
-        if (visibleCount === 0 && dashboardsGrid) {
-            if (!noResultsMsg) {
-                noResultsMsg = document.createElement('div');
-                noResultsMsg.className = 'no-results-message';
-                dashboardsGrid.parentNode.insertBefore(noResultsMsg, dashboardsGrid);
-            }
-            noResultsMsg.innerHTML = `
+    let noResultsMsg = document.querySelector(".no-results-message");
+    if (visibleCount === 0 && dashboardsGrid) {
+      if (!noResultsMsg) {
+        noResultsMsg = document.createElement("div");
+        noResultsMsg.className = "no-results-message";
+        dashboardsGrid.parentNode.insertBefore(noResultsMsg, dashboardsGrid);
+      }
+      noResultsMsg.innerHTML = `
                 <div class="no-results-inner" style="text-align: center; padding: 3rem; color: var(--app-muted);">
                     <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; margin-bottom: 1rem;"></i>
                     <p>Nenhum dashboard encontrado</p>
                 </div>
             `;
-            dashboardsGrid.style.display = 'none';
-        } else if (dashboardsGrid) {
-            dashboardsGrid.style.display = '';
-            if (noResultsMsg) noResultsMsg.remove();
-        }
+      dashboardsGrid.style.display = "none";
+    } else if (dashboardsGrid) {
+      dashboardsGrid.style.display = "";
+      if (noResultsMsg) noResultsMsg.remove();
     }
 
-    // Selection/Checkboxes
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const card = this.closest('.dashboard-card');
-            if (this.checked) {
-                card.classList.add('selected');
-            } else {
-                card.classList.remove('selected');
-            }
-            updateBulkActionsBar();
-        });
+    const termForRecs = searchTerm || selectedCategory;
+
+    // Mapeia os IDs que JÁ ESTÃO visíveis na tela principal
+    const visibleIds = [];
+    dashboardCards.forEach((card) => {
+      if (card.style.display !== "none") {
+        visibleIds.push(card.getAttribute("data-dashboard-id"));
+      }
     });
 
-    // Image Preview Click
-    const viewButtons = document.querySelectorAll('.btn-view');
-    viewButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const imageUrl = this.getAttribute('data-image');
-            const dashboardName = this.closest('.dashboard-card').querySelector('h3').textContent;
-            openImageModal(imageUrl, dashboardName);
-        });
+    // Dispara a busca inteligente
+    if (termForRecs) {
+      buscarRecomendacoes(termForRecs, visibleIds);
+    } else {
+      // Se limpou os filtros, esconde as recomendações
+      const recSection = document.getElementById("recommendationsSection");
+      if (recSection) recSection.style.display = "none";
+    }
+  }
+
+  // Selection/Checkboxes
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", function () {
+      const card = this.closest(".dashboard-card");
+      if (this.checked) {
+        card.classList.add("selected");
+      } else {
+        card.classList.remove("selected");
+      }
+      updateBulkActionsBar();
     });
+  });
 
-    // Close Modals on Overlay Click
-    const modals = document.querySelectorAll('.image-modal');
-    modals.forEach(modal => {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-            }
-        });
+  // Image Preview Click
+  const viewButtons = document.querySelectorAll(".btn-view");
+  viewButtons.forEach((button) => {
+    button.addEventListener("click", function (e) {
+      e.preventDefault();
+      const imageUrl = this.getAttribute("data-image");
+      const dashboardName =
+        this.closest(".dashboard-card").querySelector("h3").textContent;
+      openImageModal(imageUrl, dashboardName);
     });
+  });
 
-    // Bulk Actions buttons
-    document.getElementById('btnBulkMove')?.addEventListener('click', openMoveModal);
-    document.getElementById('btnBulkDelete')?.addEventListener('click', confirmBulkDelete);
-    document.getElementById('btnBulkCancel')?.addEventListener('click', clearSelection);
+  // Close Modals on Overlay Click
+  const modals = document.querySelectorAll(".image-modal");
+  modals.forEach((modal) => {
+    modal.addEventListener("click", function (e) {
+      if (e.target === this) {
+        this.classList.remove("active");
+      }
+    });
+  });
 
-    // Global Esc Key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.image-modal.active').forEach(m => m.classList.remove('active'));
+  // Bulk Actions buttons
+  document
+    .getElementById("btnBulkMove")
+    ?.addEventListener("click", openMoveModal);
+  document
+    .getElementById("btnBulkDelete")
+    ?.addEventListener("click", confirmBulkDelete);
+  document
+    .getElementById("btnBulkCancel")
+    ?.addEventListener("click", clearSelection);
+
+  // Global Esc Key
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      document
+        .querySelectorAll(".image-modal.active")
+        .forEach((m) => m.classList.remove("active"));
+    }
+  });
+
+  // Toggle de Favorito Individual no Card
+  const favoriteButtons = document.querySelectorAll(".dashboard-favorite");
+
+  favoriteButtons.forEach((btn) => {
+    btn.addEventListener("click", async function (e) {
+      e.preventDefault();
+
+      const url = this.getAttribute("data-url");
+      const icon = this.querySelector("i");
+      const csrfToken = document.querySelector(
+        "[name=csrfmiddlewaretoken]",
+      )?.value;
+
+      // Feedback visual imediato (Optimistic UI)
+      this.classList.toggle("active");
+      if (this.classList.contains("active")) {
+        icon.classList.remove("fa-regular");
+        icon.classList.add("fa-solid");
+      } else {
+        icon.classList.remove("fa-solid");
+        icon.classList.add("fa-regular");
+      }
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": csrfToken,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+
+        // Se o servidor retornar erro, revertemos a animação
+        if (!data.success) {
+          console.error("Erro ao favoritar:", data.error);
+          this.classList.toggle("active");
+          icon.classList.toggle("fa-solid");
+          icon.classList.toggle("fa-regular");
         }
+      } catch (error) {
+        console.error("Erro na requisição:", error);
+        // Reverte em caso de falha de rede
+        this.classList.toggle("active");
+        icon.classList.toggle("fa-solid");
+        icon.classList.toggle("fa-regular");
+      }
     });
-
-    // Toggle de Favorito Individual no Card
-    const favoriteButtons = document.querySelectorAll('.dashboard-favorite');
-
-    favoriteButtons.forEach(btn => {
-        btn.addEventListener('click', async function(e) {
-            e.preventDefault();
-            
-            const url = this.getAttribute('data-url');
-            const icon = this.querySelector('i');
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
-
-            // Feedback visual imediato (Optimistic UI)
-            this.classList.toggle('active');
-            if (this.classList.contains('active')) {
-                icon.classList.remove('fa-regular');
-                icon.classList.add('fa-solid');
-            } else {
-                icon.classList.remove('fa-solid');
-                icon.classList.add('fa-regular');
-            }
-
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': csrfToken,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-
-                // Se o servidor retornar erro, revertemos a animação
-                if (!data.success) {
-                    console.error('Erro ao favoritar:', data.error);
-                    this.classList.toggle('active');
-                    icon.classList.toggle('fa-solid');
-                    icon.classList.toggle('fa-regular');
-                }
-            } catch (error) {
-                console.error('Erro na requisição:', error);
-                // Reverte em caso de falha de rede
-                this.classList.toggle('active');
-                icon.classList.toggle('fa-solid');
-                icon.classList.toggle('fa-regular');
-            }
-        });
-    });
-
+  });
 });
 
-
 function confirmBulkDuplicate() {
-    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
-    if (selectedCheckboxes.length === 0) {
-        alert('Selecione ao menos um dashboard para duplicar.');
-        return;
-    }
+  const selectedCheckboxes = document.querySelectorAll(
+    ".dashboard-select:checked",
+  );
+  if (selectedCheckboxes.length === 0) {
+    alert("Selecione ao menos um dashboard para duplicar.");
+    return;
+  }
 
-    const message = selectedCheckboxes.length === 1 
-        ? 'Tem certeza que deseja duplicar este dashboard?' 
-        : `Tem certeza que deseja duplicar ${selectedCheckboxes.length} dashboards?`;
+  const message =
+    selectedCheckboxes.length === 1
+      ? "Tem certeza que deseja duplicar este dashboard?"
+      : `Tem certeza que deseja duplicar ${selectedCheckboxes.length} dashboards?`;
 
-    if (confirm(message)) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        
-        // Pega a URL do config que atualizamos no HTML
-        const config = document.getElementById('cliente-dashboards-config');
-        const bulkDuplicateUrl = config?.dataset?.bulkDuplicateUrl;
-        if (!bulkDuplicateUrl) return;
-        
-        form.action = bulkDuplicateUrl;
-        
-        const csrfTokenInput = document.createElement('input');
-        csrfTokenInput.type = 'hidden';
-        csrfTokenInput.name = 'csrfmiddlewaretoken';
-        csrfTokenInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-        form.appendChild(csrfTokenInput);
-        
-        const dashboardIdsInput = document.createElement('input');
-        dashboardIdsInput.type = 'hidden';
-        dashboardIdsInput.name = 'dashboard_ids';
-        dashboardIdsInput.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
-        form.appendChild(dashboardIdsInput);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
+  if (confirm(message)) {
+    const form = document.createElement("form");
+    form.method = "POST";
+
+    // Pega a URL do config que atualizamos no HTML
+    const config = document.getElementById("cliente-dashboards-config");
+    const bulkDuplicateUrl = config?.dataset?.bulkDuplicateUrl;
+    if (!bulkDuplicateUrl) return;
+
+    form.action = bulkDuplicateUrl;
+
+    const csrfTokenInput = document.createElement("input");
+    csrfTokenInput.type = "hidden";
+    csrfTokenInput.name = "csrfmiddlewaretoken";
+    csrfTokenInput.value =
+      document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
+    form.appendChild(csrfTokenInput);
+
+    const dashboardIdsInput = document.createElement("input");
+    dashboardIdsInput.type = "hidden";
+    dashboardIdsInput.name = "dashboard_ids";
+    dashboardIdsInput.value = Array.from(selectedCheckboxes)
+      .map((cb) => cb.getAttribute("data-dashboard-id"))
+      .join(",");
+    form.appendChild(dashboardIdsInput);
+
+    document.body.appendChild(form);
+    form.submit();
+  }
 }
 
 function confirmBulkFavorite() {
-    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
-    if (selectedCheckboxes.length === 0) {
-        alert('Selecione ao menos um dashboard para favoritar.');
-        return;
-    }
+  const selectedCheckboxes = document.querySelectorAll(
+    ".dashboard-select:checked",
+  );
+  if (selectedCheckboxes.length === 0) {
+    alert("Selecione ao menos um dashboard para favoritar.");
+    return;
+  }
 
-    // Não precisa de confirm() para favoritar, pois é uma ação inofensiva.
-    // Basta submeter o form direto.
-    const form = document.createElement('form');
-    form.method = 'POST';
-    
+  // Não precisa de confirm() para favoritar, pois é uma ação inofensiva.
+  // Basta submeter o form direto.
+  const form = document.createElement("form");
+  form.method = "POST";
+
+  const config = document.getElementById("cliente-dashboards-config");
+  const bulkFavoriteUrl = config?.dataset?.bulkFavoriteUrl;
+  if (!bulkFavoriteUrl) return;
+
+  form.action = bulkFavoriteUrl;
+
+  const csrfTokenInput = document.createElement("input");
+  csrfTokenInput.type = "hidden";
+  csrfTokenInput.name = "csrfmiddlewaretoken";
+  csrfTokenInput.value =
+    document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
+  form.appendChild(csrfTokenInput);
+
+  const dashboardIdsInput = document.createElement("input");
+  dashboardIdsInput.type = "hidden";
+  dashboardIdsInput.name = "dashboard_ids";
+  dashboardIdsInput.value = Array.from(selectedCheckboxes)
+    .map((cb) => cb.getAttribute("data-dashboard-id"))
+    .join(",");
+  form.appendChild(dashboardIdsInput);
+
+  document.body.appendChild(form);
+  form.submit();
+}
+
+
+async function buscarRecomendacoes(term, visibleIds) {
     const config = document.getElementById('cliente-dashboards-config');
-    const bulkFavoriteUrl = config?.dataset?.bulkFavoriteUrl;
-    if (!bulkFavoriteUrl) return;
-    
-    form.action = bulkFavoriteUrl;
-    
-    const csrfTokenInput = document.createElement('input');
-    csrfTokenInput.type = 'hidden';
-    csrfTokenInput.name = 'csrfmiddlewaretoken';
-    csrfTokenInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-    form.appendChild(csrfTokenInput);
-    
-    const dashboardIdsInput = document.createElement('input');
-    dashboardIdsInput.type = 'hidden';
-    dashboardIdsInput.name = 'dashboard_ids';
-    dashboardIdsInput.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
-    form.appendChild(dashboardIdsInput);
-    
-    document.body.appendChild(form);
-    form.submit();
+    const apiUrl = config?.dataset?.apiRecsUrl;
+    if (!apiUrl) return;
+
+    try {
+        const response = await fetch(`${apiUrl}?q=${encodeURIComponent(term)}`);
+        const data = await response.json();
+
+        const recSection = document.getElementById('recommendationsSection');
+        const recGrid = document.getElementById('recommendationsGrid');
+        
+        if (!recSection || !recGrid) return;
+
+        // O Segredo: Filtra para remover qualquer dashboard que já está na tela!
+        const recommendations = data.dashboards.filter(d => !visibleIds.includes(String(d.id)));
+
+        if (recommendations.length > 0) {
+            recGrid.innerHTML = ''; // Limpa as recomendações antigas
+
+            recommendations.forEach(dash => {
+                const card = document.createElement('div');
+                card.className = 'dashboard-card';
+                card.innerHTML = `
+                    <div class="dashboard-image">
+                        ${dash.image_url ? `<img src="${dash.image_url}" alt="${dash.title}">` : `<div class="no-image">Sem imagem</div>`}
+                    </div>
+                    <div class="dashboard-content">
+                        <div class="client-badge">
+                            <i class="fa-solid fa-building"></i> ${dash.client_name}
+                        </div>
+                        <h3>${dash.title}</h3>
+                        
+                        <div class="dashboard-actions" style="justify-content: flex-start; margin-top: 1rem; border-top: 1px solid var(--app-border, #e2e8f0); padding-top: 1rem;">
+                            <a href="javascript:void(0)" class="btn-view" data-image="${dash.image_url}" title="Ver imagem do dashboard">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            <a href="${dash.download_url}" class="btn-download" title="Download JSON">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                recGrid.appendChild(card);
+            });
+
+        const newViewButtons = recGrid.querySelectorAll('.btn-view');
+            newViewButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const imageUrl = this.getAttribute('data-image');
+                    const dashboardName = this.closest('.dashboard-content').querySelector('h3').textContent;
+                    
+                    // Usa a função global que criamos anteriormente
+                    if (typeof window.openImageModal === 'function') {
+                        window.openImageModal(imageUrl, dashboardName);
+                    }
+                });
+            });
+
+            recSection.style.display = 'block';
+        } else {
+            recSection.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Erro ao buscar recomendações:', error);
+    }
 }

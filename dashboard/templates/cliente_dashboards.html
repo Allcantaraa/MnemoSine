@@ -11,7 +11,8 @@
 <div id="cliente-dashboards-config" 
      data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" 
      data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}"
-     data-bulk-favorite-url="{% url 'favoritar_dashboards_bulk' client_slug %}" 
+     data-bulk-favorite-url="{% url 'favoritar_dashboards_bulk' client_slug %}"
+     data-api-recs-url="{% url 'api_recomendacoes_dashboards' %}"
      hidden aria-hidden="true">
 </div>
 
@@ -91,6 +92,7 @@
 </div>
     </div>
 
+    <div class="dashboards-section" id="mainDashboardsSection">
     {% if dashboards %}
         <div class="dashboards-grid">
             {% for dashboard in dashboards %}
@@ -160,6 +162,12 @@
             <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">Criar Primeiro Dashboard</a>
         </div>
     {% endif %}
+    </div>
+    <div class="dashboards-section" id="recommendationsSection" style="display: none;">
+    <h2><i class="fa-solid fa-lightbulb" style="color: #eab308; margin-right: 0.5rem;"></i> Você também pode estar procurando...</h2>
+    <div class="dashboards-grid" id="recommendationsGrid">
+        </div>
+</div>
 </div>
 
 <!-- Image Modal -->

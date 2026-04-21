@@ -1167,3 +1167,34 @@
 [data-theme="dark"] .dashboard-favorite.active {
     filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.4));
 }
+
+.client-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border-radius: 12px;
+    background-color: rgba(201, 42, 42, 0.1);
+    color: #c92a2a;
+    border: 1px solid rgba(201, 42, 42, 0.2);
+    margin-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .client-badge {
+    background-color: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+    border-color: rgba(255, 107, 107, 0.2);
+}
+
+.dashboards-section {
+    margin-top: 2rem;
+}
+
+.dashboards-section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--app-text);
+    margin-bottom: 1.5rem;
+}

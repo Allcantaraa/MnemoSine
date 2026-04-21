@@ -11,6 +11,35 @@ from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
 
 @login_required
+@organization_member_or_admin_required
+def api_recomendacoes_dashboards(request):
+    """API que retorna recomendações baseadas no termo de busca em toda a organização."""
+    org = request.organization
+    termo = request.GET.get('q', '').strip()
+
+    if not termo:
+        return JsonResponse({'dashboards': []})
+
+    # Busca em toda a organização por título que contenha o termo
+    recomendacoes = Dashboard.objects.filter(
+        organization=org,
+        title__icontains=termo
+    ).select_related('client')[:6] # Limita a 6 para não poluir a tela
+
+    resultados = []
+    for dash in recomendacoes:
+        resultados.append({
+            'id': dash.id,
+            'title': dash.title,
+            'client_name': dash.client.name if dash.client else 'Geral',
+            'client_slug': dash.client.slug if dash.client else '',
+            'image_url': dash.image.url if dash.image else '',
+            'download_url': reverse('baixar_dashboard_json', args=[dash.client.slug, dash.slug]) if dash.client else '#'
+        })
+
+    return JsonResponse({'dashboards': resultados})
+
+@login_required
 @organization_required
 def index(request):
     """Página principal com KPIs, clientes e filtros."""

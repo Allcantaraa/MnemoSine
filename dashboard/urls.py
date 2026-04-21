@@ -9,6 +9,7 @@ urlpatterns = [
     path('clientes/<slug:slug>/', views.dashboards, name='cliente_dashboard'),
     path('dashboard/<slug:slug>/', views.dashboard, name='detalhes_dashboard'),
     path('clientes/<slug:client_slug>/dashboard/favoritar/<slug:dashboard_slug>/', views.toggle_favorite_dashboard, name='toggle_favorite_dashboard'),
+    path('api/dashboards/recomendacoes/', views.api_recomendacoes_dashboards, name='api_recomendacoes_dashboards'),
 
     # Clientes CRUD
     path('clientes/criar', views.criar_cliente, name='criar_cliente'),
