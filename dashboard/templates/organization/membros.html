@@ -119,10 +119,10 @@
                                         <div class="member-actions">
                                             <form method="POST" action="{% url 'alterar_role_membro' membro.user.id %}" class="role-form">
                                                 {% csrf_token %}
-                                                <select name="role" class="role-select">
-                                                    <option value="administrador" {% if membro.role == "administrador" %}selected{% endif %}>Administrador</option>
-                                                    <option value="membro" {% if membro.role == "membro" %}selected{% endif %}>Membro</option>
-                                                </select>
+                                               <select name="role" class="role-select">
+    <option value="{{ membro.Role.ADMINISTRADOR }}" {% if membro.role == membro.Role.ADMINISTRADOR %}selected{% endif %}>Administrador</option>
+    <option value="{{ membro.Role.MEMBRO }}" {% if membro.role == membro.Role.MEMBRO %}selected{% endif %}>Membro</option>
+</select>
                                                 <button type="submit" class="btn-update">Salvar</button>
                                             </form>
                                             <button
