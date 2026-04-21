@@ -28,6 +28,7 @@ urlpatterns = [
     # Bulk operations
     path('clientes/<slug:client_slug>/dashboards/mover/', views.mover_dashboards, name='mover_dashboards'),
     path('clientes/<slug:client_slug>/dashboards/deletar-bulk/', views.deletar_dashboards_bulk, name='deletar_dashboards_bulk'),
+    path('clientes/<slug:client_slug>/dashboards/duplicar-bulk/', views.duplicar_dashboards_bulk, name='duplicar_dashboards_bulk'),
 
     # Organization management
     path('organization/membros', organization_views.listar_membros, name='listar_membros'),

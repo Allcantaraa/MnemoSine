@@ -493,6 +493,54 @@ def deletar_dashboards_bulk(request, client_slug):
 
     return redirect('cliente_dashboard', slug=client_slug)
 
+@login_required
+@organization_member_or_admin_required
+def duplicar_dashboards_bulk(request, client_slug):
+    """Duplica vários dashboards selecionados."""
+    org = request.organization
+    cliente = get_object_or_404(Cliente, slug=client_slug, organization=org)
+
+    if request.method == 'POST':
+        dashboard_ids = request.POST.get('dashboard_ids', '').split(',')
+        dashboard_ids = [id for id in dashboard_ids if id and id.isdigit()]
+
+        if not dashboard_ids:
+            messages.error(request, 'Nenhum dashboard selecionado para duplicar.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        dashboards = Dashboard.objects.filter(
+            id__in=dashboard_ids, 
+            organization=org, 
+            client=cliente
+        )
+
+        if not dashboards.exists():
+            messages.error(request, 'Nenhum dashboard encontrado.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        count = 0
+        for dashboard in dashboards:
+            # 1. Salvar as categorias atuais na memória antes de duplicar
+            categorias_antigas = list(dashboard.categories.all())
+
+            # 2. Remover IDs e atualizar o título para criar um novo registro
+            dashboard.pk = None
+            dashboard.id = None
+            dashboard.title = f"{dashboard.title} (Cópia)"
+            dashboard.slug = None  # Limpar o slug para que o model gere um novo automaticamente
+            
+            # 3. Salvar o novo dashboard
+            dashboard.save()
+
+            # 4. Vincular as categorias antigas à nova cópia
+            dashboard.categories.set(categorias_antigas)
+            count += 1
+
+        message = f'{count} dashboard foi duplicado' if count == 1 else f'{count} dashboards foram duplicados'
+        messages.success(request, f'{message} com sucesso!')
+
+    return redirect('cliente_dashboard', slug=client_slug)
+
 
 @login_required
 @organization_admin_required

@@ -7,6 +7,12 @@
 {% endblock %}
 
 {% block content %}
+
+<div id="cliente-dashboards-config" 
+     data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" 
+     data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}" 
+     hidden aria-hidden="true"></div>
+
     <div id="cliente-dashboards-config" data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" hidden aria-hidden="true"></div>
     <div class="dashboards-container">
     <div class="dashboards-header">
@@ -56,21 +62,26 @@
             <span id="selectedCount">0</span> dashboard(s) selecionado(s)
         </div>
         <div class="bulk-actions-buttons">
-            <button type="button" class="btn-bulk-move" id="btnBulkMove">
-                <i class="fa-solid fa-arrow-right"></i> Mover para Cliente
-            </button>
-            <button type="button" class="btn-bulk-delete" id="btnBulkDelete">
-                <i class="fa-solid fa-trash"></i> 
-                {% if request.user|has_org_role:request.organization %}
-                    Deletar Selecionados
-                {% else %}
-                    Solicitar Exclusão
-                {% endif %}
-            </button>
-            <button type="button" class="btn-bulk-cancel" id="btnBulkCancel">
-                Cancelar
-            </button>
-        </div>
+    <button type="button" class="btn-bulk-move" id="btnBulkMove">
+        <i class="fa-solid fa-arrow-right"></i> Mover para Cliente
+    </button>
+    
+    <button type="button" class="btn-bulk-duplicate" id="btnBulkDuplicate">
+        <i class="fa-solid fa-copy"></i> Duplicar Selecionados
+    </button>
+
+    <button type="button" class="btn-bulk-delete" id="btnBulkDelete">
+        <i class="fa-solid fa-trash"></i> 
+        {% if request.user|has_org_role:request.organization %}
+            Deletar Selecionados
+        {% else %}
+            Solicitar Exclusão
+        {% endif %}
+    </button>
+    <button type="button" class="btn-bulk-cancel" id="btnBulkCancel">
+        Cancelar
+    </button>
+</div>
     </div>
 
     {% if dashboards %}

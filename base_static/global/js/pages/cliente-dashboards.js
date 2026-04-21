@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.updateBulkActionsBar = updateBulkActionsBar;
     window.clearSelection = clearSelection;
     window.confirmBulkDelete = confirmBulkDelete;
-
+    window.confirmBulkDuplicate = confirmBulkDuplicate;
     window.closeBulkDeleteModal = closeBulkDeleteModal;
 
     // Adicionando ouvintes específicos para os botões de fechar que podem ter IDs diferentes
@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('dashMoveModalCancel')?.addEventListener('click', closeMoveModal);
     document.getElementById('bulkDeleteClose')?.addEventListener('click', closeBulkDeleteModal);
     document.getElementById('bulkDeleteCancel')?.addEventListener('click', closeBulkDeleteModal);
+    document.getElementById('btnBulkDuplicate')?.addEventListener('click', confirmBulkDuplicate);
 
     const searchInput = document.getElementById('dashboardSearch');
     const categoryChips = document.querySelectorAll('.category-chips .chip');
@@ -300,3 +301,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+function confirmBulkDuplicate() {
+    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
+    if (selectedCheckboxes.length === 0) {
+        alert('Selecione ao menos um dashboard para duplicar.');
+        return;
+    }
+
+    const message = selectedCheckboxes.length === 1 
+        ? 'Tem certeza que deseja duplicar este dashboard?' 
+        : `Tem certeza que deseja duplicar ${selectedCheckboxes.length} dashboards?`;
+
+    if (confirm(message)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        
+        // Pega a URL do config que atualizamos no HTML
+        const config = document.getElementById('cliente-dashboards-config');
+        const bulkDuplicateUrl = config?.dataset?.bulkDuplicateUrl;
+        if (!bulkDuplicateUrl) return;
+        
+        form.action = bulkDuplicateUrl;
+        
+        const csrfTokenInput = document.createElement('input');
+        csrfTokenInput.type = 'hidden';
+        csrfTokenInput.name = 'csrfmiddlewaretoken';
+        csrfTokenInput.value = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        form.appendChild(csrfTokenInput);
+        
+        const dashboardIdsInput = document.createElement('input');
+        dashboardIdsInput.type = 'hidden';
+        dashboardIdsInput.name = 'dashboard_ids';
+        dashboardIdsInput.value = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id')).join(',');
+        form.appendChild(dashboardIdsInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}

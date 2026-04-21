@@ -342,7 +342,7 @@
         gap: 0.75rem;
     }
 
-    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-cancel {
+    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-duplicate, .btn-bulk-cancel {
         padding: 0.6rem 1.25rem;
         border-radius: 8px;
         font-size: 0.9rem;
@@ -1090,4 +1090,22 @@
 
 [data-theme="dark"] .btn-chip-delete:hover {
     color: #ff6b6b; /* Vermelho mais claro para contraste no escuro */
+}
+
+.btn-bulk-duplicate {
+    background-color: #fff;
+    color: #3b82f6; /* Azul indicando cópia/criação */
+}
+
+.btn-bulk-duplicate:hover {
+    background-color: #eff6ff; /* Fundo azul claro no hover */
+}
+
+[data-theme="dark"] .btn-bulk-duplicate {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .btn-bulk-duplicate:hover {
+    background-color: rgba(59, 130, 246, 0.15);
 }
