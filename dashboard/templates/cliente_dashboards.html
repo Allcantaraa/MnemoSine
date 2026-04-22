@@ -13,6 +13,7 @@
      data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}"
      data-bulk-favorite-url="{% url 'favoritar_dashboards_bulk' client_slug %}"
      data-bulk-create-url="{% url 'criar_dashboards_massa' client_slug %}"
+     data-bulk-category-url="{% url 'associar_categorias_bulk' client_slug %}"
      data-api-recs-url="{% url 'api_recomendacoes_dashboards' %}"
      hidden aria-hidden="true">
 </div>
@@ -76,6 +77,10 @@
     
     <button type="button" class="btn-bulk-duplicate" id="btnBulkDuplicate">
         <i class="fa-solid fa-copy"></i> Duplicar Selecionados
+    </button>
+
+    <button type="button" class="btn-bulk-category" onclick="openCategoryBulkModal()">
+        <i class="fa-solid fa-tags"></i> Associar Categorias
     </button>
 
     <button type="button" class="btn-bulk-favorite" id="btnBulkFavorite">
@@ -375,6 +380,40 @@
             <button type="button" id="btnConfirmBulkCreate" class="btn-primary" style="display: none;">Confirmar e Salvar Dashboards</button>
             <button type="button" class="btn-move-cancel" onclick="closeBulkCreateModal()">Cancelar</button>
         </div>
+    </div>
+</div>
+
+<div id="categoryBulkModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeCategoryBulkModal()">&times;</button>
+        <h3 class="move-modal-title">Associar Categorias</h3>
+        <form id="categoryBulkForm" method="POST" action="{% url 'associar_categorias_bulk' client_slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="dashboard_ids" id="categoryBulkIdsInput">
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Selecione as categorias que deseja adicionar:</label>
+                
+                <div class="category-checkbox-list" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--app-border); padding: 1rem; border-radius: 8px; background: var(--app-bg);">
+                    {% for categoria in categorias %}
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; cursor: pointer; color: var(--app-text);">
+                            <input type="checkbox" name="categorias" value="{{ categoria.id }}" style="width: 16px; height: 16px; accent-color: #3b82f6;">
+                            <i class="fa-solid fa-tag" style="color: var(--app-muted); font-size: 0.85rem;"></i> {{ categoria.name }}
+                        </label>
+                    {% empty %}
+                        <p style="color: var(--app-muted); font-size: 0.9rem; text-align: center;">Nenhuma categoria criada na organização.</p>
+                    {% endfor %}
+                </div>
+                <p style="font-size: 0.8rem; color: var(--app-muted); margin-top: 0.5rem;">
+                    * As categorias selecionadas serão <strong>adicionadas</strong> e não apagarão as que os dashboards já possuem.
+                </p>
+            </div>
+            
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary" style="background-color: #3b82f6;">Aplicar Categorias</button>
+                <button type="button" class="btn-move-cancel" onclick="closeCategoryBulkModal()">Cancelar</button>
+            </div>
+        </form>
     </div>
 </div>
 

@@ -10,6 +10,7 @@ urlpatterns = [
     path('clientes/bulk/duplicar/', views.duplicar_clientes_bulk, name='duplicar_clientes_bulk'),
     path('clientes/bulk/favoritar/', views.favoritar_clientes_bulk, name='favoritar_clientes_bulk'),
     path('clientes/bulk/deletar/', views.deletar_clientes_bulk, name='deletar_clientes_bulk'),
+    path('clientes/<slug:client_slug>/dashboards/categorias-bulk/', views.associar_categorias_bulk, name='associar_categorias_bulk'),
 
     # Dashboard listings
     path('clientes/<slug:slug>/', views.dashboards, name='cliente_dashboard'),

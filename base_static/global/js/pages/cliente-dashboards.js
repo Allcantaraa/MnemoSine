@@ -758,3 +758,25 @@ async function submitBulkDashboards() {
         confirmBtn.innerHTML = 'Confirmar e Salvar Dashboards';
     }
 }
+
+window.openCategoryBulkModal = function() {
+    const selectedCheckboxes = document.querySelectorAll('.dashboard-select:checked');
+    const dashboardIds = Array.from(selectedCheckboxes).map(cb => cb.getAttribute('data-dashboard-id'));
+    
+    if (dashboardIds.length === 0) {
+        alert('Selecione ao menos um dashboard.');
+        return;
+    }
+
+    const input = document.getElementById('categoryBulkIdsInput');
+    if (input) input.value = dashboardIds.join(',');
+    
+    // Reseta os checkboxes do modal sempre que abrir
+    document.querySelectorAll('input[name="categorias"]').forEach(cb => cb.checked = false);
+
+    document.getElementById('categoryBulkModal')?.classList.add('active');
+};
+
+window.closeCategoryBulkModal = function() {
+    document.getElementById('categoryBulkModal')?.classList.remove('active');
+};

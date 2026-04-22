@@ -342,7 +342,7 @@
         gap: 0.75rem;
     }
 
-    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-duplicate, .btn-bulk-favorite, .btn-bulk-cancel {
+    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-duplicate, .btn-bulk-favorite, .btn-bulk-cancel, .btn-bulk-category {
         padding: 0.6rem 1.25rem;
         border-radius: 8px;
         font-size: 0.9rem;
@@ -1274,4 +1274,23 @@
 
 [data-theme="dark"] .bulk-pair-image-area {
     background: #1e293b;
+}
+
+/* Botão Bulk Categorias */
+.btn-bulk-category {
+    background-color: #fff;
+    color: #0ea5e9; /* Teal/Ciano */
+}
+
+.btn-bulk-category:hover {
+    background-color: #f0fdfa; 
+}
+
+[data-theme="dark"] .btn-bulk-category {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #2dd4bf;
+}
+
+[data-theme="dark"] .btn-bulk-category:hover {
+    background-color: rgba(20, 184, 166, 0.15);
 }

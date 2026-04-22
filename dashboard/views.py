@@ -13,6 +13,42 @@ from django.db import transaction
 
 @login_required
 @organization_member_or_admin_required
+def associar_categorias_bulk(request, client_slug):
+    """Adiciona categorias em massa aos dashboards selecionados."""
+    org = request.organization
+    cliente = get_object_or_404(Cliente, slug=client_slug, organization=org)
+
+    if request.method == 'POST':
+        dashboard_ids = request.POST.get('dashboard_ids', '').split(',')
+        dashboard_ids = [id for id in dashboard_ids if id and id.isdigit()]
+        
+        # Pega a lista de IDs de categorias marcadas nos checkboxes
+        categoria_ids = request.POST.getlist('categorias')
+
+        if not dashboard_ids:
+            messages.error(request, 'Nenhum dashboard selecionado.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        if not categoria_ids:
+            messages.error(request, 'Nenhuma categoria selecionada.')
+            return redirect('cliente_dashboard', slug=client_slug)
+
+        dashboards = Dashboard.objects.filter(id__in=dashboard_ids, organization=org, client=cliente)
+        categorias = Categoria.objects.filter(id__in=categoria_ids, organization=org)
+
+        count = 0
+        for dash in dashboards:
+            # O *categorias desempacota o queryset e adiciona todas de uma vez
+            dash.categories.add(*categorias)
+            count += 1
+
+        messages.success(request, f'Categorias associadas com sucesso a {count} dashboard(s).')
+
+    return redirect('cliente_dashboard', slug=client_slug)
+
+
+@login_required
+@organization_member_or_admin_required
 def criar_dashboards_massa(request, client_slug):
     """Recebe arquivos processados pelo JS e cria múltiplos dashboards de uma vez."""
     org = request.organization
