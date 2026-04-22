@@ -128,7 +128,7 @@ def organization_member_or_admin_required(view_func):
 
         if not active_org_id:
             messages.error(request, 'Selecione uma organização.')
-            return redirect('index')
+            return redirect('selecionar_organizacao')
 
         try:
             org = Organization.objects.get(id=active_org_id)
@@ -143,10 +143,10 @@ def organization_member_or_admin_required(view_func):
             if 'active_org_id' in request.session:
                 del request.session['active_org_id']
             messages.error(request, 'Organização deletada. Selecione outra.')
-            return redirect('index')
+            return redirect('selecionar_organizacao')
         except OrganizationMember.DoesNotExist:
             messages.error(request, 'Acesso negado.')
-            return redirect('index')
+            return redirect('selecionar_organizacao')
 
         return view_func(request, *args, **kwargs)
     return wrapped_view
