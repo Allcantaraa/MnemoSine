@@ -1198,3 +1198,80 @@
     color: var(--app-text);
     margin-bottom: 1.5rem;
 }
+
+/* --- Bulk Create Dashboard UI --- */
+#bulkDropZone.drag-over {
+    border-color: #3b82f6;
+    background-color: rgba(59, 130, 246, 0.05);
+}
+
+.bulk-pair-card {
+    background: var(--app-surface, #fff);
+    border: 1px solid var(--app-border, #e2e8f0);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.bulk-pair-image-area {
+    height: 140px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    border-bottom: 1px solid var(--app-border);
+}
+
+.bulk-pair-image-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bulk-pair-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-size: 0.85rem;
+}
+
+.bulk-pair-image-area:hover .bulk-pair-image-overlay {
+    opacity: 1;
+}
+
+.bulk-pair-info {
+    padding: 1rem;
+    flex: 1;
+}
+
+.bulk-pair-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--app-text);
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bulk-pair-filename {
+    font-size: 0.75rem;
+    color: var(--app-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+[data-theme="dark"] .bulk-pair-image-area {
+    background: #1e293b;
+}

@@ -12,6 +12,7 @@
      data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" 
      data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}"
      data-bulk-favorite-url="{% url 'favoritar_dashboards_bulk' client_slug %}"
+     data-bulk-create-url="{% url 'criar_dashboards_massa' client_slug %}"
      data-api-recs-url="{% url 'api_recomendacoes_dashboards' %}"
      hidden aria-hidden="true">
 </div>
@@ -21,6 +22,9 @@
     <div class="dashboards-header">
         <h1>{{ cliente.name }} - Dashboards</h1>
         <div class="action-buttons">
+            <button type="button" class="btn-primary" onclick="openBulkCreateModal()" style="background-color: #10b981; border-color: #10b981;">
+                <i class="fa-solid fa-layer-group"></i> Criar em Massa
+            </button>
             <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">+ Novo Dashboard</a>
             <button type="button" class="btn-secondary" onclick="openCategoryModal('{% url 'criar_categoria' client_slug %}')">+ Nova Categoria</button>
         </div>
@@ -340,6 +344,37 @@
                 <button type="button" class="btn-move-cancel" id="bulkDeleteCancel">Cancelar</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div id="bulkCreateModal" class="image-modal" style="z-index: 99999;">
+    <div class="modal-content" style="max-width: 900px; width: 95%; max-height: 90vh; display: flex; flex-direction: column;">
+        <button type="button" class="close-modal" onclick="closeBulkCreateModal()">&times;</button>
+        <h3 class="move-modal-title">Criação de Dashboards em Massa</h3>
+        
+        <div style="flex: 1; overflow-y: auto; padding-right: 10px;">
+            <div id="bulkDropZone" class="drop-zone" style="margin-bottom: 2rem; border: 2px dashed var(--app-border); padding: 3rem 1rem; text-align: center; border-radius: 12px; cursor: pointer; transition: all 0.3s ease;">
+                <i class="fa-solid fa-cloud-arrow-up fa-3x" style="color: var(--app-muted); margin-bottom: 1rem;"></i>
+                <h4 style="margin-bottom: 0.5rem; color: var(--app-text);">Selecione ou arraste os arquivos aqui</h4>
+                <p style="color: var(--app-muted); font-size: 0.9rem;">Envie as imagens (.png, .jpg) e os arquivos .json juntos. O sistema fará o pareamento pelo nome do arquivo.</p>
+                <input type="file" id="bulkFileInput" multiple accept=".json, .png, .jpg, .jpeg" style="display: none;">
+            </div>
+
+            <div id="bulkPreviewSection" style="display: none;">
+                <h4 style="margin-bottom: 1rem; color: var(--app-text); display: flex; justify-content: space-between; align-items: center;">
+                    <span>Conferência de Dados</span>
+                    <span id="bulkPairCount" style="font-size: 0.85rem; background: var(--app-border); padding: 0.2rem 0.6rem; border-radius: 12px;">0 Dashboards</span>
+                </h4>
+                
+                <div id="bulkPairsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
+                    </div>
+            </div>
+        </div>
+
+        <div class="move-form-actions" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--app-border);">
+            <button type="button" id="btnConfirmBulkCreate" class="btn-primary" style="display: none;">Confirmar e Salvar Dashboards</button>
+            <button type="button" class="btn-move-cancel" onclick="closeBulkCreateModal()">Cancelar</button>
+        </div>
     </div>
 </div>
 

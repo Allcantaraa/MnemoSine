@@ -549,3 +549,212 @@ async function buscarRecomendacoes(term, visibleIds) {
         console.error('Erro ao buscar recomendações:', error);
     }
 }
+
+// --- CRIAÇÃO EM MASSA (SMART MATCHING) ---
+
+let bulkDashboardPairs = []; // Vai guardar o estado atual da pré-visualização
+
+window.openBulkCreateModal = function() {
+    document.getElementById('bulkCreateModal').classList.add('active');
+    resetBulkCreateState();
+};
+
+window.closeBulkCreateModal = function() {
+    document.getElementById('bulkCreateModal').classList.remove('active');
+    resetBulkCreateState();
+};
+
+function resetBulkCreateState() {
+    bulkDashboardPairs = [];
+    document.getElementById('bulkFileInput').value = '';
+    document.getElementById('bulkPreviewSection').style.display = 'none';
+    document.getElementById('bulkPairsGrid').innerHTML = '';
+    document.getElementById('btnConfirmBulkCreate').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const dropZone = document.getElementById('bulkDropZone');
+    const fileInput = document.getElementById('bulkFileInput');
+    const confirmBtn = document.getElementById('btnConfirmBulkCreate');
+
+    if (dropZone) {
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            processFiles(e.dataTransfer.files);
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => processFiles(e.target.files));
+    }
+
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', submitBulkDashboards);
+    }
+});
+
+// A Mágica de Pareamento
+async function processFiles(fileList) {
+    const files = Array.from(fileList);
+    const jsons = files.filter(f => f.name.toLowerCase().endsWith('.json'));
+    const images = files.filter(f => f.name.toLowerCase().match(/\.(jpg|jpeg|png)$/));
+
+    if (jsons.length === 0) {
+        alert("Por favor, envie ao menos um arquivo JSON.");
+        return;
+    }
+
+    document.getElementById('bulkPreviewSection').style.display = 'block';
+    document.getElementById('btnConfirmBulkCreate').style.display = 'block';
+    
+    const grid = document.getElementById('bulkPairsGrid');
+    
+    // Processa os JSONs assincronamente para ler a chave "title"
+    for (const jsonFile of jsons) {
+        // Pega o nome do arquivo sem a extensão para buscar a imagem
+        const baseName = jsonFile.name.substring(0, jsonFile.name.lastIndexOf('.')) || jsonFile.name;
+        
+        // Tenta achar uma imagem correspondente
+        let matchedImage = images.find(img => {
+            const imgBase = img.name.substring(0, img.name.lastIndexOf('.'));
+            return imgBase === baseName;
+        }) || null;
+
+        // Lê o conteúdo do JSON para pegar o Título
+        const title = await extractTitleFromJson(jsonFile);
+
+        // Cria o objeto na memória
+        const pairId = Date.now() + Math.random().toString(36).substr(2, 9);
+        bulkDashboardPairs.push({
+            id: pairId,
+            jsonFile: jsonFile,
+            imageFile: matchedImage,
+            title: title || baseName // fallback pro nome do arquivo se não achar titulo
+        });
+    }
+
+    renderBulkPreview();
+}
+
+function extractTitleFromJson(file) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                resolve(data.title || null);
+            } catch (err) {
+                resolve(null);
+            }
+        };
+        reader.readAsText(file);
+    });
+}
+
+function renderBulkPreview() {
+    const grid = document.getElementById('bulkPairsGrid');
+    document.getElementById('bulkPairCount').textContent = `${bulkDashboardPairs.length} Dashboard(s)`;
+    grid.innerHTML = '';
+
+    bulkDashboardPairs.forEach((pair, index) => {
+        const imageUrl = pair.imageFile ? URL.createObjectURL(pair.imageFile) : null;
+        
+        const card = document.createElement('div');
+        card.className = 'bulk-pair-card';
+        card.innerHTML = `
+            <div class="bulk-pair-image-area" onclick="triggerManualImageSelect('${pair.id}')">
+                ${imageUrl ? `<img src="${imageUrl}">` : `<i class="fa-regular fa-image fa-2x" style="color: #cbd5e1;"></i>`}
+                <div class="bulk-pair-image-overlay">
+                    <i class="fa-solid fa-pen"></i>
+                    <span>Alterar Imagem</span>
+                </div>
+                <input type="file" id="img-input-${pair.id}" accept=".png,.jpg,.jpeg" style="display: none;" onchange="handleManualImageChange(event, '${pair.id}')">
+            </div>
+            
+            <div class="bulk-pair-info">
+                <div class="bulk-pair-title" title="${pair.title}">${pair.title}</div>
+                <div class="bulk-pair-filename">
+                    <i class="fa-solid fa-code" style="color: #10b981;"></i> ${pair.jsonFile.name}
+                </div>
+                ${pair.imageFile ? 
+                  `<div class="bulk-pair-filename" style="margin-top: 4px;">
+                     <i class="fa-regular fa-image" style="color: #3b82f6;"></i> ${pair.imageFile.name}
+                   </div>` 
+                  : 
+                  `<div class="bulk-pair-filename" style="margin-top: 4px; color: #ef4444;">
+                     <i class="fa-solid fa-triangle-exclamation"></i> Sem imagem
+                   </div>`
+                }
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// Funções para correção manual do usuário no card
+window.triggerManualImageSelect = function(pairId) {
+    document.getElementById(`img-input-${pairId}`).click();
+};
+
+window.handleManualImageChange = function(event, pairId) {
+    const file = event.target.files[0];
+    if (file) {
+        const pairIndex = bulkDashboardPairs.findIndex(p => p.id === pairId);
+        if (pairIndex > -1) {
+            bulkDashboardPairs[pairIndex].imageFile = file;
+            renderBulkPreview(); // Re-renderiza para atualizar a foto
+        }
+    }
+};
+
+// Envio para o Backend
+async function submitBulkDashboards() {
+    const confirmBtn = document.getElementById('btnConfirmBulkCreate');
+    confirmBtn.disabled = true;
+    confirmBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...';
+
+    const config = document.getElementById('cliente-dashboards-config');
+    const bulkCreateUrl = config?.dataset?.bulkCreateUrl;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+    const formData = new FormData();
+    formData.append('dashboards_count', bulkDashboardPairs.length);
+
+    bulkDashboardPairs.forEach((pair, i) => {
+        formData.append(`title_${i}`, pair.title);
+        formData.append(`json_${i}`, pair.jsonFile);
+        if (pair.imageFile) {
+            formData.append(`image_${i}`, pair.imageFile);
+        }
+    });
+
+    try {
+        const response = await fetch(bulkCreateUrl, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+            window.location.reload(); // Recarrega para ver os novos dashboards
+        } else {
+            alert('Erro ao salvar dashboards: ' + data.error);
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = 'Confirmar e Salvar Dashboards';
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        alert('Erro crítico ao conectar com o servidor.');
+        confirmBtn.disabled = false;
+        confirmBtn.innerHTML = 'Confirmar e Salvar Dashboards';
+    }
+}

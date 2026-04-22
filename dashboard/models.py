@@ -151,7 +151,7 @@ class Dashboard(models.Model):
         verbose_name_plural = 'Dashboards'
 
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='dashboards')
-    client = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True)
+    client = models.ForeignKey(Cliente, on_delete=models.CASCADE, null=True)
     title = models.CharField(max_length=255, blank=False, null=False)
     categories = models.ManyToManyField(Categoria, related_name='dashboards', blank=True)
     image = models.ImageField(upload_to='dashboards/images/%Y/%m/', blank=False, null=False)

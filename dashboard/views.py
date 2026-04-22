@@ -10,6 +10,48 @@ from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, 
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
 
+@login_required
+@organization_member_or_admin_required
+def criar_dashboards_massa(request, client_slug):
+    """Recebe arquivos processados pelo JS e cria múltiplos dashboards de uma vez."""
+    org = request.organization
+    cliente = get_object_or_404(Cliente, slug=client_slug, organization=org)
+
+    if request.method == 'POST':
+        try:
+            # O JS vai mandar a quantidade total de dashboards válidos
+            count = int(request.POST.get('dashboards_count', 0))
+            criados = 0
+
+            for i in range(count):
+                titulo = request.POST.get(f'title_{i}')
+                json_file = request.FILES.get(f'json_{i}')
+                image_file = request.FILES.get(f'image_{i}')
+
+                # Validação básica
+                if titulo and json_file:
+                    dash = Dashboard(
+                        organization=org,
+                        client=cliente,
+                        title=titulo,
+                        created_by=request.user
+                    )
+                    # Associa os arquivos
+                    dash.json.save(json_file.name, json_file, save=False)
+                    if image_file:
+                        dash.image.save(image_file.name, image_file, save=False)
+                    
+                    dash.save()
+                    criados += 1
+
+            messages.success(request, f'{criados} dashboard(s) criados com sucesso em lote!')
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+    return JsonResponse({'success': False, 'error': 'Método inválido'}, status=405)
+
 
 @login_required
 @organization_member_or_admin_required
