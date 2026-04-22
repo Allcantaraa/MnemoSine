@@ -9,6 +9,7 @@ import os
 from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, DeletionRequest
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
+from django.db import transaction
 
 @login_required
 @organization_member_or_admin_required
@@ -56,8 +57,9 @@ def criar_dashboards_massa(request, client_slug):
 @login_required
 @organization_member_or_admin_required
 def mover_clientes_bulk(request):
-    """Move clientes para outra organização."""
+    """Move clientes, seus dashboards e recria categorias em outra organização."""
     org = request.organization
+    
     if request.method == 'POST':
         client_ids = request.POST.get('client_ids', '').split(',')
         client_ids = [id for id in client_ids if id and id.isdigit()]
@@ -73,11 +75,50 @@ def mover_clientes_bulk(request):
             messages.error(request, 'Você não tem acesso à organização de destino.')
             return redirect('index')
 
+        dest_org = dest_membership.organization
         clientes = Cliente.objects.filter(id__in=client_ids, organization=org)
-        count = clientes.count()
-        clientes.update(organization=dest_membership.organization)
-        
-        messages.success(request, f'{count} cliente(s) movido(s) para {dest_membership.organization.name}.')
+        count = 0
+
+        try:
+            # Abre uma transação: se der erro no meio, ele desfaz TUDO, evitando dados pela metade
+            with transaction.atomic():
+                for cliente in clientes:
+                    
+                    # 1. Move o cliente para a nova organização
+                    cliente.organization = dest_org
+                    cliente.save()
+
+                    # 2. Busca os dashboards desse cliente que ficaram na organização antiga
+                    dashboards = Dashboard.objects.filter(client=cliente, organization=org)
+
+                    for dash in dashboards:
+                        # Salva as categorias antigas na memória antes de limpar
+                        categorias_antigas = list(dash.categories.all())
+                        
+                        # Limpa os vínculos da organização antiga
+                        dash.categories.clear()
+
+                        # Move o dashboard de fato
+                        dash.organization = dest_org
+                        dash.save()
+
+                        # 3. Recria ou reaproveita as categorias na nova organização
+                        for cat_antiga in categorias_antigas:
+                            # get_or_create busca pelo nome na Org Destino. Se não achar, ele cria!
+                            nova_cat, created = Categoria.objects.get_or_create(
+                                organization=dest_org,
+                                name=cat_antiga.name
+                            )
+                            # Vincula o dashboard à categoria correta da nova organização
+                            dash.categories.add(nova_cat)
+
+                    count += 1
+
+            messages.success(request, f'{count} cliente(s) e seus dashboards foram movidos para {dest_org.name}.')
+            
+        except Exception as e:
+            messages.error(request, f'Erro crítico ao mover clientes: {str(e)}')
+
     return redirect('index')
 
 @login_required
