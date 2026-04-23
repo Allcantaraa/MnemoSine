@@ -73,9 +73,10 @@ def alterar_role_membro(request, user_id):
 @login_required
 @organization_admin_required
 def remover_membro(request, user_id):
-    """Remove um membro da organização."""
+    """Remove um membro da organização e deleta a conta dele do sistema."""
     org = request.organization
 
+    # Buscamos a relação para garantir que o admin tem autoridade sobre este usuário nesta org
     try:
         membership = OrganizationMember.objects.get(
             organization=org,
@@ -86,20 +87,20 @@ def remover_membro(request, user_id):
         return redirect('listar_membros')
 
     if request.method == 'POST':
-        user_name = membership.user.username
+        user_to_delete = membership.user
+        user_name = user_to_delete.username
         
-        # Se a organização for uma das permitidas, remover de ambas
-        if org.name in [Organization.PRINCIPAL, Organization.MODELOS]:
-            allowed_orgs = Organization.objects.filter(name__in=[Organization.PRINCIPAL, Organization.MODELOS])
-            OrganizationMember.objects.filter(
-                user_id=user_id, 
-                organization__in=allowed_orgs
-            ).delete()
-            messages.success(request, f'Membro "{user_name}" removido das organizações permitidas.')
-        else:
-            membership.delete()
-            messages.success(request, f'Membro "{user_name}" removido da organização.')
-            
+        # 1. Proteção básica: Evitar que o admin delete a si mesmo
+        if user_to_delete == request.user:
+            messages.error(request, "Você não pode remover sua própria conta por aqui.")
+            return redirect('listar_membros')
+
+        # 2. A Solução: Deletar o objeto User (auth.User)
+        # Isso remove o usuário do banco de dados do Django.
+        # Consequentemente, libera o E-mail e o Username para novos cadastros.
+        user_to_delete.delete()
+        
+        messages.success(request, f'O usuário "{user_name}" foi completamente removido do sistema.')
         return redirect('listar_membros')
 
     return render(request, 'organization/remover_membro.html', {
