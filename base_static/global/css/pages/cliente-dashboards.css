@@ -1,1140 +1,674 @@
 .dashboards-container {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-
-    .dashboards-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .dashboards-header h1 {
-        color: var(--app-text);
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .btn-primary, .btn-secondary {
-        padding: 0.75rem 1.5rem;
-        border: 1px solid transparent;
-        border-radius: 10px;
-        text-decoration: none;
-        cursor: pointer;
-        font-size: 0.95rem;
-        transition: all 0.2s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-    }
-
-    .btn-primary {
-        background-color: #c92a2a;
-        color: white;
-    }
-
-    .btn-primary:hover {
-        background-color: #a01c1c;
-        transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-        background-color: var(--app-surface);
-        color: var(--app-text);
-        border-color: var(--app-border);
-    }
-
-    .btn-secondary:hover {
-        border-color: #c92a2a;
-        color: #c92a2a;
-        background-color: rgba(201, 42, 42, 0.05);
-        transform: translateY(-1px);
-    }
-
-    /* Filters Bar */
-    .filters-bar {
-        background: var(--app-surface);
-        border: 1px solid var(--app-border);
-        border-radius: 12px;
-        padding: 1.5rem 2.5rem;
-        display: flex;
-        align-items: center;
-        gap: 2rem;
-        flex-wrap: wrap;
-        margin-bottom: 2rem;
-        box-shadow: var(--app-shadow);
-    }
-
-    .search-input {
-        position: relative;
-        flex: 1;
-        min-width: 280px;
-    }
-
-    .search-input i {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--app-muted);
-        font-size: 0.95rem;
-    }
-
-    .search-input .form-input {
-        width: 100%;
-        padding-left: 42px;
-        height: 45px;
-        border-radius: 10px;
-        background: var(--app-bg);
-    }
-
-    .category-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        align-items: center;
-    }
-
-    .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.6rem;
-        padding: 0.6rem 1.25rem;
-        background-color: var(--app-bg);
-        border: 1px solid var(--app-border);
-        border-radius: 25px;
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--app-muted);
-        font-size: 0.9rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .chip:hover {
-        border-color: #c92a2a;
-        color: #c92a2a;
-        background-color: rgba(201, 42, 42, 0.05);
-        transform: translateY(-1px);
-    }
-
-    .chip.active {
-        background-color: #c92a2a;
-        color: white;
-        border-color: #c92a2a;
-        box-shadow: 0 4px 12px rgba(201, 42, 42, 0.2);
-    }
-
-    [data-theme="dark"] .chip {
-        background-color: rgba(255, 255, 255, 0.03);
-        border-color: rgba(255, 255, 255, 0.1);
-        color: var(--app-muted);
-    }
-
-    [data-theme="dark"] .chip:hover {
-        background-color: rgba(201, 42, 42, 0.15);
-        border-color: #ff6b6b;
-        color: #ff6b6b;
-    }
-
-    [data-theme="dark"] .chip.active {
-        background-color: #c92a2a;
-        color: white;
-        border-color: #c92a2a;
-    }
-
-    .dashboards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .dashboard-card {
-        background: var(--app-surface);
-        border: 1px solid var(--app-border);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: var(--app-shadow);
-        transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-        position: relative;
-    }
-
-    .dashboard-card:hover {
-        transform: translateY(-4px);
-        border-color: #c92a2a;
-    }
-
-    .dashboard-checkbox {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        z-index: 10;
-    }
-
-    .dashboard-select {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-    }
-
-    .dashboard-image {
-        height: 200px;
-        background: linear-gradient(135deg, var(--app-border) 0%, var(--app-bg) 100%);
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .dashboard-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .no-image {
-        color: var(--app-muted);
-        font-weight: 500;
-    }
-
-    .dashboard-content {
-        padding: 1.5rem;
-    }
-
-    .dashboard-content h3 {
-        margin: 0 0 0.75rem 0;
-        color: var(--app-text);
-    }
-
-    .category {
-        color: var(--app-muted);
-        font-size: 0.9rem;
-        margin: 0 0 1rem 0;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .dashboard-meta {
-        background-color: var(--app-bg);
-        border: 1px solid var(--app-border);
-        border-radius: 8px;
-        padding: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-    .meta-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--app-muted);
-        font-size: 0.85rem;
-        margin: 0.25rem 0;
-    }
-
-    .meta-item i {
-        color: var(--app-muted);
-        width: 16px;
-        text-align: center;
-    }
-
-    .dashboard-actions {
-        margin-top: 1rem;
-        display: flex;
-        gap: 0.5rem;
-        justify-content: stretch;
-    }
-
-    .btn-view, .btn-edit, .btn-delete, .btn-download {
-        flex: 1;
-        padding: 0.6rem;
-        border: 1px solid var(--app-border);
-        border-radius: 8px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-        color: var(--app-text);
-        background-color: var(--app-bg);
-    }
-
-    .btn-view:hover {
-        border-color: #2196F3;
-        color: #2196F3;
-        background-color: rgba(33, 150, 243, 0.05);
-    }
-
-    .btn-edit:hover {
-        border-color: #4CAF50;
-        color: #4CAF50;
-        background-color: rgba(76, 175, 80, 0.05);
-    }
-
-    .btn-delete:hover {
-        border-color: #c92a2a;
-        color: #c92a2a;
-        background-color: rgba(201, 42, 42, 0.05);
-    }
-
-    .btn-download:hover {
-        border-color: #9C27B0;
-        color: #9C27B0;
-        background-color: rgba(156, 39, 176, 0.05);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 3rem 2rem;
-        background: var(--app-surface);
-        border: 1px solid var(--app-border);
-        border-radius: 12px;
-        box-shadow: var(--app-shadow);
-    }
-
-    .empty-state p {
-        color: var(--app-muted);
-        margin-bottom: 1.5rem;
-    }
-
-    /* Bulk Actions Bar */
-    .bulk-actions-bar {
-        position: fixed;
-        bottom: 2rem;
-        left: 50%;
-        transform: translateX(-50%) translateY(150%);
-        background-color: var(--app-surface);
-        border: 1px solid var(--app-border);
-        border-radius: 12px;
-        padding: 1rem 2rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        transition: transform 0.3s ease;
-        width: max-content;
-        max-width: 90vw;
-    }
-
-    .bulk-actions-bar.is-visible {
-        transform: translateX(-50%) translateY(0);
-    }
-
-    .bulk-actions-info {
-        font-weight: 600;
-        color: var(--app-text);
-        font-size: 0.95rem;
-    }
-
-    .bulk-actions-buttons {
-        display: flex;
-        gap: 0.75rem;
-    }
-
-    .btn-bulk-move, .btn-bulk-delete, .btn-bulk-duplicate, .btn-bulk-favorite, .btn-bulk-cancel, .btn-bulk-category {
-        padding: 0.6rem 1.25rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-        border: 1px solid var(--app-border);
-    }
-
-    .btn-bulk-move {
-        background-color: var(--app-bg);
-        color: #2196F3;
-        border-color: rgba(33, 150, 243, 0.3);
-    }
-
-    .btn-bulk-move:hover {
-        background-color: rgba(33, 150, 243, 0.1);
-        border-color: #2196F3;
-    }
-
-    .btn-bulk-delete {
-        background-color: var(--app-bg);
-        color: #c92a2a;
-        border-color: rgba(201, 42, 42, 0.3);
-    }
-
-    .btn-bulk-delete:hover {
-        background-color: rgba(201, 42, 42, 0.1);
-        border-color: #c92a2a;
-    }
-
-    .btn-bulk-cancel {
-        background-color: var(--app-bg);
-        color: var(--app-muted);
-    }
-
-    .btn-bulk-cancel:hover {
-        background-color: var(--app-border);
-        color: var(--app-text);
-    }
-
-    /* Modal Styling */
-    .image-modal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(4px);
-    }
-
-    .image-modal.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-content {
-        background: var(--app-surface);
-        padding: 2.5rem;
-        border-radius: 16px;
-        position: relative;
-        max-width: 90vw;
-        max-height: 90vh;
-        border: 1px solid var(--app-border);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-        display: flex;
-        flex-direction: column;
-    }
-
-    .close-modal {
-        position: absolute;
-        top: 1rem;
-        right: 1.25rem;
-        background: none;
-        border: none;
-        font-size: 2rem;
-        color: var(--app-muted);
-        cursor: pointer;
-        transition: color 0.2s;
-        z-index: 10;
-    }
-
-    .close-modal:hover {
-        color: #c92a2a;
-    }
-
-    .modal-image {
-        max-width: 100%;
-        max-height: 70vh;
-        object-fit: contain;
-        border-radius: 8px;
-        border: 1px solid var(--app-border);
-    }
-
-    .modal-title {
-        margin-top: 1.5rem;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--app-text);
-        text-align: center;
-    }
-
-    /* Move Modal Specific */
-    .move-modal-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--app-text);
-        margin-bottom: 1.5rem;
-    }
-
-    .move-form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .move-form-label {
-        color: var(--app-muted);
-        font-size: 0.95rem;
-        margin-bottom: 0.5rem;
-        display: block;
-    }
-
-    .move-form-select {
-        width: 100%;
-        min-width: 300px;
-    }
-
-    .move-form-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .btn-move-cancel {
-        padding: 0.75rem 1.5rem;
-        border: 1px solid var(--app-border);
-        border-radius: 10px;
-        background: var(--app-bg);
-        color: var(--app-muted);
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-
-    .btn-move-cancel:hover {
-        background: var(--app-border);
-        color: var(--app-text);
-
-    /* Bulk Actions Bar */
-    .bulk-actions-bar {
-        background: #c92a2a;
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        display: none;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        gap: 1rem;
-        flex-wrap: wrap;
-        animation: slideDown 0.3s ease;
-        box-shadow: 0 4px 20px rgba(201, 42, 42, 0.15);
-    }
-
-    .bulk-actions-bar.is-visible {
-        display: flex;
-    }
-
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .bulk-actions-info {
-        font-weight: 600;
-        font-size: 0.95rem;
-    }
-
-    .bulk-actions-buttons {
-        display: flex;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-    }
-
-    .btn-bulk-move,
-    .btn-bulk-delete,
-    .btn-bulk-cancel {
-        padding: 0.6rem 1rem;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-    }
-
-    .btn-bulk-move {
-        background-color: #fff;
-        color: #c92a2a;
-    }
-
-    .btn-bulk-move:hover {
-        background-color: #ffe6e6;
-    }
-
-    .btn-bulk-delete {
-        background-color: #dc3545;
-        color: white;
-    }
-
-    .btn-bulk-delete:hover {
-        background-color: #c82333;
-    }
-
-    .btn-bulk-cancel {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-    }
-
-    .btn-bulk-cancel:hover {
-        background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Dashboard Card with Checkbox */
-    .dashboard-card {
-        position: relative;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-
-    .dashboard-card.selected {
-        box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.2), 0 8px 32px rgba(0,0,0,0.08);
-    }
-
-    .dashboard-checkbox {
-        position: absolute;
-        top: 10px;
-        left: 10px;
-        width: 28px;
-        height: 28px;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-        backdrop-filter: blur(4px);
-    }
-
-    .dashboard-select {
-        width: 18px;
-        height: 18px;
-        cursor: pointer;
-        accent-color: #c92a2a;
-    }
-
-    /* Filters Bar and Search Input */
-    .filters-bar {
-        background: var(--app-surface);
-        border: 1px solid var(--app-border);
-        border-radius: 12px;
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        flex-wrap: wrap;
-        margin-bottom: 2rem;
-        box-shadow: var(--app-shadow);
-    }
-
-    .search-input {
-        position: relative;
-        flex: 1;
-        min-width: 280px;
-        max-width: 500px;
-    }
-
-    .search-input i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #c92a2a;
-        font-size: 1rem;
-        pointer-events: none;
-    }
-
-    .form-input {
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.75rem;
-        font-size: 1rem;
-        border: 2px solid var(--app-border);
-        border-radius: 12px;
-        background-color: var(--app-bg);
-        color: var(--app-text);
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    }
-
-    .form-input:focus {
-        outline: none;
-        border-color: #c92a2a;
-        background-color: var(--app-surface);
-        box-shadow: 0 4px 16px rgba(201, 42, 42, 0.1);
-    }
-
-    /* Category Chips */
-    .category-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        align-items: center;
-        position: relative;
-    }
-
-    .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.6rem 1.2rem;
-        background-color: var(--app-bg);
-        border: 2px solid var(--app-border);
-        border-radius: 9999px;
-        cursor: pointer;
-        text-decoration: none;
-        color: var(--app-muted);
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        white-space: nowrap;
-        position: relative;
-    }
-
-    .chip i {
-        font-size: 0.85rem;
-    }
-
-    .chip:hover {
-        border-color: #c92a2a;
-        color: #c92a2a;
-        background-color: rgba(201, 42, 42, 0.05);
-    }
-
-    .chip.active {
-        background-color: #c92a2a;
-        color: white;
-        border-color: #c92a2a;
-    }
-
-    [data-theme="dark"] .chip {
-        background-color: rgba(255, 255, 255, 0.03);
-        border-color: rgba(255, 255, 255, 0.1);
-        color: var(--app-muted);
-    }
-
-    [data-theme="dark"] .chip:hover {
-        background-color: rgba(201, 42, 42, 0.15);
-        border-color: #ff6b6b;
-        color: #ff6b6b;
-    }
-
-    [data-theme="dark"] .chip.active {
-        background-color: #c92a2a;
-        color: white;
-        border-color: #c92a2a;
-    }
-
-    /* Modal Styling */
-    .image-modal {
-        display: none;
-        position: fixed;
-        z-index: 2000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(4px);
-    }
-
-    .image-modal.active {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .chip-wrapper {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        margin-right: 0.5rem;
-    }
-
-    .chip-actions {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        display: none;
-        gap: 4px;
-        z-index: 20;
-    }
-
-    .chip-wrapper:hover .chip-actions {
-        display: flex;
-    }
-
-    .btn-chip-edit, .btn-chip-delete {
-        width: 22px;
-        height: 22px;
-        border-radius: 50%;
-        border: 1px solid var(--app-border);
-        background: var(--app-surface);
-        color: var(--app-text);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.65rem;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        transition: all 0.2s ease;
-        padding: 0;
-    }
-
-    .btn-chip-edit:hover {
-        background: #2196F3;
-        color: white;
-        border-color: #2196F3;
-        transform: scale(1.15);
-    }
-
-    .btn-chip-delete:hover {
-        background: #c92a2a;
-        color: white;
-        border-color: #c92a2a;
-        transform: scale(1.15);
-    }
-
-    [data-theme="dark"] .btn-chip-edit, 
-    [data-theme="dark"] .btn-chip-delete {
-        background: #1e222d;
-        border-color: #3d4455;
-    }
-
-    .modal-form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    .modal-message {
-        font-size: 1rem;
-        line-height: 1.5;
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .close-modal {
-        position: absolute;
-        top: 1rem;
-        right: 1.25rem;
-        background: none;
-        border: none;
-        font-size: 2rem;
-        color: var(--app-muted);
-        cursor: pointer;
-        transition: color 0.2s;
-        z-index: 10;
-    }
-
-    .close-modal:hover {
-        color: #c92a2a;
-    }
-
-    .modal-image {
-        max-width: 100%;
-        max-height: 70vh;
-        object-fit: contain;
-        border-radius: 8px;
-        border: 1px solid var(--app-border);
-        margin-bottom: 1rem;
-    }
-
-    .modal-title {
-        margin-top: 1rem;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--app-text);
-        text-align: center;
-    }
-
-    /* Move Modal Specific */
-    .move-modal-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--app-text);
-        margin-bottom: 1.5rem;
-    }
-
-    .move-form-label {
-        color: var(--app-text);
-        font-size: 0.95rem;
-        margin-bottom: 0.5rem;
-        display: block;
-        font-weight: 600;
-    }
-
-    .btn-move-cancel {
-        flex: 1;
-        background-color: var(--app-bg);
-        color: var(--app-text);
-        padding: 0.75rem;
-        border: 1px solid var(--app-border);
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-
-    .btn-move-cancel:hover {
-        background-color: var(--app-border);
-    }
-
-.no-results-message .no-results-inner {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: #7f8c8d;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
-.no-results-message .no-results-inner i {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: #c92a2a;
-    display: block;
-}
-    }
 
-/* --- ESTILO DAS CATEGORIAS (CHIPS) --- */
+.dashboards-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.dashboards-header h1 {
+  color: var(--app-text);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background-color: #c92a2a;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #a01c1c;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--app-surface);
+  color: var(--app-text);
+  border-color: var(--app-border);
+}
+
+.btn-secondary:hover {
+  border-color: #c92a2a;
+  color: #c92a2a;
+  background-color: rgba(201, 42, 42, 0.05);
+  transform: translateY(-1px);
+}
+
+/* Filters Bar */
+.filters-bar {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 1.5rem 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  box-shadow: var(--app-shadow);
+}
+
+.search-input {
+  position: relative;
+  flex: 1;
+  min-width: 280px;
+}
+
+.search-input i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--app-muted);
+  font-size: 0.95rem;
+}
+
+.search-input .form-input {
+  width: 100%;
+  padding-left: 42px;
+  height: 45px;
+  border-radius: 10px;
+  background: var(--app-bg);
+}
 
 .category-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
 }
 
-/* O container que abraça o chip e as ações */
-.chip-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 20px;
-    overflow: hidden;
-    /* Fundo base da tag - ajuste para a variável de cor do seu tema */
-    background: var(--app-bg-secondary, #1e293b); 
-    border: 1px solid var(--app-border, #334155);
-    transition: all 0.3s ease;
-}
-
-/* O link principal do chip */
 .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  background-color: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: 25px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  border-color: #c92a2a;
+  color: #c92a2a;
+  background-color: rgba(201, 42, 42, 0.05);
+  transform: translateY(-1px);
+}
+
+.chip.active {
+  background-color: #c92a2a;
+  color: white;
+  border-color: #c92a2a;
+  box-shadow: 0 4px 12px rgba(201, 42, 42, 0.2);
+}
+
+[data-theme="dark"] .chip {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--app-muted);
+}
+
+[data-theme="dark"] .chip:hover {
+  background-color: rgba(201, 42, 42, 0.15);
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+[data-theme="dark"] .chip.active {
+  background-color: #c92a2a;
+  color: white;
+  border-color: #c92a2a;
+}
+
+.dashboards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.dashboard-card {
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--app-shadow);
+  transition:
+    transform 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
+  position: relative;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  border-color: #c92a2a;
+}
+
+.dashboard-checkbox {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+}
+
+.dashboard-select {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.dashboard-image {
+  height: 200px;
+  background: linear-gradient(135deg, var(--app-border) 0%, var(--app-bg) 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dashboard-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  color: var(--app-muted);
+  font-weight: 500;
+}
+
+.dashboard-content {
+  padding: 1.5rem;
+}
+
+.dashboard-content h3 {
+  margin: 0 0 0.75rem 0;
+  color: var(--app-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category {
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dashboard-meta {
+  background-color: var(--app-bg);
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--app-muted);
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+
+.meta-item i {
+  color: var(--app-muted);
+  width: 16px;
+  text-align: center;
+}
+
+.dashboard-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: stretch;
+}
+
+.btn-view,
+.btn-edit,
+.btn-delete,
+.btn-download {
+  flex: 1;
+  padding: 0.6rem;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  color: var(--app-text);
+  background-color: var(--app-bg);
+}
+
+.btn-view:hover {
+  border-color: #2196f3;
+  color: #2196f3;
+  background-color: rgba(33, 150, 243, 0.05);
+}
+
+.btn-edit:hover {
+  border-color: #4caf50;
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+.btn-delete:hover {
+  border-color: #c92a2a;
+  color: #c92a2a;
+  background-color: rgba(201, 42, 42, 0.05);
+}
+
+.btn-download:hover {
+  border-color: #9c27b0;
+  color: #9c27b0;
+  background-color: rgba(156, 39, 176, 0.05);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  box-shadow: var(--app-shadow);
+}
+
+.empty-state p {
+  color: var(--app-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* Bulk Actions Bar */
+.bulk-actions-bar {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(150%);
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: transform 0.3s ease;
+  width: max-content;
+  max-width: 90vw;
+}
+
+.bulk-actions-bar.is-visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.bulk-actions-info {
+  font-weight: 600;
+  color: var(--app-text);
+  font-size: 0.95rem;
+}
+
+.bulk-actions-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-bulk-move,
+.btn-bulk-delete,
+.btn-bulk-duplicate,
+.btn-bulk-favorite,
+.btn-bulk-cancel,
+.btn-bulk-category {
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid var(--app-border);
+}
+
+.btn-bulk-move {
+  background-color: var(--app-bg);
+  color: #2196f3;
+  border-color: rgba(33, 150, 243, 0.3);
+}
+
+.btn-bulk-move:hover {
+  background-color: rgba(33, 150, 243, 0.1);
+  border-color: #2196f3;
+}
+
+.btn-bulk-delete {
+  background-color: var(--app-bg);
+  color: #c92a2a;
+  border-color: rgba(201, 42, 42, 0.3);
+}
+
+.btn-bulk-delete:hover {
+  background-color: rgba(201, 42, 42, 0.1);
+  border-color: #c92a2a;
+}
+
+.btn-bulk-cancel {
+  background-color: var(--app-bg);
+  color: var(--app-muted);
+}
+
+.btn-bulk-cancel:hover {
+  background-color: var(--app-border);
+  color: var(--app-text);
+}
+
+/* Modal Styling */
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.image-modal.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--app-surface);
+  padding: 2.5rem;
+  border-radius: 16px;
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  border: 1px solid var(--app-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-content--dashboard {
+  overflow-y: auto;
+}
+
+.modal-content--dashboard .modal-image {
+  width: 100%;
+  max-height: 55vh;
+  object-fit: contain;
+  flex-shrink: 1;
+  border-radius: 8px;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--app-muted);
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.close-modal:hover {
+  color: #c92a2a;
+}
+
+.modal-image {
+  max-width: 100%;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+}
+
+.modal-title {
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--app-text);
+  text-align: center;
+}
+
+.modal-description-wrap {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  background-color: var(--app-bg-hover, #f1f5f9);
+  border: 1px solid var(--app-border, #e9ecef);
+  border-radius: 10px;
+  text-align: left;
+}
+
+[data-theme="dark"] .modal-description-wrap {
+  background-color: #1c2235;
+  border-color: #2e3a4e;
+}
+
+.modal-description-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--app-muted, #6c757d);
+  margin: 0 0 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.modal-description-text {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--app-text, #2c3e50);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Move Modal Specific */
+.move-modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--app-text);
+  margin-bottom: 1.5rem;
+}
+
+.move-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.move-form-label {
+  color: var(--app-muted);
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.move-form-select {
+  width: 100%;
+  min-width: 300px;
+}
+
+.move-form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-move-cancel {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--app-bg);
+  color: var(--app-muted);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-move-cancel:hover {
+  background: var(--app-border);
+  color: var(--app-text);
+
+  /* Bulk Actions Bar */
+  .bulk-actions-bar {
+    background: #c92a2a;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: slideDown 0.3s ease;
+    box-shadow: 0 4px 20px rgba(201, 42, 42, 0.15);
+  }
+
+  .bulk-actions-bar.is-visible {
+    display: flex;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .bulk-actions-info {
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .bulk-actions-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-bulk-move,
+  .btn-bulk-delete,
+  .btn-bulk-cancel {
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    color: var(--app-text, #f8fafc);
     text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-}
+  }
 
-/* Container de botões (Oculto por padrão) */
-.chip-actions {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    /* Padding com espaço na esquerda para o gradiente respirar */
-    padding: 0 0.5rem 0 1.5rem; 
-    z-index: 2;
-    
-    /* Degradê para não cortar o texto do chip de forma dura */
-    background: linear-gradient(90deg, rgba(30,41,59,0) 0%, rgba(30,41,59,0.9) 30%, rgba(30,41,59,1) 100%);
-    backdrop-filter: blur(2px);
-    
-    /* Estado inicial: invisível e levemente deslocado para a direita */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+  .btn-bulk-move {
+    background-color: #fff;
+    color: #c92a2a;
+  }
 
-/* --- GATILHOS DE HOVER --- */
+  .btn-bulk-move:hover {
+    background-color: #ffe6e6;
+  }
 
-/* Revela as ações ao passar o mouse */
-.chip-wrapper:hover .chip-actions {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(0);
-}
+  .btn-bulk-delete {
+    background-color: #dc3545;
+    color: white;
+  }
 
-/* Aumenta o padding direito do texto no hover para ele não ficar espremido sob os botões */
-.chip-wrapper:hover .chip {
-    padding-right: 4.5rem; 
-}
+  .btn-bulk-delete:hover {
+    background-color: #c82333;
+  }
 
-/* --- ESTILIZAÇÃO DOS BOTÕES DE AÇÃO --- */
+  .btn-bulk-cancel {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
 
-.btn-chip-edit,
-.btn-chip-delete {
-    background: transparent;
-    border: none;
-    color: #94a3b8; /* Cor de ícone inativo padrão */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 6px; /* Borda mais tech/séria */
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
+  .btn-bulk-cancel:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+  }
 
-/* Hover de Edição - Azul translúcido */
-.btn-chip-edit:hover {
-    background-color: rgba(59, 130, 246, 0.15);
-    color: #3b82f6;
-}
-
-/* Hover de Exclusão - Vermelho translúcido */
-.btn-chip-delete:hover {
-    background-color: rgba(239, 68, 68, 0.15);
-    color: #ef4444;
-}
-
-/* Ajuste visual para o chip ativo (Opcional, se você tiver a classe .active no JS) */
-.chip.active {
-    background: rgba(59, 130, 246, 0.1);
-    color: #3b82f6;
-    border-color: rgba(59, 130, 246, 0.5);
-}
-
-/* --- ADAPTAÇÃO DAS AÇÕES DOS CHIPS (MODO LIGHT/DARK) --- */
-.chip-wrapper {
+  /* Dashboard Card with Checkbox */
+  .dashboard-card {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 9999px; /* Mantém o seu padrão de pílula para o limite do container */
+    background: white;
+    border-radius: 8px;
     overflow: hidden;
-}
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition:
+      transform 0.3s,
+      box-shadow 0.3s;
+  }
 
-/* Expande o espaço interno do seu chip no hover para o texto não ficar sob os botões */
-.chip-wrapper:hover .chip {
-    padding-right: 4.5rem;
-}
+  .dashboard-card.selected {
+    box-shadow:
+      0 0 0 3px rgba(201, 42, 42, 0.2),
+      0 8px 32px rgba(0, 0, 0, 0.08);
+  }
 
-/* Container de botões (Oculto por padrão) */
-.chip-actions {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0 0.8rem 0 1rem;
-    
-    opacity: 0;
-    visibility: hidden;
-    transform: translateX(10px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    /* Efeito glassmorphism: adapta-se magicamente ao fundo dark ou light */
-    backdrop-filter: blur(4px);
-    background: rgba(255, 255, 255, 0.3);
-}
-
-[data-theme="dark"] .chip-actions {
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.chip-wrapper:hover .chip-actions {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(0);
-}
-
-/* Botões de Ação */
-.btn-chip-edit,
-.btn-chip-delete {
-    background: transparent;
-    border: none;
-    color: var(--app-muted); /* Utiliza a sua variável nativa */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-chip-edit:hover {
-    background-color: rgba(59, 130, 246, 0.15);
-    color: #3b82f6; /* Azul corporativo para edição */
-}
-
-.btn-chip-delete:hover {
-    background-color: rgba(201, 42, 42, 0.15);
-    color: #c92a2a; /* Vermelho do seu padrão para exclusão */
-}
-
-[data-theme="dark"] .btn-chip-delete:hover {
-    color: #ff6b6b; /* Vermelho mais claro para contraste no escuro */
-}
-
-.btn-bulk-duplicate {
-    background-color: #fff;
-    color: #3b82f6; /* Azul indicando cópia/criação */
-}
-
-.btn-bulk-duplicate:hover {
-    background-color: #eff6ff; /* Fundo azul claro no hover */
-}
-
-[data-theme="dark"] .btn-bulk-duplicate {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #60a5fa;
-}
-
-[data-theme="dark"] .btn-bulk-duplicate:hover {
-    background-color: rgba(59, 130, 246, 0.15);
-}
-
-/* Botão Bulk Favoritar */
-.btn-bulk-favorite {
-    background-color: #fff;
-    color: #eab308; /* Dourado */
-}
-
-.btn-bulk-favorite:hover {
-    background-color: #fefce8; /* Fundo amarelo bem clarinho no hover */
-}
-
-/* Modo Escuro */
-[data-theme="dark"] .btn-bulk-favorite {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #facc15;
-}
-
-[data-theme="dark"] .btn-bulk-favorite:hover {
-    background-color: rgba(234, 179, 8, 0.15);
-}
-
-/* --- Estrela de Favorito Individual no Card --- */
-.dashboard-favorite {
+  .dashboard-checkbox {
     position: absolute;
     top: 10px;
-    right: 10px;
+    left: 10px;
     width: 28px;
     height: 28px;
     background: rgba(255, 255, 255, 0.95);
@@ -1145,152 +679,696 @@
     z-index: 10;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
     backdrop-filter: blur(4px);
-    border: none;
+  }
+
+  .dashboard-select {
+    width: 18px;
+    height: 18px;
     cursor: pointer;
-    color: var(--app-muted, #94a3b8);
-    transition: all 0.2s ease;
-}
+    accent-color: #c92a2a;
+  }
 
-.dashboard-favorite:hover {
-    transform: scale(1.05);
-    color: #facc15; /* Amarelo no hover */
-}
+  /* Filters Bar and Search Input */
+  .filters-bar {
+    background: var(--app-surface);
+    border: 1px solid var(--app-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    box-shadow: var(--app-shadow);
+  }
 
-.dashboard-favorite.active {
-    color: #eab308; /* Amarelo fixo quando favoritado */
-}
+  .search-input {
+    position: relative;
+    flex: 1;
+    min-width: 280px;
+    max-width: 500px;
+  }
 
-[data-theme="dark"] .dashboard-favorite {
-    background: rgba(30, 41, 59, 0.8); /* Fundo escuro translúcido para o modo dark */
-}
+  .search-input i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #c92a2a;
+    font-size: 1rem;
+    pointer-events: none;
+  }
 
-[data-theme="dark"] .dashboard-favorite.active {
-    filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.4));
-}
+  .form-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    font-size: 1rem;
+    border: 2px solid var(--app-border);
+    border-radius: 12px;
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  }
 
-.client-badge {
+  .form-input:focus {
+    outline: none;
+    border-color: #c92a2a;
+    background-color: var(--app-surface);
+    box-shadow: 0 4px 16px rgba(201, 42, 42, 0.1);
+  }
+
+  /* Category Chips */
+  .category-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    position: relative;
+  }
+
+  .chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    padding: 0.3rem 0.75rem;
-    border-radius: 12px;
-    background-color: rgba(201, 42, 42, 0.1);
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background-color: var(--app-bg);
+    border: 2px solid var(--app-border);
+    border-radius: 9999px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--app-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+  }
+
+  .chip i {
+    font-size: 0.85rem;
+  }
+
+  .chip:hover {
+    border-color: #c92a2a;
     color: #c92a2a;
-    border: 1px solid rgba(201, 42, 42, 0.2);
-    margin-bottom: 0.75rem;
-}
+    background-color: rgba(201, 42, 42, 0.05);
+  }
 
-[data-theme="dark"] .client-badge {
-    background-color: rgba(255, 107, 107, 0.1);
+  .chip.active {
+    background-color: #c92a2a;
+    color: white;
+    border-color: #c92a2a;
+  }
+
+  [data-theme="dark"] .chip {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--app-muted);
+  }
+
+  [data-theme="dark"] .chip:hover {
+    background-color: rgba(201, 42, 42, 0.15);
+    border-color: #ff6b6b;
     color: #ff6b6b;
-    border-color: rgba(255, 107, 107, 0.2);
-}
+  }
 
-.dashboards-section {
-    margin-top: 2rem;
-}
+  [data-theme="dark"] .chip.active {
+    background-color: #c92a2a;
+    color: white;
+    border-color: #c92a2a;
+  }
 
-.dashboards-section h2 {
+  /* Modal Styling */
+  .image-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+  }
+
+  .image-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .chip-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.5rem;
+  }
+
+  .chip-actions {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    display: none;
+    gap: 4px;
+    z-index: 20;
+  }
+
+  .chip-wrapper:hover .chip-actions {
+    display: flex;
+  }
+
+  .btn-chip-edit,
+  .btn-chip-delete {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--app-border);
+    background: var(--app-surface);
+    color: var(--app-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    padding: 0;
+  }
+
+  .btn-chip-edit:hover {
+    background: #2196f3;
+    color: white;
+    border-color: #2196f3;
+    transform: scale(1.15);
+  }
+
+  .btn-chip-delete:hover {
+    background: #c92a2a;
+    color: white;
+    border-color: #c92a2a;
+    transform: scale(1.15);
+  }
+
+  [data-theme="dark"] .btn-chip-edit,
+  [data-theme="dark"] .btn-chip-delete {
+    background: #1e222d;
+    border-color: #3d4455;
+  }
+
+  .modal-form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-message {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--app-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+    z-index: 10;
+  }
+
+  .close-modal:hover {
+    color: #c92a2a;
+  }
+
+  .modal-image {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid var(--app-border);
+    margin-bottom: 1rem;
+  }
+
+  .modal-title {
+    margin-top: 1rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--app-text);
+    text-align: center;
+  }
+
+  /* Move Modal Specific */
+  .move-modal-title {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--app-text);
     margin-bottom: 1.5rem;
+  }
+
+  .move-form-label {
+    color: var(--app-text);
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-weight: 600;
+  }
+
+  .btn-move-cancel {
+    flex: 1;
+    background-color: var(--app-bg);
+    color: var(--app-text);
+    padding: 0.75rem;
+    border: 1px solid var(--app-border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-move-cancel:hover {
+    background-color: var(--app-border);
+  }
+
+  .no-results-message .no-results-inner {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #7f8c8d;
+  }
+  .no-results-message .no-results-inner i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #c92a2a;
+    display: block;
+  }
+}
+
+/* --- ESTILO DAS CATEGORIAS (CHIPS) --- */
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* O container que abraça o chip e as ações */
+.chip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  overflow: hidden;
+  /* Fundo base da tag - ajuste para a variável de cor do seu tema */
+  background: var(--app-bg-secondary, #1e293b);
+  border: 1px solid var(--app-border, #334155);
+  transition: all 0.3s ease;
+}
+
+/* O link principal do chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: var(--app-text, #f8fafc);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+/* Container de botões (Oculto por padrão) */
+.chip-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  /* Padding com espaço na esquerda para o gradiente respirar */
+  padding: 0 0.5rem 0 1.5rem;
+  z-index: 2;
+
+  /* Degradê para não cortar o texto do chip de forma dura */
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0) 0%,
+    rgba(30, 41, 59, 0.9) 30%,
+    rgba(30, 41, 59, 1) 100%
+  );
+  backdrop-filter: blur(2px);
+
+  /* Estado inicial: invisível e levemente deslocado para a direita */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* --- GATILHOS DE HOVER --- */
+
+/* Revela as ações ao passar o mouse */
+.chip-wrapper:hover .chip-actions {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* Aumenta o padding direito do texto no hover para ele não ficar espremido sob os botões */
+.chip-wrapper:hover .chip {
+  padding-right: 4.5rem;
+}
+
+/* --- ESTILIZAÇÃO DOS BOTÕES DE AÇÃO --- */
+
+.btn-chip-edit,
+.btn-chip-delete {
+  background: transparent;
+  border: none;
+  color: #94a3b8; /* Cor de ícone inativo padrão */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px; /* Borda mais tech/séria */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover de Edição - Azul translúcido */
+.btn-chip-edit:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+/* Hover de Exclusão - Vermelho translúcido */
+.btn-chip-delete:hover {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Ajuste visual para o chip ativo (Opcional, se você tiver a classe .active no JS) */
+.chip.active {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* --- ADAPTAÇÃO DAS AÇÕES DOS CHIPS (MODO LIGHT/DARK) --- */
+.chip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px; /* Mantém o seu padrão de pílula para o limite do container */
+  overflow: hidden;
+}
+
+/* Expande o espaço interno do seu chip no hover para o texto não ficar sob os botões */
+.chip-wrapper:hover .chip {
+  padding-right: 4.5rem;
+}
+
+/* Container de botões (Oculto por padrão) */
+.chip-actions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0 0.8rem 0 1rem;
+
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Efeito glassmorphism: adapta-se magicamente ao fundo dark ou light */
+  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .chip-actions {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.chip-wrapper:hover .chip-actions {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* Botões de Ação */
+.btn-chip-edit,
+.btn-chip-delete {
+  background: transparent;
+  border: none;
+  color: var(--app-muted); /* Utiliza a sua variável nativa */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-chip-edit:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #3b82f6; /* Azul corporativo para edição */
+}
+
+.btn-chip-delete:hover {
+  background-color: rgba(201, 42, 42, 0.15);
+  color: #c92a2a; /* Vermelho do seu padrão para exclusão */
+}
+
+[data-theme="dark"] .btn-chip-delete:hover {
+  color: #ff6b6b; /* Vermelho mais claro para contraste no escuro */
+}
+
+.btn-bulk-duplicate {
+  background-color: #fff;
+  color: #3b82f6; /* Azul indicando cópia/criação */
+}
+
+.btn-bulk-duplicate:hover {
+  background-color: #eff6ff; /* Fundo azul claro no hover */
+}
+
+[data-theme="dark"] .btn-bulk-duplicate {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .btn-bulk-duplicate:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* Botão Bulk Favoritar */
+.btn-bulk-favorite {
+  background-color: #fff;
+  color: #eab308; /* Dourado */
+}
+
+.btn-bulk-favorite:hover {
+  background-color: #fefce8; /* Fundo amarelo bem clarinho no hover */
+}
+
+/* Modo Escuro */
+[data-theme="dark"] .btn-bulk-favorite {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #facc15;
+}
+
+[data-theme="dark"] .btn-bulk-favorite:hover {
+  background-color: rgba(234, 179, 8, 0.15);
+}
+
+/* --- Estrela de Favorito Individual no Card --- */
+.dashboard-favorite {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  border: none;
+  cursor: pointer;
+  color: var(--app-muted, #94a3b8);
+  transition: all 0.2s ease;
+}
+
+.dashboard-favorite:hover {
+  transform: scale(1.05);
+  color: #facc15; /* Amarelo no hover */
+}
+
+.dashboard-favorite.active {
+  color: #eab308; /* Amarelo fixo quando favoritado */
+}
+
+[data-theme="dark"] .dashboard-favorite {
+  background: rgba(
+    30,
+    41,
+    59,
+    0.8
+  ); /* Fundo escuro translúcido para o modo dark */
+}
+
+[data-theme="dark"] .dashboard-favorite.active {
+  filter: drop-shadow(0 0 4px rgba(234, 179, 8, 0.4));
+}
+
+.client-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.3rem 0.75rem;
+  border-radius: 12px;
+  background-color: rgba(201, 42, 42, 0.1);
+  color: #c92a2a;
+  border: 1px solid rgba(201, 42, 42, 0.2);
+  margin-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .client-badge {
+  background-color: rgba(255, 107, 107, 0.1);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.dashboards-section {
+  margin-top: 2rem;
+}
+
+.dashboards-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--app-text);
+  margin-bottom: 1.5rem;
 }
 
 /* --- Bulk Create Dashboard UI --- */
 #bulkDropZone.drag-over {
-    border-color: #3b82f6;
-    background-color: rgba(59, 130, 246, 0.05);
+  border-color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.05);
 }
 
 .bulk-pair-card {
-    background: var(--app-surface, #fff);
-    border: 1px solid var(--app-border, #e2e8f0);
-    border-radius: 8px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+  background: var(--app-surface, #fff);
+  border: 1px solid var(--app-border, #e2e8f0);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .bulk-pair-image-area {
-    height: 140px;
-    background: #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    cursor: pointer;
-    border-bottom: 1px solid var(--app-border);
+  height: 140px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1px solid var(--app-border);
 }
 
 .bulk-pair-image-area img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .bulk-pair-image-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s;
-    font-size: 0.85rem;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-size: 0.85rem;
 }
 
 .bulk-pair-image-area:hover .bulk-pair-image-overlay {
-    opacity: 1;
+  opacity: 1;
 }
 
 .bulk-pair-info {
-    padding: 1rem;
-    flex: 1;
+  padding: 1rem;
+  flex: 1;
 }
 
 .bulk-pair-title {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--app-text);
-    margin-bottom: 0.5rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--app-text);
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bulk-pair-filename {
-    font-size: 0.75rem;
-    color: var(--app-muted);
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--app-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 [data-theme="dark"] .bulk-pair-image-area {
-    background: #1e293b;
+  background: #1e293b;
 }
 
 /* Botão Bulk Categorias */
 .btn-bulk-category {
-    background-color: #fff;
-    color: #0ea5e9; /* Teal/Ciano */
+  background-color: #fff;
+  color: #0ea5e9; /* Teal/Ciano */
 }
 
 .btn-bulk-category:hover {
-    background-color: #f0fdfa; 
+  background-color: #f0fdfa;
 }
 
 [data-theme="dark"] .btn-bulk-category {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: #2dd4bf;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #2dd4bf;
 }
 
 [data-theme="dark"] .btn-bulk-category:hover {
-    background-color: rgba(20, 184, 166, 0.15);
+  background-color: rgba(20, 184, 166, 0.15);
 }

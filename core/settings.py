@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'dashboard',
-    'usuario'
+    'usuario',
+    'faq',
 ]
 
 MIDDLEWARE = [
@@ -81,6 +85,19 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'znuny': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('ZNUNY_DB_NAME', ''),
+        'USER': os.getenv('ZNUNY_DB_USER', ''),
+        'PASSWORD': os.getenv('ZNUNY_DB_PASSWORD', ''),
+        'HOST': os.getenv('ZNUNY_DB_HOST', ''),
+        'PORT': os.getenv('ZNUNY_DB_PORT', '3306'),
+        'OPTIONS': {
+            'connect_timeout': 10,
+            'read_timeout': 30,
+            'write_timeout': 30,
+        },
     }
 }
 
@@ -137,6 +154,7 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
-LOGIN_URL = 'login' 
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'login'
+

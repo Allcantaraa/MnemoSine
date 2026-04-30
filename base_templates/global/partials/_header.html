@@ -77,7 +77,7 @@
                 <i class="fa-solid fa-users"></i>
                 <span class="nav-label">Membros</span>
             </a>
-            
+
             {% if request.user|has_org_role:request.organization %}
                 <a href="{% url 'listar_notificacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_notificacoes' %}active{% endif %}">
                     <i class="fa-solid fa-bell"></i>
@@ -85,6 +85,11 @@
                 </a>
             {% endif %}
         {% endif %}
+
+        <a href="{% url 'listar_faq' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_faq' %}active{% endif %}">
+            <i class="fa-solid fa-circle-question"></i>
+            <span class="nav-label">FAQ</span>
+        </a>
     </div>
 
     <!-- Bottom Section -->

@@ -69,14 +69,24 @@ function closeDeleteDashboardModal() {
   document.getElementById("deleteDashboardModal")?.classList.remove("active");
 }
 
-function openImageModal(imageUrl, dashboardName) {
+function openImageModal(imageUrl, dashboardName, description) {
   const imageModal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
   const modalTitle = document.getElementById("modalTitle");
+  const descWrap = document.getElementById("modalDescriptionWrap");
+  const descText = document.getElementById("modalDescription");
   if (!imageModal || !modalImage || !modalTitle) return;
 
   modalImage.src = imageUrl || "";
   modalTitle.textContent = dashboardName;
+
+  if (description && description.trim()) {
+    descText.textContent = description;
+    descWrap.style.display = "block";
+  } else {
+    descWrap.style.display = "none";
+  }
+
   imageModal.classList.add("active");
 }
 
@@ -308,9 +318,10 @@ document.addEventListener("DOMContentLoaded", function () {
     button.addEventListener("click", function (e) {
       e.preventDefault();
       const imageUrl = this.getAttribute("data-image");
+      const description = this.getAttribute("data-description") || "";
       const dashboardName =
         this.closest(".dashboard-card").querySelector("h3").textContent;
-      openImageModal(imageUrl, dashboardName);
+      openImageModal(imageUrl, dashboardName, description);
     });
   });
 
@@ -532,11 +543,12 @@ async function buscarRecomendacoes(term, visibleIds) {
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
                     const imageUrl = this.getAttribute('data-image');
+                    const description = this.getAttribute('data-description') || '';
                     const dashboardName = this.closest('.dashboard-content').querySelector('h3').textContent;
-                    
+
                     // Usa a função global que criamos anteriormente
                     if (typeof window.openImageModal === 'function') {
-                        window.openImageModal(imageUrl, dashboardName);
+                        window.openImageModal(imageUrl, dashboardName, description);
                     }
                 });
             });
