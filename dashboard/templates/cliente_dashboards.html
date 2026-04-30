@@ -151,7 +151,7 @@
                         </div>
                         
                         <div class="dashboard-actions">
-                            <a href="javascript:void(0)" class="btn-view" data-image="{{ dashboard.image.url }}" title="Ver imagem do dashboard"><i class="fa-solid fa-eye"></i></a>
+                            <a href="javascript:void(0)" class="btn-view" data-image="{{ dashboard.image.url }}" data-description="{{ dashboard.description|escapejs }}" title="Ver imagem do dashboard"><i class="fa-solid fa-eye"></i></a>
                             <a href="{% url "atualizar_dashboard" client_slug dashboard.slug %}" class="btn-edit" title="Editar"><i class="fa-solid fa-pencil"></i></a>
                             <button type="button" class="btn-delete" title="Deletar" onclick="openDeleteDashboardModal('{% url 'deletar_dashboard' client_slug dashboard.slug %}', '{{ dashboard.title|escapejs }}')">
                                 <i class="fa-solid fa-trash"></i>
@@ -181,10 +181,14 @@
 
 <!-- Image Modal -->
 <div id="imageModal" class="image-modal">
-    <div class="modal-content">
+    <div class="modal-content modal-content--dashboard">
         <button type="button" class="close-modal" id="dashImageModalClose" aria-label="Fechar">&times;</button>
-        <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
         <p id="modalTitle" class="modal-title"></p>
+        <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
+        <div id="modalDescriptionWrap" class="modal-description-wrap" style="display:none;">
+            <p class="modal-description-label"><i class="fa-solid fa-align-left"></i> Descrição</p>
+            <p id="modalDescription" class="modal-description-text"></p>
+        </div>
     </div>
 </div>
 

@@ -21,6 +21,9 @@
                 --app-muted: #6c757d;
                 --app-border: #e9ecef;
                 --app-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                --app-primary: #c92a2a;
+                --app-bg-card: #ffffff;
+                --app-bg-hover: #f1f3f5;
             }
 
             [data-theme="dark"] {
@@ -30,6 +33,9 @@
                 --app-muted: #a4adbd;
                 --app-border: #252d3a;
                 --app-shadow: 0 0 0 1px rgba(148, 163, 184, 0.16), 0 10px 30px rgba(0, 0, 0, 0.35);
+                --app-primary: #c92a2a;
+                --app-bg-card: #161b26;
+                --app-bg-hover: #1e2535;
             }
 
             .layout-wrapper {

@@ -495,9 +495,10 @@ def deletar_cliente(request, slug):
     membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
     if request.method == 'POST':
+        name = cliente.name[:25] + '...' if len(cliente.name) > 25 else cliente.name
         if membership.role == OrganizationMember.Role.ADMINISTRADOR:
             cliente.delete()
-            messages.success(request, f'Cliente "{cliente.name}" removido com sucesso.')
+            messages.success(request, f'Cliente "{name}" removido com sucesso.')
         else:
             # Criar solicitação de exclusão
             DeletionRequest.objects.create(
@@ -508,7 +509,7 @@ def deletar_cliente(request, slug):
                 object_name=cliente.name,
                 reason=request.POST.get('reason', '')
             )
-            messages.info(request, f'Solicitação de exclusão para o cliente "{cliente.name}" enviada aos administradores.')
+            messages.info(request, f'Solicitação de exclusão para o cliente "{name}" enviada aos administradores.')
         return redirect('index')
 
     return redirect('index')
@@ -645,7 +646,8 @@ def atualizar_dashboard(request, client_slug, slug):
             dashboard = form.save(commit=False)
             dashboard.save()
             form.save_m2m()
-            messages.success(request, f'Dashboard "{dashboard.title}" atualizado com sucesso!')
+            title = dashboard.title[:25] + '...' if len(dashboard.title) > 25 else dashboard.title
+            messages.success(request, f'Dashboard "{title}" atualizado com sucesso!')
             return redirect('cliente_dashboard', slug=client_slug)
 
         return render(request, 'modals/dashboard.html', {
@@ -676,9 +678,10 @@ def deletar_dashboard(request, client_slug, dashboard_slug):
     membership = OrganizationMember.objects.get(user=request.user, organization=org)
 
     if request.method == 'POST':
+        title = dashboard.title[:25] + '...' if len(dashboard.title) > 25 else dashboard.title
         if membership.role == OrganizationMember.Role.ADMINISTRADOR:
             dashboard.delete()
-            messages.success(request, f'Dashboard "{dashboard.title}" removido com sucesso.')
+            messages.success(request, f'Dashboard "{title}" removido com sucesso.')
         else:
             # Criar solicitação de exclusão
             DeletionRequest.objects.create(
@@ -689,7 +692,7 @@ def deletar_dashboard(request, client_slug, dashboard_slug):
                 object_name=dashboard.title,
                 reason=request.POST.get('reason', '')
             )
-            messages.info(request, f'Solicitação de exclusão para o dashboard "{dashboard.title}" enviada aos administradores.')
+            messages.info(request, f'Solicitação de exclusão para o dashboard "{title}" enviada aos administradores.')
         return redirect('cliente_dashboard', slug=client_slug)
 
     return redirect('cliente_dashboard', slug=client_slug)

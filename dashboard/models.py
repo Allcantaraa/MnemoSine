@@ -160,6 +160,7 @@ class Dashboard(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     favorited_by = models.ManyToManyField(User, related_name='favorite_dashboards', blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+    description = models.TextField(blank=True, default='')
     slug = models.SlugField(
         unique=True,
         default=None,
