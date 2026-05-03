@@ -92,12 +92,7 @@ DATABASES = {
         'USER': os.getenv('ZNUNY_DB_USER', ''),
         'PASSWORD': os.getenv('ZNUNY_DB_PASSWORD', ''),
         'HOST': os.getenv('ZNUNY_DB_HOST', ''),
-        'PORT': os.getenv('ZNUNY_DB_PORT', '3306'),
-        'OPTIONS': {
-            'connect_timeout': 10,
-            'read_timeout': 30,
-            'write_timeout': 30,
-        },
+        'PORT': os.getenv('ZNUNY_DB_PORT', '3306')
     }
 }
 

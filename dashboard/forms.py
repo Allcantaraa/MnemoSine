@@ -44,7 +44,7 @@ class CategoriaForm(forms.ModelForm):
 class DashboardForm(forms.ModelForm):
     class Meta:
         model = Dashboard
-        fields = ['title', 'description', 'image', 'json', 'categories']
+        fields = ['title', 'description', 'comment', 'image', 'json', 'categories']
 
         widgets = {
             'title': forms.TextInput(attrs={
@@ -55,6 +55,11 @@ class DashboardForm(forms.ModelForm):
                 'placeholder': 'Descreva o objetivo e conteúdo deste dashboard...',
                 'class': 'form-input',
                 'rows': 4,
+            }),
+            'comment': forms.Textarea(attrs={
+                'placeholder': 'Comentário opcional para este dashboard',
+                'class': 'form-input',
+                'rows': 3,
             }),
             'image': forms.ClearableFileInput(attrs={
                 'accept': 'image/*',
@@ -77,6 +82,8 @@ class DashboardForm(forms.ModelForm):
         self.fields['description'].required = False
         self.fields['image'].label = "Imagem"
         self.fields['json'].label = "Arquivo JSON"
+        self.fields['comment'].label = "Comentário (Opcional)"
+        self.fields['comment'].required = False
         self.fields['categories'].label = "Categorias (Opcional)"
         self.fields['categories'].required = False
         

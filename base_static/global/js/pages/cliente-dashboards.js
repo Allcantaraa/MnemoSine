@@ -69,16 +69,30 @@ function closeDeleteDashboardModal() {
   document.getElementById("deleteDashboardModal")?.classList.remove("active");
 }
 
-function openImageModal(imageUrl, dashboardName, description) {
+function openImageModal(imageUrl, dashboardName, description, creatorName, creatorAvatar, categoriesText, createdAt, updatedAt) {
   const imageModal = document.getElementById("imageModal");
   const modalImage = document.getElementById("modalImage");
   const modalTitle = document.getElementById("modalTitle");
   const descWrap = document.getElementById("modalDescriptionWrap");
   const descText = document.getElementById("modalDescription");
+  const creatorNameEl = document.getElementById("modalCreatorName");
+  const creatorAvatarEl = document.getElementById("modalCreatorAvatar");
+  const creatorAvatarFallback = document.getElementById("modalCreatorAvatarFallback");
+  const categoriesEl = document.getElementById("modalCategories");
+  const createdAtEl = document.getElementById("modalCreatedAt");
+  const updatedAtEl = document.getElementById("modalUpdatedAt");
+  const modalImageFallback = document.getElementById("modalImageFallback");
   if (!imageModal || !modalImage || !modalTitle) return;
 
   modalImage.src = imageUrl || "";
-  modalTitle.textContent = dashboardName;
+  modalImage.alt = dashboardName ? `Visualização de ${dashboardName}` : "Visualização do dashboard";
+  const hasImage = Boolean(imageUrl);
+  modalImage.style.display = hasImage ? "block" : "none";
+  if (modalImageFallback) {
+    modalImageFallback.style.display = hasImage ? "none" : "flex";
+  }
+
+  modalTitle.textContent = dashboardName || "Dashboard";
 
   if (description && description.trim()) {
     descText.textContent = description;
@@ -86,6 +100,39 @@ function openImageModal(imageUrl, dashboardName, description) {
   } else {
     descWrap.style.display = "none";
   }
+
+  creatorNameEl.textContent = creatorName || "Desconhecido";
+
+  if (creatorAvatar) {
+    creatorAvatarEl.src = creatorAvatar;
+    creatorAvatarEl.style.display = "block";
+    creatorAvatarFallback.style.display = "none";
+  } else {
+    creatorAvatarEl.style.display = "none";
+    creatorAvatarFallback.style.display = "flex";
+    creatorAvatarFallback.textContent = creatorName ? creatorName.charAt(0).toUpperCase() : "?";
+  }
+
+  categoriesEl.innerHTML = "";
+  if (categoriesText && categoriesText.trim()) {
+    categoriesText.split(",").forEach((category) => {
+      const trimmed = category.trim();
+      if (trimmed) {
+        const pill = document.createElement("span");
+        pill.className = "modal-category-pill";
+        pill.textContent = trimmed;
+        categoriesEl.appendChild(pill);
+      }
+    });
+  } else {
+    const pill = document.createElement("span");
+    pill.className = "modal-category-pill";
+    pill.textContent = "Sem categoria";
+    categoriesEl.appendChild(pill);
+  }
+
+  createdAtEl.textContent = createdAt ? `Criado em ${createdAt}` : "";
+  updatedAtEl.textContent = updatedAt ? `Atualizado em ${updatedAt}` : "";
 
   imageModal.classList.add("active");
 }
@@ -117,12 +164,24 @@ function closeMoveModal() {
   document.getElementById("moveModal")?.classList.remove("active");
 }
 
+function getVisibleDashboardCheckboxes() {
+  return Array.from(document.querySelectorAll(".dashboard-card")).reduce((visible, card) => {
+    const checkbox = card.querySelector(".dashboard-select");
+    if (!checkbox) return visible;
+    const style = window.getComputedStyle(card);
+    if (style.display !== "none" && style.visibility !== "hidden" && card.offsetParent !== null) {
+      visible.push(checkbox);
+    }
+    return visible;
+  }, []);
+}
+
 function updateBulkActionsBar() {
-  const selectedCheckboxes = document.querySelectorAll(
-    ".dashboard-select:checked",
-  );
+  const checkboxes = Array.from(document.querySelectorAll(".dashboard-select"));
+  const selectedCheckboxes = checkboxes.filter((cb) => cb.checked);
   const bulkActionsBar = document.getElementById("bulkActionsBar");
   const selectedCount = document.getElementById("selectedCount");
+  const selectAllBtn = document.getElementById("btnBulkSelectAll");
   if (!bulkActionsBar || !selectedCount) return;
 
   selectedCount.textContent = selectedCheckboxes.length;
@@ -132,6 +191,13 @@ function updateBulkActionsBar() {
   } else {
     bulkActionsBar.classList.remove("is-visible");
   }
+
+  if (selectAllBtn) {
+    const visibleCheckboxes = getVisibleDashboardCheckboxes();
+    const allVisibleSelected =
+      visibleCheckboxes.length > 0 && visibleCheckboxes.every((checkbox) => checkbox.checked);
+    selectAllBtn.textContent = allVisibleSelected ? "Desmarcar Todos" : "Selecionar Todos";
+  }
 }
 
 function clearSelection() {
@@ -140,6 +206,19 @@ function clearSelection() {
     checkbox.closest(".dashboard-card")?.classList.remove("selected");
   });
   document.getElementById("bulkActionsBar")?.classList.remove("is-visible");
+  updateBulkActionsBar();
+}
+
+function toggleSelectAll() {
+  const visibleCheckboxes = getVisibleDashboardCheckboxes();
+  if (visibleCheckboxes.length === 0) return;
+
+  const allSelected = visibleCheckboxes.every((checkbox) => checkbox.checked);
+  visibleCheckboxes.forEach((checkbox) => {
+    checkbox.checked = !allSelected;
+    checkbox.closest(".dashboard-card")?.classList.toggle("selected", !allSelected);
+  });
+  updateBulkActionsBar();
 }
 
 function confirmBulkDelete() {
@@ -319,9 +398,25 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
       const imageUrl = this.getAttribute("data-image");
       const description = this.getAttribute("data-description") || "";
+      const creatorName = this.getAttribute("data-creator-name") || "";
+      const creatorAvatar = this.getAttribute("data-creator-avatar") || "";
+      const categoriesText = this.getAttribute("data-categories-text") || "";
+      const createdAt = this.getAttribute("data-created-at") || "";
+      const updatedAt = this.getAttribute("data-updated-at") || "";
       const dashboardName =
-        this.closest(".dashboard-card").querySelector("h3").textContent;
-      openImageModal(imageUrl, dashboardName, description);
+        this.getAttribute("data-dashboard-name") ||
+        this.closest(".dashboard-card")?.querySelector("h3")?.textContent ||
+        "Dashboard";
+      openImageModal(
+        imageUrl,
+        dashboardName,
+        description,
+        creatorName,
+        creatorAvatar,
+        categoriesText,
+        createdAt,
+        updatedAt,
+      );
     });
   });
 
@@ -342,6 +437,9 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("btnBulkDelete")
     ?.addEventListener("click", confirmBulkDelete);
+  document
+    .getElementById("btnBulkSelectAll")
+    ?.addEventListener("click", toggleSelectAll);
   document
     .getElementById("btnBulkCancel")
     ?.addEventListener("click", clearSelection);
@@ -539,21 +637,34 @@ async function buscarRecomendacoes(term, visibleIds) {
             });
 
         const newViewButtons = recGrid.querySelectorAll('.btn-view');
-            newViewButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const imageUrl = this.getAttribute('data-image');
-                    const description = this.getAttribute('data-description') || '';
-                    const dashboardName = this.closest('.dashboard-content').querySelector('h3').textContent;
+        newViewButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const imageUrl = this.getAttribute('data-image');
+                const description = this.getAttribute('data-description') || '';
+                const creatorName = this.getAttribute('data-creator-name') || '';
+                const creatorAvatar = this.getAttribute('data-creator-avatar') || '';
+                const categoriesText = this.getAttribute('data-categories-text') || '';
+                const createdAt = this.getAttribute('data-created-at') || '';
+                const updatedAt = this.getAttribute('data-updated-at') || '';
+                const dashboardName = this.getAttribute('data-dashboard-name') || this.closest('.dashboard-content')?.querySelector('h3')?.textContent || 'Dashboard';
 
-                    // Usa a função global que criamos anteriormente
-                    if (typeof window.openImageModal === 'function') {
-                        window.openImageModal(imageUrl, dashboardName, description);
-                    }
-                });
+                if (typeof window.openImageModal === 'function') {
+                    window.openImageModal(
+                        imageUrl,
+                        dashboardName,
+                        description,
+                        creatorName,
+                        creatorAvatar,
+                        categoriesText,
+                        createdAt,
+                        updatedAt,
+                    );
+                }
             });
+        });
 
-            recSection.style.display = 'block';
+        recSection.style.display = 'block';
         } else {
             recSection.style.display = 'none';
         }
@@ -565,6 +676,7 @@ async function buscarRecomendacoes(term, visibleIds) {
 // --- CRIAÇÃO EM MASSA (SMART MATCHING) ---
 
 let bulkDashboardPairs = []; // Vai guardar o estado atual da pré-visualização
+let bulkCategories = []; // Categorias disponíveis para cada dashboard
 
 window.openBulkCreateModal = function() {
     document.getElementById('bulkCreateModal').classList.add('active');
@@ -610,6 +722,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirmBtn) {
         confirmBtn.addEventListener('click', submitBulkDashboards);
     }
+
+    const config = document.getElementById('cliente-dashboards-config');
+    if (config && config.dataset.bulkCategories) {
+        try {
+            bulkCategories = JSON.parse(config.dataset.bulkCategories);
+        } catch (err) {
+            console.error('Erro ao carregar categorias em massa:', err);
+            bulkCategories = [];
+        }
+    }
 });
 
 // A Mágica de Pareamento
@@ -648,7 +770,9 @@ async function processFiles(fileList) {
             id: pairId,
             jsonFile: jsonFile,
             imageFile: matchedImage,
-            title: title || baseName // fallback pro nome do arquivo se não achar titulo
+            title: title || baseName, // fallback pro nome do arquivo se não achar titulo
+            comment: '',
+            categories: []
         });
     }
 
@@ -670,6 +794,12 @@ function extractTitleFromJson(file) {
     });
 }
 
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 function renderBulkPreview() {
     const grid = document.getElementById('bulkPairsGrid');
     document.getElementById('bulkPairCount').textContent = `${bulkDashboardPairs.length} Dashboard(s)`;
@@ -677,7 +807,17 @@ function renderBulkPreview() {
 
     bulkDashboardPairs.forEach((pair, index) => {
         const imageUrl = pair.imageFile ? URL.createObjectURL(pair.imageFile) : null;
-        
+        const titleText = escapeHtml(pair.title);
+        const jsonFileName = escapeHtml(pair.jsonFile.name);
+        const imageFileName = pair.imageFile ? escapeHtml(pair.imageFile.name) : null;
+
+        const selectedCategoriesHtml = bulkCategories.length
+            ? bulkCategories.map((category) => {
+                const activeClass = pair.categories.includes(String(category.id)) ? 'active-chip' : '';
+                return `<button type="button" class="category-chip ${activeClass}" onclick="toggleBulkCategory('${pair.id}', '${category.id}')">${escapeHtml(category.name)}</button>`;
+            }).join('')
+            : '<div class="bulk-pair-no-categories">Nenhuma categoria disponível</div>';
+
         const card = document.createElement('div');
         card.className = 'bulk-pair-card';
         card.innerHTML = `
@@ -691,19 +831,29 @@ function renderBulkPreview() {
             </div>
             
             <div class="bulk-pair-info">
-                <div class="bulk-pair-title" title="${pair.title}">${pair.title}</div>
+                <div class="bulk-pair-title" title="${titleText}">${titleText}</div>
                 <div class="bulk-pair-filename">
-                    <i class="fa-solid fa-code" style="color: #10b981;"></i> ${pair.jsonFile.name}
+                    <i class="fa-solid fa-code" style="color: #10b981;"></i> ${jsonFileName}
                 </div>
-                ${pair.imageFile ? 
+                ${imageFileName ? 
                   `<div class="bulk-pair-filename" style="margin-top: 4px;">
-                     <i class="fa-regular fa-image" style="color: #3b82f6;"></i> ${pair.imageFile.name}
+                     <i class="fa-regular fa-image" style="color: #3b82f6;"></i> ${imageFileName}
                    </div>` 
                   : 
                   `<div class="bulk-pair-filename" style="margin-top: 4px; color: #ef4444;">
                      <i class="fa-solid fa-triangle-exclamation"></i> Sem imagem
                    </div>`
                 }
+                <div class="bulk-pair-control">
+                    <label for="bulk-comment-${pair.id}" style="font-weight: 600;">Comentário opcional</label>
+                    <textarea id="bulk-comment-${pair.id}" class="form-input" rows="3" placeholder="Comentário opcional para este dashboard" oninput="updateBulkComment('${pair.id}', this.value)">${escapeHtml(pair.comment)}</textarea>
+                </div>
+                <div class="bulk-pair-categories">
+                    <span class="bulk-pair-categories-title">Categorias</span>
+                    <div class="bulk-pair-category-list">
+                        ${selectedCategoriesHtml}
+                    </div>
+                </div>
             </div>
         `;
         grid.appendChild(card);
@@ -726,6 +876,29 @@ window.handleManualImageChange = function(event, pairId) {
     }
 };
 
+window.updateBulkComment = function(pairId, comment) {
+    const pairIndex = bulkDashboardPairs.findIndex(p => p.id === pairId);
+    if (pairIndex > -1) {
+        bulkDashboardPairs[pairIndex].comment = comment;
+    }
+};
+
+window.toggleBulkCategory = function(pairId, categoryId) {
+    const pairIndex = bulkDashboardPairs.findIndex(p => p.id === pairId);
+    if (pairIndex === -1) return;
+
+    const pair = bulkDashboardPairs[pairIndex];
+    const selected = pair.categories.includes(String(categoryId));
+
+    if (selected) {
+        pair.categories = pair.categories.filter(id => id !== String(categoryId));
+    } else {
+        pair.categories.push(String(categoryId));
+    }
+
+    renderBulkPreview();
+};
+
 // Envio para o Backend
 async function submitBulkDashboards() {
     const confirmBtn = document.getElementById('btnConfirmBulkCreate');
@@ -741,10 +914,14 @@ async function submitBulkDashboards() {
 
     bulkDashboardPairs.forEach((pair, i) => {
         formData.append(`title_${i}`, pair.title);
+        formData.append(`comment_${i}`, pair.comment || '');
         formData.append(`json_${i}`, pair.jsonFile);
         if (pair.imageFile) {
             formData.append(`image_${i}`, pair.imageFile);
         }
+        pair.categories.forEach((categoryId) => {
+            formData.append(`categories_${i}`, categoryId);
+        });
     });
 
     try {

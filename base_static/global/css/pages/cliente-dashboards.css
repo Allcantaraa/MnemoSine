@@ -262,7 +262,8 @@
 .btn-view,
 .btn-edit,
 .btn-delete,
-.btn-download {
+.btn-download,
+.btn-bulk-select {
   flex: 1;
   padding: 0.6rem;
   border: 1px solid var(--app-border);
@@ -335,10 +336,14 @@
   transition: transform 0.3s ease;
   width: max-content;
   max-width: 90vw;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .bulk-actions-bar.is-visible {
   transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .bulk-actions-info {
@@ -397,6 +402,15 @@
   color: var(--app-muted);
 }
 
+.btn-bulk-select {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.btn-bulk-select:hover {
+  background-color: #0284c7;
+}
+
 .btn-bulk-cancel:hover {
   background-color: var(--app-border);
   color: var(--app-text);
@@ -439,12 +453,151 @@
   overflow-y: auto;
 }
 
-.modal-content--dashboard .modal-image {
+.modal-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.4fr) minmax(260px, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.modal-dashboard-image-card {
+  max-height: 75vh;
+  overflow: hidden;
+  border-radius: 16px;
+  background: var(--app-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-dashboard-image-card .modal-image {
   width: 100%;
-  max-height: 55vh;
+  height: 100%;
+  max-height: 75vh;
   object-fit: contain;
-  flex-shrink: 1;
-  border-radius: 8px;
+  border-radius: 16px;
+}
+
+.modal-dashboard-image-card .modal-image-fallback {
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: var(--app-muted);
+  font-size: 1rem;
+  text-align: center;
+}
+
+.modal-dashboard-image-card .modal-image-fallback i {
+  font-size: 2rem;
+}
+
+.modal-dashboard-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-author-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--app-surface);
+  border-radius: 16px;
+  border: 1px solid var(--app-border);
+}
+
+.modal-author-avatar-wrap {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(59, 130, 246, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-author-avatar,
+.modal-author-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.modal-author-avatar-fallback {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.modal-author-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.modal-author-label {
+  color: var(--app-muted);
+  font-size: 0.85rem;
+}
+
+.modal-author-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.modal-card-title {
+  font-size: 1.75rem;
+  margin: 0;
+  color: var(--app-text);
+}
+
+.modal-dashboard-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.modal-dashboard-categories .modal-category-pill {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #0c4a6e;
+  font-size: 0.85rem;
+}
+
+.modal-dashboard-meta {
+  display: grid;
+  gap: 0.65rem;
+  padding: 1rem;
+  border-radius: 16px;
+  background: var(--app-surface);
+  border: 1px solid var(--app-border);
+}
+
+.modal-dashboard-meta p {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-dashboard-meta i {
+  color: #3b82f6;
+  min-width: 16px;
 }
 
 .close-modal {
@@ -481,38 +634,43 @@
 }
 
 .modal-description-wrap {
-  margin-top: 1.25rem;
-  padding: 1rem 1.25rem;
-  background-color: var(--app-bg-hover, #f1f5f9);
-  border: 1px solid var(--app-border, #e9ecef);
-  border-radius: 10px;
+  margin-top: 0;
+  padding: 1.25rem;
+  background-color: var(--app-surface);
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
   text-align: left;
 }
 
 [data-theme="dark"] .modal-description-wrap {
-  background-color: #1c2235;
-  border-color: #2e3a4e;
+  background-color: var(--app-surface);
+  border-color: var(--app-border);
 }
 
 .modal-description-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--app-muted, #6c757d);
-  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--app-muted);
+  margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
+}
+
+.modal-description-label i {
+  color: #3b82f6;
+  font-size: 0.95rem;
 }
 
 .modal-description-text {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   line-height: 1.65;
-  color: var(--app-text, #2c3e50);
+  color: var(--app-text);
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 /* Move Modal Specific */
@@ -1330,6 +1488,9 @@
 .bulk-pair-info {
   padding: 1rem;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .bulk-pair-title {
@@ -1352,6 +1513,58 @@
 
 [data-theme="dark"] .bulk-pair-image-area {
   background: #1e293b;
+}
+
+.bulk-pair-control textarea {
+  margin-top: 0.5rem;
+  width: 100%;
+  min-height: 80px;
+  border-radius: 8px;
+  border: 1px solid var(--app-border);
+  background: var(--app-surface);
+  color: var(--app-text);
+  padding: 0.75rem;
+  resize: vertical;
+}
+
+.bulk-pair-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bulk-pair-categories-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--app-text);
+}
+
+.bulk-pair-category-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.category-chip {
+  border: 1px solid var(--app-border);
+  background: var(--app-bg);
+  color: var(--app-muted);
+  border-radius: 999px;
+  padding: 0.5rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-chip.active-chip {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.bulk-pair-no-categories {
+  color: var(--app-muted);
+  font-size: 0.9rem;
 }
 
 /* Botão Bulk Categorias */

@@ -15,10 +15,9 @@
      data-bulk-create-url="{% url 'criar_dashboards_massa' client_slug %}"
      data-bulk-category-url="{% url 'associar_categorias_bulk' client_slug %}"
      data-api-recs-url="{% url 'api_recomendacoes_dashboards' %}"
+     data-bulk-categories='[{% for categoria in categorias %}{"id": {{ categoria.id }}, "name": "{{ categoria.name|escapejs }}"}{% if not forloop.last %}, {% endif %}{% endfor %}]'
      hidden aria-hidden="true">
 </div>
-
-    <div id="cliente-dashboards-config" data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" hidden aria-hidden="true"></div>
     <div class="dashboards-container">
     <div class="dashboards-header">
         <h1>{{ cliente.name }} - Dashboards</h1>
@@ -65,15 +64,18 @@
         {% endif %}
     </div>
 
-    <!-- Bulk Actions Bar (Hidden by default) -->
+    <!-- Bulk Actions Bar (always in DOM, hidden by default) -->
     <div class="bulk-actions-bar" id="bulkActionsBar">
         <div class="bulk-actions-info">
             <span id="selectedCount">0</span> dashboard(s) selecionado(s)
         </div>
         <div class="bulk-actions-buttons">
-    <button type="button" class="btn-bulk-move" id="btnBulkMove">
-        <i class="fa-solid fa-arrow-right"></i> Mover para Cliente
-    </button>
+            <button type="button" class="btn-bulk-select" id="btnBulkSelectAll">
+                <i class="fa-solid fa-check-double"></i> Selecionar Todos
+            </button>
+            <button type="button" class="btn-bulk-move" id="btnBulkMove">
+                <i class="fa-solid fa-arrow-right"></i> Mover para Cliente
+            </button>
     
     <button type="button" class="btn-bulk-duplicate" id="btnBulkDuplicate">
         <i class="fa-solid fa-copy"></i> Duplicar Selecionados
@@ -151,7 +153,7 @@
                         </div>
                         
                         <div class="dashboard-actions">
-                            <a href="javascript:void(0)" class="btn-view" data-image="{{ dashboard.image.url }}" data-description="{{ dashboard.description|escapejs }}" title="Ver imagem do dashboard"><i class="fa-solid fa-eye"></i></a>
+                            <a href="javascript:void(0)" class="btn-view" data-image="{% if dashboard.image %}{{ dashboard.image.url|escape }}{% endif %}" data-dashboard-name="{{ dashboard.title|escape }}" data-description="{{ dashboard.description|default_if_none:''|escape }}" data-categories-text="{{ dashboard.categories.all|join:', '|escape }}" data-creator-name="{% if dashboard.created_by %}{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escape }}{% else %}Desconhecido{% endif %}" data-creator-avatar="{% if dashboard.created_by and dashboard.created_by.perfil.profile_image %}{{ dashboard.created_by.perfil.profile_image.url|escape }}{% endif %}" data-created-at="{{ dashboard.created_at|date:'d/m/Y H:i' }}" data-updated-at="{{ dashboard.updated_at|date:'d/m/Y H:i' }}" title="Ver imagem do dashboard"><i class="fa-solid fa-eye"></i></a>
                             <a href="{% url "atualizar_dashboard" client_slug dashboard.slug %}" class="btn-edit" title="Editar"><i class="fa-solid fa-pencil"></i></a>
                             <button type="button" class="btn-delete" title="Deletar" onclick="openDeleteDashboardModal('{% url 'deletar_dashboard' client_slug dashboard.slug %}', '{{ dashboard.title|escapejs }}')">
                                 <i class="fa-solid fa-trash"></i>
@@ -163,8 +165,6 @@
             {% endfor %}
         </div>
 
-        <!-- Config for JS -->
-        <div id="cliente-dashboards-config" data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" style="display: none;"></div>
     {% else %}
         <div class="empty-state">
             <p>Este cliente não tem dashboards ainda</p>
@@ -183,11 +183,39 @@
 <div id="imageModal" class="image-modal">
     <div class="modal-content modal-content--dashboard">
         <button type="button" class="close-modal" id="dashImageModalClose" aria-label="Fechar">&times;</button>
-        <p id="modalTitle" class="modal-title"></p>
-        <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
-        <div id="modalDescriptionWrap" class="modal-description-wrap" style="display:none;">
-            <p class="modal-description-label"><i class="fa-solid fa-align-left"></i> Descrição</p>
-            <p id="modalDescription" class="modal-description-text"></p>
+        <div class="modal-dashboard-grid">
+            <div class="modal-dashboard-image-card">
+                <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
+                <div id="modalImageFallback" class="modal-image-fallback" style="display: none;">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Sem imagem</span>
+                </div>
+            </div>
+            <aside class="modal-dashboard-info">
+                <div class="modal-author-card">
+                    <div class="modal-author-avatar-wrap">
+                        <img id="modalCreatorAvatar" class="modal-author-avatar" src="" alt="Avatar de quem criou">
+                        <div id="modalCreatorAvatarFallback" class="modal-author-avatar-fallback"></div>
+                    </div>
+                    <div class="modal-author-meta">
+                        <span class="modal-author-label">Publicado por</span>
+                        <strong id="modalCreatorName" class="modal-author-name"></strong>
+                    </div>
+                </div>
+
+                <h2 id="modalTitle" class="modal-card-title"></h2>
+                <div id="modalCategories" class="modal-dashboard-categories"></div>
+
+                <div id="modalDescriptionWrap" class="modal-description-wrap" style="display:none;">
+                    <p class="modal-description-label"><i class="fa-solid fa-align-left"></i> Descrição</p>
+                    <p id="modalDescription" class="modal-description-text"></p>
+                </div>
+
+                <div class="modal-dashboard-meta">
+                    <p><i class="fa-solid fa-calendar-plus"></i> <span id="modalCreatedAt"></span></p>
+                    <p><i class="fa-solid fa-calendar-check"></i> <span id="modalUpdatedAt"></span></p>
+                </div>
+            </aside>
         </div>
     </div>
 </div>

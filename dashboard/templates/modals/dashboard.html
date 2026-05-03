@@ -28,6 +28,30 @@
                         <div class="field-errors">{{ field.errors }}</div>
                     {% endif %}
                 </div>
+            {% elif field.name == 'image' or field.name == 'json' %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="file-drop-zone" data-file-input="{{ field.id_for_label }}">
+                        {{ field }}
+                        <div class="file-drop-content">
+                            <i class="fa-solid fa-cloud-arrow-up fa-lg"></i>
+                            <p>Arraste e solte o arquivo aqui ou clique para selecionar.</p>
+                            <span class="file-drop-hint">
+                                {% if field.name == 'image' %}
+                                    Imagens aceitas: .png, .jpg, .jpeg
+                                {% else %}
+                                    Arquivo aceito: .json
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
             {% else %}
                 <div class="form-group">
                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
@@ -58,3 +82,51 @@
     </button>
 </form>
 {% endblock content %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.file-drop-zone').forEach(function(dropZone) {
+            const inputId = dropZone.dataset.fileInput;
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const preventDefaults = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            };
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            dropZone.addEventListener('dragover', function () {
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', function () {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', function (event) {
+                dropZone.classList.remove('drag-over');
+                const files = Array.from(event.dataTransfer.files || []);
+                if (files.length === 0) return;
+
+                const validFiles = files.filter((file) => {
+                    if (input.accept && input.accept.includes('.json')) {
+                        return file.name.toLowerCase().endsWith('.json');
+                    }
+                    return ['png', 'jpg', 'jpeg'].some(ext => file.name.toLowerCase().endsWith(ext));
+                });
+
+                if (validFiles.length > 0) {
+                    const dt = new DataTransfer();
+                    validFiles.forEach((file) => dt.items.add(file));
+                    input.files = dt.files;
+                }
+            });
+        });
+    });
+</script>
+{% endblock extra_scripts %}

@@ -62,8 +62,10 @@ def criar_dashboards_massa(request, client_slug):
 
             for i in range(count):
                 titulo = request.POST.get(f'title_{i}')
+                comment = request.POST.get(f'comment_{i}', '')
                 json_file = request.FILES.get(f'json_{i}')
                 image_file = request.FILES.get(f'image_{i}')
+                category_ids = request.POST.getlist(f'categories_{i}')
 
                 # Validação básica
                 if titulo and json_file:
@@ -71,6 +73,7 @@ def criar_dashboards_massa(request, client_slug):
                         organization=org,
                         client=cliente,
                         title=titulo,
+                        comment=comment,
                         created_by=request.user
                     )
                     # Associa os arquivos
@@ -79,6 +82,11 @@ def criar_dashboards_massa(request, client_slug):
                         dash.image.save(image_file.name, image_file, save=False)
                     
                     dash.save()
+
+                    if category_ids:
+                        categorias = Categoria.objects.filter(id__in=category_ids, organization=org)
+                        dash.categories.add(*categorias)
+
                     criados += 1
 
             messages.success(request, f'{criados} dashboard(s) criados com sucesso em lote!')
@@ -341,7 +349,7 @@ def dashboards(request, slug):
     
     category_filter = request.GET.get('category', '')
     
-    dashboards_qs = Dashboard.objects.filter(client=cliente)
+    dashboards_qs = Dashboard.objects.filter(client=cliente).select_related('created_by', 'created_by__perfil')
     
     if category_filter:
         try:
