@@ -161,7 +161,6 @@ class Dashboard(models.Model):
     favorited_by = models.ManyToManyField(User, related_name='favorite_dashboards', blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     description = models.TextField(blank=True, default='')
-    comment = models.TextField(blank=True, default='', help_text='Comentário opcional sobre o briefing do dashboard.')
     slug = models.SlugField(
         unique=True,
         default=None,
