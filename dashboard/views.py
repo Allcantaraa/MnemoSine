@@ -62,7 +62,10 @@ def criar_dashboards_massa(request, client_slug):
 
             for i in range(count):
                 titulo = request.POST.get(f'title_{i}')
-                comment = request.POST.get(f'comment_{i}', '')
+                
+                # Resgatando como 'description' ao invés de 'comment'
+                description = request.POST.get(f'description_{i}', '') 
+                
                 json_file = request.FILES.get(f'json_{i}')
                 image_file = request.FILES.get(f'image_{i}')
                 category_ids = request.POST.getlist(f'categories_{i}')
@@ -73,7 +76,7 @@ def criar_dashboards_massa(request, client_slug):
                         organization=org,
                         client=cliente,
                         title=titulo,
-                        comment=comment,
+                        description=description, # Associando ao campo correto do banco
                         created_by=request.user
                     )
                     # Associa os arquivos

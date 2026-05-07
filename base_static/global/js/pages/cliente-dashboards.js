@@ -844,10 +844,12 @@ function renderBulkPreview() {
                      <i class="fa-solid fa-triangle-exclamation"></i> Sem imagem
                    </div>`
                 }
+                
                 <div class="bulk-pair-control">
-                    <label for="bulk-comment-${pair.id}" style="font-weight: 600;">Comentário opcional</label>
-                    <textarea id="bulk-comment-${pair.id}" class="form-input" rows="3" placeholder="Comentário opcional para este dashboard" oninput="updateBulkComment('${pair.id}', this.value)">${escapeHtml(pair.comment)}</textarea>
+                    <label for="bulk-description-${pair.id}" style="font-weight: 600;">Descrição opcional</label>
+                    <textarea id="bulk-description-${pair.id}" class="form-input" rows="3" placeholder="Descrição opcional para este dashboard" oninput="updateBulkDescription('${pair.id}', this.value)">${escapeHtml(pair.description || '')}</textarea>
                 </div>
+
                 <div class="bulk-pair-categories">
                     <span class="bulk-pair-categories-title">Categorias</span>
                     <div class="bulk-pair-category-list">
@@ -876,10 +878,10 @@ window.handleManualImageChange = function(event, pairId) {
     }
 };
 
-window.updateBulkComment = function(pairId, comment) {
-    const pairIndex = bulkDashboardPairs.findIndex(p => p.id === pairId);
-    if (pairIndex > -1) {
-        bulkDashboardPairs[pairIndex].comment = comment;
+window.updateBulkDescription = function(pairId, value) {
+    const pair = bulkDashboardPairs.find(p => p.id === pairId);
+    if (pair) {
+        pair.description = value; // Agora salva corretamente em "description"
     }
 };
 
@@ -914,7 +916,10 @@ async function submitBulkDashboards() {
 
     bulkDashboardPairs.forEach((pair, i) => {
         formData.append(`title_${i}`, pair.title);
-        formData.append(`comment_${i}`, pair.comment || '');
+        
+        // Alterado de comment para description aqui!
+        formData.append(`description_${i}`, pair.description || ''); 
+        
         formData.append(`json_${i}`, pair.jsonFile);
         if (pair.imageFile) {
             formData.append(`image_${i}`, pair.imageFile);
@@ -934,7 +939,7 @@ async function submitBulkDashboards() {
         const data = await response.json();
         
         if (data.success) {
-            window.location.reload(); // Recarrega para ver os novos dashboards
+            window.location.reload(); 
         } else {
             alert('Erro ao salvar dashboards: ' + data.error);
             confirmBtn.disabled = false;
