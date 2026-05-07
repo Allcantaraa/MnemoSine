@@ -1,287 +1,449 @@
-{% extends "global/base.html" %}
-{% load static %}
-{% load org_tags %}
-
+{% extends "global/base.html" %} 
+{% load static %} {% load org_tags %} 
 {% block extra_head %}
-    <link rel="stylesheet" href="{% static 'global/css/pages/index.css' %}">
-{% endblock %}
-
+<link rel="stylesheet" href="{% static 'global/css/pages/index.css' %}" />
+{% endblock %} 
 {% block content %}
 
-<div id="index-bulk-config" 
-     data-bulk-move-url="{% url 'mover_clientes_bulk' %}"
-     data-bulk-duplicate-url="{% url 'duplicar_clientes_bulk' %}"
-     data-bulk-favorite-url="{% url 'favoritar_clientes_bulk' %}"
-     data-bulk-delete-url="{% url 'deletar_clientes_bulk' %}"
-     hidden aria-hidden="true"></div>
+<div
+  id="index-bulk-config"
+  data-bulk-move-url="{% url 'mover_clientes_bulk' %}"
+  data-bulk-duplicate-url="{% url 'duplicar_clientes_bulk' %}"
+  data-bulk-favorite-url="{% url 'favoritar_clientes_bulk' %}"
+  data-bulk-delete-url="{% url 'deletar_clientes_bulk' %}"
+  hidden
+  aria-hidden="true"
+></div>
 
 <div class="dashboard-container">
-    
-    <div class="page-header">
-        <div class="header-content">
-            <h1>Dashboard Principal</h1>
-            <p class="subtitle">{% if request.organization %}{{ request.organization.name }}{% endif %}</p>
-        </div>
-        {% if request.organization %}
-            <a href="{% url 'criar_cliente' %}" class="btn-primary"><i class="fa-solid fa-plus"></i> Novo Cliente</a>
-        {% endif %}
+  <div class="page-header">
+    <div class="header-content">
+      <h1>Dashboard Principal</h1>
+      <p class="subtitle">
+        {% if request.organization %}{{ request.organization.name }}{% endif %}
+      </p>
     </div>
-
-    <div class="bulk-actions-bar" id="clientBulkActionsBar" style="display: none;">
-        <div class="bulk-actions-info">
-            <span id="selectedClientCount">0</span> cliente(s) selecionado(s)
-        </div>
-        <div class="bulk-actions-buttons">
-            <button type="button" class="btn-bulk-move" onclick="openClientMoveModal()">
-                <i class="fa-solid fa-arrow-right"></i> Mover p/ Organização
-            </button>
-            <button type="button" class="btn-bulk-duplicate" onclick="confirmClientBulk('duplicate')">
-                <i class="fa-solid fa-copy"></i> Duplicar
-            </button>
-            <button type="button" class="btn-bulk-favorite" onclick="confirmClientBulk('favorite')">
-                <i class="fa-solid fa-star"></i> Favoritar
-            </button>
-            <button type="button" class="btn-bulk-delete" onclick="openClientBulkDeleteModal()">
-                <i class="fa-solid fa-trash"></i> 
-                {% if request.user|has_org_role:request.organization %}Deletar{% else %}Solicitar Exclusão{% endif %}
-            </button>
-            <button type="button" class="btn-bulk-cancel" onclick="clearClientSelection()">
-                Cancelar
-            </button>
-        </div>
-    </div>
-
     {% if request.organization %}
-        <div class="kpis-grid">
-            <div class="kpi-card">
-                <div class="kpi-number">{{ total_clientes }}</div>
-                <div class="kpi-label">Clientes</div>
-                <div class="kpi-description">Total de clientes</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number">{{ total_dashboards }}</div>
-                <div class="kpi-label">Dashboards</div>
-                <div class="kpi-description">Dashboards ativos</div>
-            </div>
-            <div class="kpi-card">
-                <div class="kpi-number">{{ membros_count|default:1 }}</div>
-                <div class="kpi-label">Membros</div>
-                <div class="kpi-description">Membros da organização</div>
-            </div>
-        </div>
-
-        <div class="filters-bar">
-            <div class="search-input">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Buscar cliente ou dashboard..." class="form-input">
-            </div>
-
-            {% if categorias %}
-                <div class="category-chips">
-                    <a href="javascript:void(0)" class="chip active" data-category="">
-                        <i class="fa-solid fa-list"></i>
-                        <span>Todas</span>
-                    </a>
-                    {% for categoria in categorias %}
-                        <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
-                            <i class="fa-solid fa-tag"></i>
-                            <span>{{ categoria.name }}</span>
-                        </a>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-
-        {% if clientes_favoritos or clientes_normais %}
-            
-            {% if clientes_favoritos %}
-                <div class="section-header" style="margin-top: 1rem;">
-                    <h2><i class="fa-solid fa-star" style="color: #eab308; margin-right: 0.5rem;"></i> Clientes Favoritos</h2>
-                    <span class="client-count">{{ clientes_favoritos|length }} cliente{{ clientes_favoritos|length|pluralize }}</span>
-                </div>
-
-                <div class="clients-grid" style="margin-bottom: 2rem;">
-                    {% for cliente in clientes_favoritos %}
-                        {% include "global/partials/_cliente_card.html" with cliente=cliente %}
-                    {% endfor %}
-                </div>
-            {% endif %}
-
-            <div class="section-header">
-                <h2>Diretório de Clientes</h2>
-                <span class="client-count">{{ clientes_normais|length }} cliente{{ clientes_normais|length|pluralize }}</span>
-            </div>
-
-            <div class="clients-grid">
-                {% for cliente in clientes_normais %}
-                    {% include "global/partials/_cliente_card.html" with cliente=cliente %}
-                {% empty %}
-                    {% if not clientes_favoritos %}
-                        <div class="empty-state" style="grid-column: 1 / -1;">
-                            <p>Nenhum cliente encontrado.</p>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            {% if dashboards %}
-                <div class="dashboards-section">
-                    <h2>Dashboards Filtrados</h2>
-                    <div class="dashboards-grid">
-                        {% for dashboard in dashboards %}
-                            <div class="dashboard-card" data-categories="{{ dashboard.categories.all|join:','|lower }}">
-                                <div class="dashboard-image">
-                                    {% if dashboard.image %}
-                                        <img src="{{ dashboard.image.url }}" alt="{{ dashboard.title }}" class="dashboard-img-preview js-open-dash-preview" data-preview-src="{{ dashboard.image.url }}" data-preview-title="{{ dashboard.title }}">
-                                    {% else %}
-                                        <div class="dashboard-no-image">Sem imagem</div>
-                                    {% endif %}
-                                </div>
-                                <div class="dashboard-info">
-                                    <h4>{{ dashboard.title }}</h4>
-                                    <p class="dashboard-client">
-                                        {% if dashboard.client %}
-                                            {{ dashboard.client.name }}
-                                        {% else %}
-                                            <span style="font-style: italic; color: var(--app-muted, #94a3b8);"><i class="fa-solid fa-ghost"></i> Cliente Excluído</span>
-                                        {% endif %}
-                                    </p>
-                                    <p class="dashboard-category">
-                                        {% for categoria in dashboard.categories.all %}
-                                            {{ categoria.name }}{% if not forloop.last %}, {% endif %}
-                                        {% empty %}
-                                            Sem categoria
-                                        {% endfor %}
-                                    </p>
-                                    <div class="dashboard-card-actions">
-                                        <a href="#" class="btn-view-dash js-open-dash-preview" data-preview-src="{{ dashboard.image.url }}" data-preview-title="{{ dashboard.title }}" title="Ver imagem"><i class="fa-solid fa-eye"></i></a>
-                                        {% if dashboard.client %}
-                                            <a href="{% url 'baixar_dashboard_json' dashboard.client.slug dashboard.slug %}" class="btn-download-dash" title="Download JSON"><i class="fa-solid fa-download"></i></a>
-                                        {% else %}
-                                            <span class="btn-download-dash" title="Sem cliente vinculado" style="opacity: 0.4; cursor: not-allowed;"><i class="fa-solid fa-download"></i></span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-
-        {% else %}
-            <div class="empty-state">
-                <div class="empty-icon"></div>
-                <h3>Nenhum cliente ainda</h3>
-                <p>Comece criando seu primeiro cliente para adicionar dashboards</p>
-                <a href="{% url 'criar_cliente' %}" class="btn-primary btn-large"><i class="fa-solid fa-plus"></i> Criar Primeiro Cliente</a>
-            </div>
-        {% endif %}
-
-    {% else %}
-        <div class="no-org-state">
-            <div class="state-icon"></div>
-            <h2>Nenhuma organização selecionada</h2>
-            <p>Selecione uma organização na barra lateral para começar.</p>
-        </div>
+    <a href="{% url 'criar_cliente' %}" class="btn-primary"
+      ><i class="fa-solid fa-plus"></i> Novo Cliente</a
+    >
     {% endif %}
+  </div>
 
-</div> <div id="imageModal" class="image-modal">
-    <div class="modal-content">
-        <button type="button" class="close-modal" id="indexImageModalClose" aria-label="Fechar">&times;</button>
-        <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
-        <p id="modalTitle" class="modal-title"></p>
+  <div class="bulk-actions-bar" id="clientBulkActionsBar" style="display: none">
+    <div class="bulk-actions-info">
+      <span id="selectedClientCount">0</span> cliente(s) selecionado(s)
     </div>
+    <div class="bulk-actions-buttons">
+      <button
+        type="button"
+        class="btn-bulk-move"
+        onclick="openClientMoveModal()"
+      >
+        <i class="fa-solid fa-arrow-right"></i> Mover p/ Organização
+      </button>
+      <button
+        type="button"
+        class="btn-bulk-duplicate"
+        onclick="confirmClientBulk('duplicate')"
+      >
+        <i class="fa-solid fa-copy"></i> Duplicar
+      </button>
+      <button
+        type="button"
+        class="btn-bulk-favorite"
+        onclick="confirmClientBulk('favorite')"
+      >
+        <i class="fa-solid fa-star"></i> Favoritar
+      </button>
+      <button
+        type="button"
+        class="btn-bulk-delete"
+        onclick="openClientBulkDeleteModal()"
+      >
+        <i class="fa-solid fa-trash"></i>
+        {% if request.user|has_org_role:request.organization %}Deletar
+        {% else%}Solicitar Exclusão{% endif %}
+      </button>
+      <button
+        type="button"
+        class="btn-bulk-cancel"
+        onclick="clearClientSelection()"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+  {% if request.organization %}
+  <div class="kpis-grid">
+    <div class="kpi-card">
+      <div class="kpi-number">{{ total_clientes }}</div>
+      <div class="kpi-label">Clientes</div>
+      <div class="kpi-description">Total de clientes</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number">{{ total_dashboards }}</div>
+      <div class="kpi-label">Dashboards</div>
+      <div class="kpi-description">Dashboards ativos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-number">{{ membros_count|default:1 }}</div>
+      <div class="kpi-label">Membros</div>
+      <div class="kpi-description">Membros da organização</div>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-input faq-search-wrapper" style="position: relative">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Buscar clientes, dashboards ou ajuda..."
+        class="form-input"
+        autocomplete="off"
+        data-url="{% url 'buscar_faq_ajax' %}"
+      />
+      <div class="faq-dropdown" id="faqDropdown">
+        <div class="faq-dropdown-list" id="faqDropdownList"></div>
+      </div>
+    </div>
+
+    {% if categorias %}
+    <div class="category-chips">
+      <a href="javascript:void(0)" class="chip active" data-category="">
+        <i class="fa-solid fa-list"></i>
+        <span>Todas</span>
+      </a>
+      {% for categoria in categorias %}
+      <a
+        href="javascript:void(0)"
+        class="chip"
+        data-category="{{ categoria.name }}"
+      >
+        <i class="fa-solid fa-tag"></i>
+        <span>{{ categoria.name }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if clientes_favoritos or clientes_normais %} {% if clientes_favoritos %}
+  <div class="section-header" style="margin-top: 1rem">
+    <h2>
+      <i
+        class="fa-solid fa-star"
+        style="color: #eab308; margin-right: 0.5rem"
+      ></i>
+      Clientes Favoritos
+    </h2>
+    <span class="client-count"
+      >{{ clientes_favoritos|length }} cliente{{clientes_favoritos|length|pluralize }}</span
+    >
+  </div>
+
+  <div class="clients-grid" style="margin-bottom: 2rem">
+    {% for cliente in clientes_favoritos %}
+    {% include "global/partials/_cliente_card.html" with cliente=cliente %} {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section-header">
+    <h2>Diretório de Clientes</h2>
+    <span class="client-count" >{{ clientes_normais|length }} cliente{{ clientes_normais|length|pluralize}}</span
+    >
+  </div>
+
+  <div class="clients-grid">
+    {% for cliente in clientes_normais %} 
+    {% include "global/partials/_cliente_card.html" with cliente=cliente %} {% empty %}
+    {% if not clientes_favoritos %}
+    <div class="empty-state" style="grid-column: 1 / -1">
+      <p>Nenhum cliente encontrado.</p>
+    </div>
+    {% endif %} {% endfor %}
+  </div>
+
+  {% if dashboards %}
+  <div class="dashboards-section">
+    <h2>Dashboards Filtrados</h2>
+    <div class="dashboards-grid">
+      {% for dashboard in dashboards %}
+      <div
+        class="dashboard-card"
+        data-categories="{{ dashboard.categories.all|join:','|lower }}"
+      >
+        <div class="dashboard-image">
+          {% if dashboard.image %}
+          <img
+            src="{{ dashboard.image.url }}"
+            alt="{{ dashboard.title }}"
+            class="dashboard-img-preview js-open-dash-preview"
+            data-preview-src="{{ dashboard.image.url }}"
+            data-preview-title="{{ dashboard.title }}"
+          />
+          {% else %}
+          <div class="dashboard-no-image">Sem imagem</div>
+          {% endif %}
+        </div>
+        <div class="dashboard-info">
+          <h4>{{ dashboard.title }}</h4>
+          <p class="dashboard-client">
+            {% if dashboard.client %} {{ dashboard.client.name }} {% else %}
+            <span style="font-style: italic; color: var(--app-muted, #94a3b8)"
+              ><i class="fa-solid fa-ghost"></i> Cliente Excluído</span
+            >
+            {% endif %}
+          </p>
+          <p class="dashboard-category">
+            {% for categoria in dashboard.categories.all %} 
+            {{ categoria.name}}
+            {% if not forloop.last %}, {% endif %} {% empty %} Sem categoria
+            {% endfor %}
+          </p>
+          <div class="dashboard-card-actions">
+            <a
+              href="#"
+              class="btn-view-dash js-open-dash-preview"
+              data-preview-src="{{ dashboard.image.url }}"
+              data-preview-title="{{ dashboard.title }}"
+              title="Ver imagem"
+              ><i class="fa-solid fa-eye"></i
+            ></a>
+            {% if dashboard.client %}
+            <a
+              href="{% url 'baixar_dashboard_json' dashboard.client.slug dashboard.slug %}"
+              class="btn-download-dash"
+              title="Download JSON"
+              ><i class="fa-solid fa-download"></i
+            ></a>
+            {% else %}
+            <span
+              class="btn-download-dash"
+              title="Sem cliente vinculado"
+              style="opacity: 0.4; cursor: not-allowed"
+              ><i class="fa-solid fa-download"></i
+            ></span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %} {% else %}
+  <div class="empty-state">
+    <div class="empty-icon"></div>
+    <h3>Nenhum cliente ainda</h3>
+    <p>Comece criando seu primeiro cliente para adicionar dashboards</p>
+    <a href="{% url 'criar_cliente' %}" class="btn-primary btn-large"
+      ><i class="fa-solid fa-plus"></i> Criar Primeiro Cliente</a
+    >
+  </div>
+  {% endif %} {% else %}
+  <div class="no-org-state">
+    <div class="state-icon"></div>
+    <h2>Nenhuma organização selecionada</h2>
+    <p>Selecione uma organização na barra lateral para começar.</p>
+  </div>
+  {% endif %}
+</div>
+<div id="imageModal" class="image-modal">
+  <div class="modal-content">
+    <button
+      type="button"
+      class="close-modal"
+      id="indexImageModalClose"
+      aria-label="Fechar"
+    >
+      &times;
+    </button>
+    <img id="modalImage" class="modal-image" src="" alt="Dashboard Image" />
+    <p id="modalTitle" class="modal-title"></p>
+  </div>
 </div>
 
 <div id="deleteClientModal" class="image-modal">
-    <div class="modal-content">
-        <button type="button" class="close-modal" id="deleteClientClose">&times;</button>
-        <h3 class="move-modal-title">
-            {% if request.user|has_org_role:request.organization %}Apagar Cliente{% else %}Solicitar Exclusão de Cliente{% endif %}
-        </h3>
-        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
-            {% if request.user|has_org_role:request.organization %}
-                Tem certeza que deseja apagar o cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>? Isso deixará os dashboards vinculados a ele sem dono.
-            {% else %}
-                Você está solicitando a exclusão do cliente <strong id="deleteClientName" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
-            {% endif %}
-        </p>
-        <form id="deleteClientForm" method="POST" action="">
-            {% csrf_token %}
-            {% if not request.user|has_org_role:request.organization %}
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label for="deleteReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
-                    <textarea name="reason" id="deleteReason" class="form-input" placeholder="Explique por que este cliente deve ser removido..." required style="width: 100%; min-height: 80px;"></textarea>
-                </div>
-            {% endif %}
-            <div class="move-form-actions">
-                {% if request.user|has_org_role:request.organization %}
-                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
-                {% else %}
-                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
-                {% endif %}
-                <button type="button" class="btn-move-cancel" id="deleteClientCancel">Cancelar</button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-content">
+    <button type="button" class="close-modal" id="deleteClientClose">
+      &times;
+    </button>
+    <h3 class="move-modal-title">
+      {% if request.user|has_org_role:request.organization %}Apagar Cliente{%
+      else %}Solicitar Exclusão de Cliente{% endif %}
+    </h3>
+    <p
+      class="modal-message"
+      style="margin-bottom: 1.5rem; color: var(--app-muted)"
+    >
+      {% if request.user|has_org_role:request.organization %} Tem certeza que
+      deseja apagar o cliente
+      <strong id="deleteClientName" style="color: var(--app-text)"></strong>?
+      Isso deixará os dashboards vinculados a ele sem dono. {% else %} Você está
+      solicitando a exclusão do cliente
+      <strong id="deleteClientName" style="color: var(--app-text)"></strong>. Um
+      administrador precisará aprovar esta ação. {% endif %}
+    </p>
+    <form id="deleteClientForm" method="POST" action="">
+      {% csrf_token %} 
+      {% if not request.user|has_org_role:request.organization %}
+      <div class="form-group" style="margin-bottom: 1.5rem">
+        <label
+          for="deleteReason"
+          style="display: block; margin-bottom: 0.5rem; color: var(--app-text)"
+          >Motivo da exclusão:</label
+        >
+        <textarea
+          name="reason"
+          id="deleteReason"
+          class="form-input"
+          placeholder="Explique por que este cliente deve ser removido..."
+          required
+          style="width: 100%; min-height: 80px"
+        ></textarea>
+      </div>
+      {% endif %}
+      <div class="move-form-actions">
+        {% if request.user|has_org_role:request.organization %}
+        <button
+          type="submit"
+          class="btn-primary"
+          style="background-color: #c92a2a"
+        >
+          Apagar
+        </button>
+        {% else %}
+        <button type="submit" class="btn-primary">Enviar Solicitação</button>
+        {% endif %}
+        <button type="button" class="btn-move-cancel" id="deleteClientCancel">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div id="moveClientBulkModal" class="image-modal">
-    <div class="modal-content">
-        <button type="button" class="close-modal" onclick="closeClientMoveModal()">&times;</button>
-        <h3 class="move-modal-title">Mover Clientes</h3>
-        <form id="moveClientBulkForm" method="POST" action="{% url 'mover_clientes_bulk' %}">
-            {% csrf_token %}
-            <input type="hidden" name="client_ids" id="moveClientIdsInput">
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label for="destinationOrg" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Selecione a Organização de Destino:</label>
-                <select id="destinationOrg" name="destination_org" class="form-input" required>
-                    <option value="">-- Escolha uma Organização --</option>
-                    {% for membership in request.user_organizations %}
-                        {% if membership.organization.id != request.organization.id %}
-                            <option value="{{ membership.organization.id }}">{{ membership.organization.name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="move-form-actions">
-                <button type="submit" class="btn-primary">Mover</button>
-                <button type="button" class="btn-move-cancel" onclick="closeClientMoveModal()">Cancelar</button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-content">
+    <button type="button" class="close-modal" onclick="closeClientMoveModal()">
+      &times;
+    </button>
+    <h3 class="move-modal-title">Mover Clientes</h3>
+    <form
+      id="moveClientBulkForm"
+      method="POST"
+      action="{% url 'mover_clientes_bulk' %}"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="client_ids" id="moveClientIdsInput" />
+      <div class="form-group" style="margin-bottom: 1.5rem">
+        <label
+          for="destinationOrg"
+          style="display: block; margin-bottom: 0.5rem; color: var(--app-text)"
+          >Selecione a Organização de Destino:</label
+        >
+        <select
+          id="destinationOrg"
+          name="destination_org"
+          class="form-input"
+          required
+        >
+          <option value="">-- Escolha uma Organização --</option>
+          {% for membership in request.user_organizations %} 
+          {% if membership.organization.id != request.organization.id %}
+          <option value="{{ membership.organization.id }}">
+            {{ membership.organization.name }}
+          </option>
+          {% endif %} 
+          {% endfor %}
+        </select>
+      </div>
+      <div class="move-form-actions">
+        <button type="submit" class="btn-primary">Mover</button>
+        <button
+          type="button"
+          class="btn-move-cancel"
+          onclick="closeClientMoveModal()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div id="deleteClientBulkModal" class="image-modal">
-    <div class="modal-content">
-        <button type="button" class="close-modal" onclick="closeClientBulkDeleteModal()">&times;</button>
-        <h3 class="move-modal-title">
-            {% if request.user|has_org_role:request.organization %}Apagar Clientes{% else %}Solicitar Exclusão{% endif %}
-        </h3>
-        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
-            Esta ação afetará <strong id="bulkClientDeleteCount"></strong> cliente(s).
-        </p>
-        <form id="deleteClientBulkForm" method="POST" action="{% url 'deletar_clientes_bulk' %}">
-            {% csrf_token %}
-            <input type="hidden" name="client_ids" id="deleteClientIdsInput">
-            {% if not request.user|has_org_role:request.organization %}
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label for="bulkClientDeleteReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo:</label>
-                    <textarea name="reason" id="bulkClientDeleteReason" class="form-input" required style="width: 100%; min-height: 80px;"></textarea>
-                </div>
-            {% endif %}
-            <div class="move-form-actions">
-                <button type="submit" class="btn-primary" {% if request.user|has_org_role:request.organization %}style="background-color: #c92a2a;"{% endif %}>
-                    {% if request.user|has_org_role:request.organization %}Apagar{% else %}Enviar Solicitação{% endif %}
-                </button>
-                <button type="button" class="btn-move-cancel" onclick="closeClientBulkDeleteModal()">Cancelar</button>
-            </div>
-        </form>
-    </div>
+  <div class="modal-content">
+    <button
+      type="button"
+      class="close-modal"
+      onclick="closeClientBulkDeleteModal()"
+    >
+      &times;
+    </button>
+    <h3 class="move-modal-title">
+      {% if request.user|has_org_role:request.organization %}Apagar Clientes{%
+      else %}Solicitar Exclusão{% endif %}
+    </h3>
+    <p
+      class="modal-message"
+      style="margin-bottom: 1.5rem; color: var(--app-muted)"
+    >
+      Esta ação afetará <strong id="bulkClientDeleteCount"></strong> cliente(s).
+    </p>
+    <form
+      id="deleteClientBulkForm"
+      method="POST"
+      action="{% url 'deletar_clientes_bulk' %}"
+    >
+      {% csrf_token %}
+      <input type="hidden" name="client_ids" id="deleteClientIdsInput" />
+      {% if not request.user|has_org_role:request.organization %}
+      <div class="form-group" style="margin-bottom: 1.5rem">
+        <label
+          for="bulkClientDeleteReason"
+          style="display: block; margin-bottom: 0.5rem; color: var(--app-text)"
+          >Motivo:</label
+        >
+        <textarea
+          name="reason"
+          id="bulkClientDeleteReason"
+          class="form-input"
+          required
+          style="width: 100%; min-height: 80px"
+        ></textarea>
+      </div>
+      {% endif %}
+      <div class="move-form-actions">
+        <button
+          type="submit"
+          class="btn-primary"
+          {%
+          if
+          request.user|has_org_role:request.organization
+          %}style="background-color: #c92a2a;"
+          {%
+          endif
+          %}
+        >
+          {% if request.user|has_org_role:request.organization %}Apagar{% else
+          %}Enviar Solicitação{% endif %}
+        </button>
+        <button
+          type="button"
+          class="btn-move-cancel"
+          onclick="closeClientBulkDeleteModal()"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
-{% endblock content %}
-
+{% endblock content %} 
 {% block extra_scripts %}
-    <script src="{% static 'global/js/pages/index.js' %}"></script>
+<script src="{% static 'global/js/pages/index.js' %}"></script>
 {% endblock %}

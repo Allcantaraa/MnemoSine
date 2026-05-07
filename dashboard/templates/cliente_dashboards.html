@@ -32,10 +32,20 @@
 
     <!-- Filters and Search Bar -->
     <div class="filters-bar">
-        <div class="search-input">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="dashboardSearch" placeholder="Buscar dashboard..." class="form-input">
-        </div>
+        <div class="search-input faq-search-wrapper" style="position: relative;">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input 
+        type="text" 
+        id="dashboardSearch" 
+        placeholder="Buscar dashboards ou ajuda..." 
+        class="form-input"
+        autocomplete="off"
+        data-url="{% url 'buscar_faq_ajax' %}"
+    >
+    <div class="faq-dropdown" id="faqDropdown">
+        <div class="faq-dropdown-list" id="faqDropdownList"></div>
+    </div>
+</div>
 
         {% if categorias %}
             <div class="category-chips">

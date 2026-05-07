@@ -494,3 +494,58 @@
     .faq-hero-title { font-size: 1.2rem; }
     .faq-secao-conteudo { padding: 1rem; }
 }
+
+/* ==========================================
+   TIPOGRAFIA E TABELAS NO DARK MODE
+   ========================================== */
+
+/* Parágrafos e Itens de Lista */
+[data-theme="dark"] p, 
+[data-theme="dark"] li {
+    color: #94a3b8; /* Um cinza-azulado suave, perfeito para leitura longa sem forçar a vista */
+    line-height: 1.6;
+}
+
+[data-theme="dark"] li::marker {
+    color: #475569; /* Marcadores (bolinhas/números) sutilmente mais escuros que o texto */
+}
+
+/* Blockquotes (Citações ou blocos de texto/código) */
+[data-theme="dark"] blockquote,
+[data-theme="dark"] .block {
+    background-color: rgba(30, 41, 59, 0.5); /* Fundo escuro translúcido */
+    border-left: 3px solid #3b82f6; /* Linha de destaque na esquerda (azul) */
+    color: #cbd5e1; /* Texto um tom mais claro que o parágrafo para dar destaque */
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.5rem 0;
+}
+
+/* Cabeçalhos de Tabela (TH) */
+[data-theme="dark"] th {
+    background-color: #0f172a; /* Fundo um pouco mais profundo para o cabeçalho */
+    color: #e2e8f0; /* Texto claro de alto contraste para o título da coluna */
+    border-bottom: 2px solid #334155; /* Borda inferior marcando o fim do cabeçalho */
+    padding: 0.875rem 1rem;
+    font-weight: 600;
+    text-align: left;
+    letter-spacing: 0.02em;
+}
+
+/* Linhas de Tabela (TR) */
+[data-theme="dark"] tr {
+    border-bottom: 1px solid #1e293b; /* Linha separadora bem discreta entre os dados */
+    color: #94a3b8;
+    transition: background-color 0.15s ease;
+}
+
+/* Efeito de hover nas linhas da tabela (dá um feedback visual excelente) */
+[data-theme="dark"] tbody tr:hover {
+    background-color: rgba(30, 41, 59, 0.4);
+}
+
+/* Opcional: Células normais da tabela (TD) */
+[data-theme="dark"] td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+}

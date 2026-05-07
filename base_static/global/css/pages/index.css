@@ -946,3 +946,315 @@
   height: 18px;
   cursor: pointer;
 }
+
+
+/* ── Header ── */
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.page-header form {
+    all: unset;
+}
+
+.btn-sync {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #c92a2a;
+    color: #ffffff !important;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+
+.btn-sync:hover { opacity: 0.85; }
+
+/* ── Search wrapper ── */
+.faq-search-wrapper {
+    position: relative;
+    margin-bottom: 2rem;
+    width: 100%;
+}
+
+/* ── Search box ── */
+.faq-search-box {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0 1.25rem;
+    height: 56px;
+    background-color: var(--app-bg-card);
+    border: 1.5px solid #c5cdd8;
+    border-radius: 12px;
+    cursor: text;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: border-color 0.18s, box-shadow 0.18s;
+    box-sizing: border-box;
+}
+
+[data-theme="dark"] .faq-search-box {
+    border-color: #2e3a4e;
+    background-color: #161b26;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4), 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.faq-search-box:focus-within {
+    border-color: var(--app-primary) !important;
+    box-shadow: 0 0 0 3px rgba(201, 42, 42, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.faq-search-icon {
+    color: #94a3b8;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: color 0.18s;
+}
+
+.faq-search-box:focus-within .faq-search-icon {
+    color: var(--app-primary);
+}
+
+.faq-search-box input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0;
+    color: var(--app-text);
+    font-size: 0.975rem;
+    outline: none;
+    font-family: inherit;
+    height: 100%;
+    min-width: 0;
+}
+
+.faq-search-box input::placeholder {
+    color: #94a3b8;
+    font-weight: 400;
+}
+
+/* ── Dropdown ── */
+.faq-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #dde2ea;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04), 0 12px 40px rgba(0, 0, 0, 0.13);
+    z-index: 300;
+    max-height: 480px;
+    overflow-y: auto;
+    display: none;
+}
+
+[data-theme="dark"] .faq-dropdown {
+    background-color: #1c2235;
+    border-color: #2e3a4e;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+.faq-dropdown.open { display: block; }
+
+.faq-dropdown-list { padding: 0.5rem; }
+
+.faq-dropdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #1e293b !important;
+    transition: background-color 0.1s;
+}
+
+[data-theme="dark"] .faq-dropdown-item {
+    color: #e2e8f0 !important;
+}
+
+.faq-dropdown-item + .faq-dropdown-item {
+    border-top: 1px solid #f1f5f9;
+    border-radius: 0;
+}
+
+[data-theme="dark"] .faq-dropdown-item + .faq-dropdown-item {
+    border-top-color: #252d3a;
+}
+
+.faq-dropdown-item:first-child { border-radius: 8px 8px 0 0; }
+.faq-dropdown-item:last-child  { border-radius: 0 0 8px 8px; }
+.faq-dropdown-item:only-child  { border-radius: 8px; }
+
+.faq-dropdown-item:hover,
+.faq-dropdown-item.active {
+    background-color: #f8fafc;
+}
+
+[data-theme="dark"] .faq-dropdown-item:hover,
+[data-theme="dark"] .faq-dropdown-item.active {
+    background-color: #232d40;
+}
+
+.fqi-main {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+.fqi-category {
+    flex-shrink: 0;
+    font-size: 0.67rem;
+    font-weight: 700;
+    padding: 0.12rem 0.55rem;
+    border-radius: 20px;
+    background-color: rgba(201, 42, 42, 0.1);
+    color: #c92a2a !important;
+    border: 1px solid rgba(201, 42, 42, 0.25);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.fqi-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1e293b !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .fqi-title {
+    color: #e2e8f0 !important;
+}
+
+.fqi-snippet {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    min-width: 0;
+    padding-left: 0.1rem;
+}
+
+.fqi-field {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #c92a2a !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.fqi-text {
+    font-size: 0.8rem;
+    color: #64748b !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .fqi-text {
+    color: #94a3b8 !important;
+}
+
+.faq-dropdown-item mark {
+    background-color: rgba(201, 42, 42, 0.14);
+    color: #c92a2a !important;
+    border-radius: 3px;
+    padding: 0 2px;
+    font-weight: 700;
+    font-style: normal;
+}
+
+[data-theme="dark"] .faq-dropdown-item mark {
+    background-color: rgba(201, 42, 42, 0.22);
+    color: #f07070 !important;
+}
+
+.faq-dropdown-empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.88rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .page-header { flex-direction: column; align-items: flex-start; }
+    .faq-hero { padding: 1.25rem; }
+    .faq-hero-title { font-size: 1.2rem; }
+    .faq-secao-conteudo { padding: 1rem; }
+}
+
+/* ==========================================
+   CORREÇÕES PARA O DARK MODE (OMNISEARCH E FAQ)
+   ========================================== */
+
+/* 1. Classes originais do amigo que faltavam */
+[data-theme="dark"] .fqi-category {
+    background-color: rgba(248, 113, 113, 0.1);
+    color: #f87171 !important;
+    border-color: rgba(248, 113, 113, 0.2);
+}
+
+[data-theme="dark"] .fqi-field {
+    color: #f87171 !important; /* Clareando o vermelho para dar contraste */
+}
+
+[data-theme="dark"] .faq-dropdown-empty {
+    color: #64748b;
+}
+
+/* 2. Adaptação dos Crachás (Badges) injetados via JavaScript */
+/* Usamos seletores de atributo para capturar a cor inline e forçar o tom pastel no dark mode */
+
+/* Crachá de CLIENTE (Roxo) */
+[data-theme="dark"] .faq-dropdown-item span[style*="background: #ede9fe"] {
+    background: rgba(139, 92, 246, 0.15) !important;
+    color: #c4b5fd !important;
+}
+[data-theme="dark"] .faq-dropdown-item i.fa-building {
+    color: #a78bfa !important;
+}
+
+/* Crachá de DASHBOARD (Verde) */
+[data-theme="dark"] .faq-dropdown-item span[style*="background: #d1fae5"] {
+    background: rgba(16, 185, 129, 0.15) !important;
+    color: #6ee7b7 !important;
+}
+[data-theme="dark"] .faq-dropdown-item i.fa-chart-pie {
+    color: #34d399 !important;
+}
+
+/* Crachá de FAQ (Azul) */
+[data-theme="dark"] .faq-dropdown-item span[style*="background: #dbeafe"] {
+    background: rgba(59, 130, 246, 0.15) !important;
+    color: #93c5fd !important;
+}
+[data-theme="dark"] .faq-dropdown-item i.fa-book-open {
+    color: #60a5fa !important;
+}
+
+/* Opcional: Escurecer os botõezinhos "Ver" e "Baixar" no dropdown */
+[data-theme="dark"] .faq-dropdown-item .btn-secondary {
+    background-color: #334155;
+    color: #cbd5e1;
+    border-color: #475569;
+}
+[data-theme="dark"] .faq-dropdown-item .btn-secondary:hover {
+    background-color: #475569;
+    color: #f8fafc;
+}
