@@ -1,0 +1,28 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/gerar-codigo.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <h1>Gerar Novo Código</h1>
+        <p class="subtitle">Um novo código será gerado para convidar novos membros</p>
+
+        <div class="alert-info">
+            <p>Todos os códigos antigos ficarão inválidos. Certifique-se de compartilhar o novo código com seus colaboradores.</p>
+        </div>
+
+        <form method="POST" class="form-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn-primary">Gerar Novo Código</button>
+            <a href="{% url 'listar_membros' %}" class="btn-secondary">Cancelar</a>
+        </form>
+
+        <p class="help-text">Você será redirecionado para a página de membros após gerar o novo código.</p>
+    </div>
+</div>
+
+{% endblock content %}

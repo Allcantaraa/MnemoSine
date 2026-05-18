@@ -1,0 +1,139 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/dashboard-form.css' %}">
+{% endblock %}
+
+{% block content %}
+    <form method="POST" enctype="multipart/form-data" action="{{ form_action }}">
+    {% csrf_token %}
+
+    <h3>Dados do Dashboard</h3>
+    <div class="dashboard-fields">
+        {% for field in form %}
+            {% if field.name == 'categories' %}
+                <div class="form-group category-selection">
+                    <label>{{ field.label }}</label>
+                    <div class="category-chip-selection">
+                        {% for choice_id, choice_label in field.field.choices %}
+                            <label class="selectable-chip">
+                                <input type="checkbox" name="{{ field.name }}" value="{{ choice_id }}" 
+                                    {% if choice_id in field.value %}checked{% endif %}>
+                                <span class="chip-label">{{ choice_label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% elif field.name == 'image' or field.name == 'json' %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <div class="file-drop-zone" data-file-input="{{ field.id_for_label }}">
+                        {{ field }}
+                        <div class="file-drop-content">
+                            <i class="fa-solid fa-cloud-arrow-up fa-lg"></i>
+                            <p>Arraste e solte o arquivo aqui ou clique para selecionar.</p>
+                            <span class="file-drop-hint">
+                                {% if field.name == 'image' %}
+                                    Imagens aceitas: .png, .jpg, .jpeg
+                                {% else %}
+                                    Arquivo aceito: .json
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="field-errors">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <hr>
+    <h3>Imagens do Briefing</h3>
+    {{ formset.management_form }}
+
+    {% for image_form in formset %}
+        <div class="image-form-row">
+            {{ image_form.as_p }}
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">
+        {% if is_updating %} Salvar Alterações {% else %} Criar Dashboard {% endif %}
+    </button>
+</form>
+{% endblock content %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.file-drop-zone').forEach(function(dropZone) {
+            const inputId = dropZone.dataset.fileInput;
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const preventDefaults = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+            };
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            dropZone.addEventListener('dragover', function () {
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', function () {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', function (event) {
+                dropZone.classList.remove('drag-over');
+                const files = Array.from(event.dataTransfer.files || []);
+                if (files.length === 0) return;
+
+                const validFiles = files.filter((file) => {
+                    if (input.accept && input.accept.includes('.json')) {
+                        return file.name.toLowerCase().endsWith('.json');
+                    }
+                    return ['png', 'jpg', 'jpeg'].some(ext => file.name.toLowerCase().endsWith(ext));
+                });
+
+                if (validFiles.length > 0) {
+                    const dt = new DataTransfer();
+                    validFiles.forEach((file) => dt.items.add(file));
+                    input.files = dt.files;
+                }
+            });
+
+            // Clique em qualquer lugar da zona abre o seletor de arquivos (fallback caso camadas bloqueiem o input)
+            dropZone.addEventListener('click', function (e) {
+                // Se o usuário clicou diretamente no input não duplicamos a ação
+                if (e.target === input) return;
+                input.click();
+            });
+        });
+    });
+</script>
+{% endblock extra_scripts %}

@@ -1,0 +1,52 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/cliente-form.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="cliente-form-page">
+    <div class="cliente-form-card">
+        {% if 'criar' in form_action %}
+            <h1>Criar Cliente</h1>
+            <p class="lead">Adicione um novo cliente ao seu portfólio</p>
+        {% else %}
+            <h1>Editar Cliente</h1>
+            <p class="lead">Atualize as informações do cliente</p>
+        {% endif %}
+
+        <form action="{{ form_action }}" method="POST" enctype="multipart/form-data" class="cliente-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="cliente-error-banner">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="cliente-field-errors">
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            {% if 'criar' in form_action %}
+                <button type="submit" class="cliente-submit">Criar Cliente</button>
+            {% else %}
+                <button type="submit" class="cliente-submit">Atualizar Cliente</button>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock content %}

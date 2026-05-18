@@ -1,0 +1,497 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% load org_tags %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/cliente-dashboards.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div id="cliente-dashboards-config" 
+     data-bulk-delete-url="{% url 'deletar_dashboards_bulk' client_slug %}" 
+     data-bulk-duplicate-url="{% url 'duplicar_dashboards_bulk' client_slug %}"
+     data-bulk-favorite-url="{% url 'favoritar_dashboards_bulk' client_slug %}"
+     data-bulk-create-url="{% url 'criar_dashboards_massa' client_slug %}"
+     data-bulk-category-url="{% url 'associar_categorias_bulk' client_slug %}"
+     data-api-recs-url="{% url 'api_recomendacoes_dashboards' %}"
+     data-bulk-categories='[{% for categoria in categorias %}{"id": {{ categoria.id }}, "name": "{{ categoria.name|escapejs }}"}{% if not forloop.last %}, {% endif %}{% endfor %}]'
+     hidden aria-hidden="true">
+</div>
+    <div class="dashboards-container">
+    <div class="dashboards-header">
+        <h1>{{ cliente.name }} - Dashboards</h1>
+        <div class="action-buttons">
+            <button type="button" class="btn-primary" onclick="openBulkCreateModal()" style="background-color: #10b981; border-color: #10b981;">
+                <i class="fa-solid fa-layer-group"></i> Criar em Massa
+            </button>
+            <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">+ Novo Dashboard</a>
+            <button type="button" class="btn-secondary" onclick="openCategoryModal('{% url 'criar_categoria' client_slug %}')">+ Nova Categoria</button>
+        </div>
+    </div>
+
+    <!-- Filters and Search Bar -->
+    <div class="filters-bar">
+        <div class="search-input faq-search-wrapper" style="position: relative;">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <input 
+        type="text" 
+        id="dashboardSearch" 
+        placeholder="Buscar dashboards ou ajuda..." 
+        class="form-input"
+        autocomplete="off"
+        data-url="{% url 'buscar_faq_ajax' %}"
+    >
+    <div class="faq-dropdown" id="faqDropdown">
+        <div class="faq-dropdown-list" id="faqDropdownList"></div>
+    </div>
+</div>
+
+        {% if categorias %}
+            <div class="category-chips">
+                <a href="javascript:void(0)" class="chip active" data-category="">
+                    <i class="fa-solid fa-list"></i>
+                    <span>Todas</span>
+                </a>
+                {% for categoria in categorias %}
+                    <div class="chip-wrapper">
+                        <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>{{ categoria.name }}</span>
+                        </a>
+                        <div class="chip-actions">
+                            <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
+    <i class="fa-solid fa-pencil"></i>
+</button>
+
+<button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
+    <i class="fa-solid fa-trash"></i>
+</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Bulk Actions Bar (always in DOM, hidden by default) -->
+    <div class="bulk-actions-bar" id="bulkActionsBar">
+        <div class="bulk-actions-info">
+            <span id="selectedCount">0</span> dashboard(s) selecionado(s)
+        </div>
+        <div class="bulk-actions-buttons">
+            <button type="button" class="btn-bulk-select" id="btnBulkSelectAll">
+                <i class="fa-solid fa-check-double"></i> Selecionar Todos
+            </button>
+            <button type="button" class="btn-bulk-move" id="btnBulkMove">
+                <i class="fa-solid fa-arrow-right"></i> Mover para Cliente
+            </button>
+    
+    <button type="button" class="btn-bulk-duplicate" id="btnBulkDuplicate">
+        <i class="fa-solid fa-copy"></i> Duplicar Selecionados
+    </button>
+
+    <button type="button" class="btn-bulk-category" onclick="openCategoryBulkModal()">
+        <i class="fa-solid fa-tags"></i> Associar Categorias
+    </button>
+
+    <button type="button" class="btn-bulk-favorite" id="btnBulkFavorite">
+        <i class="fa-solid fa-star"></i> Favoritar Selecionados
+    </button>
+
+    <button type="button" class="btn-bulk-delete" id="btnBulkDelete">
+        <i class="fa-solid fa-trash"></i> 
+        {% if request.user|has_org_role:request.organization %}
+            Deletar Selecionados
+        {% else %}
+            Solicitar Exclusão
+        {% endif %}
+    </button>
+    <button type="button" class="btn-bulk-cancel" id="btnBulkCancel">
+        Cancelar
+    </button>
+</div>
+    </div>
+
+    <div class="dashboards-section" id="mainDashboardsSection">
+    {% if dashboards %}
+        <div class="dashboards-grid">
+            {% for dashboard in dashboards %}
+                <div class="dashboard-card" data-dashboard-id="{{ dashboard.id }}" data-categories="{{ dashboard.categories.all|join:','|lower }}">
+                    <div class="dashboard-checkbox">
+                        <input type="checkbox" class="dashboard-select" data-dashboard-id="{{ dashboard.id }}">
+                    </div>
+                    <button type="button" 
+                        class="dashboard-favorite {% if dashboard.is_favorite %}active{% endif %}" 
+                        data-url="{% url 'toggle_favorite_dashboard' client_slug dashboard.slug %}"
+                        title="Favoritar Dashboard">
+                        <i class="fa-{% if dashboard.is_favorite %}solid{% else %}regular{% endif %} fa-star"></i>
+                    </button>
+                    <div class="dashboard-image">
+                        {% if dashboard.image %}
+                            <img src="{{ dashboard.image.url }}" alt="{{ dashboard.title }}">
+                        {% else %}
+                            <div class="no-image">Sem imagem</div>
+                        {% endif %}
+                    </div>
+                    <div class="dashboard-content">
+                        <h3>{{ dashboard.title }}</h3>
+                        <p class="category">
+                            <i class="fa-solid fa-tag"></i>
+                            <span>
+                                {% for categoria in dashboard.categories.all %}
+                                    {{ categoria.name }}{% if not forloop.last %}, {% endif %}
+                                {% empty %}
+                                    Sem categoria
+                                {% endfor %}
+                            </span>
+                        </p>
+                        
+                        <div class="dashboard-meta">
+                            <p class="meta-item">
+                                <i class="fa-solid fa-user"></i>
+                                <span>Criado por: {% if dashboard.created_by %}{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username }}{% else %}Desconhecido{% endif %}</span>
+                            </p>
+                            <p class="meta-item">
+                                <i class="fa-solid fa-calendar-plus"></i>
+                                <span>Criado: {{ dashboard.created_at|date:"d/m/Y H:i" }}</span>
+                            </p>
+                            <p class="meta-item">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                <span>Atualizado: {{ dashboard.updated_at|date:"d/m/Y H:i" }}</span>
+                            </p>
+                        </div>
+                        
+                        <div class="dashboard-actions">
+                            <a href="javascript:void(0)" class="btn-view" data-image="{% if dashboard.image %}{{ dashboard.image.url|escape }}{% endif %}" data-dashboard-name="{{ dashboard.title|escape }}" data-description="{{ dashboard.description|default_if_none:''|escape }}" data-categories-text="{{ dashboard.categories.all|join:', '|escape }}" data-creator-name="{% if dashboard.created_by %}{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escape }}{% else %}Desconhecido{% endif %}" data-creator-avatar="{% if dashboard.created_by and dashboard.created_by.perfil.profile_image %}{{ dashboard.created_by.perfil.profile_image.url|escape }}{% endif %}" data-created-at="{{ dashboard.created_at|date:'d/m/Y H:i' }}" data-updated-at="{{ dashboard.updated_at|date:'d/m/Y H:i' }}" data-faq-url="{% if dashboard.faq %}{% url 'detalhe_faq' dashboard.faq.znuny_id %}{% endif %}" data-faq-title="{% if dashboard.faq %}{{ dashboard.faq.title|escape }}{% endif %}" title="Ver imagem do dashboard"><i class="fa-solid fa-eye"></i></a>
+                            <a href="{% url "atualizar_dashboard" client_slug dashboard.slug %}" class="btn-edit" title="Editar"><i class="fa-solid fa-pencil"></i></a>
+                            <button type="button" class="btn-delete" title="Deletar" onclick="openDeleteDashboardModal('{% url 'deletar_dashboard' client_slug dashboard.slug %}', '{{ dashboard.title|escapejs }}')">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            <a href="{% url "baixar_dashboard_json" client_slug dashboard.slug %}" class="btn-download" title="Download JSON"><i class="fa-solid fa-download"></i></a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    {% else %}
+        <div class="empty-state">
+            <p>Este cliente não tem dashboards ainda</p>
+            <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">Criar Primeiro Dashboard</a>
+        </div>
+    {% endif %}
+    </div>
+    <div class="dashboards-section" id="recommendationsSection" style="display: none;">
+    <h2><i class="fa-solid fa-lightbulb" style="color: #eab308; margin-right: 0.5rem;"></i> Você também pode estar procurando...</h2>
+    <div class="dashboards-grid" id="recommendationsGrid">
+        </div>
+</div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal">
+    <div class="modal-content modal-content--dashboard">
+        <button type="button" class="close-modal" id="dashImageModalClose" aria-label="Fechar">&times;</button>
+        <div class="modal-dashboard-grid">
+            <div class="modal-dashboard-image-card">
+                <img id="modalImage" class="modal-image" src="" alt="Dashboard Image">
+                <div id="modalImageFallback" class="modal-image-fallback" style="display: none;">
+                    <i class="fa-solid fa-image"></i>
+                    <span>Sem imagem</span>
+                </div>
+            </div>
+            <aside class="modal-dashboard-info">
+                <div class="modal-author-card">
+                    <div class="modal-author-avatar-wrap">
+                        <img id="modalCreatorAvatar" class="modal-author-avatar" src="" alt="Avatar de quem criou">
+                        <div id="modalCreatorAvatarFallback" class="modal-author-avatar-fallback"></div>
+                    </div>
+                    <div class="modal-author-meta">
+                        <span class="modal-author-label">Publicado por</span>
+                        <strong id="modalCreatorName" class="modal-author-name"></strong>
+                    </div>
+                </div>
+
+                <h2 id="modalTitle" class="modal-card-title"></h2>
+                <div id="modalCategories" class="modal-dashboard-categories"></div>
+
+                <div id="modalDescriptionWrap" class="modal-description-wrap" style="display:none;">
+                    <p class="modal-description-label"><i class="fa-solid fa-align-left"></i> Descrição</p>
+                    <p id="modalDescription" class="modal-description-text"></p>
+                </div>
+
+                <div id="modalFaqWrap" style="margin-top: 1rem; display: none;">
+                    <p style="font-size: 0.8rem; color: var(--app-muted); margin-bottom: 0.4rem;">
+                    <i class="fa-solid fa-book"></i> Documentação:
+                    </p>
+                    <a id="modalFaqLink" href="#" target="_blank" class="btn-secondary" style="font-size: 0.85rem; width: 100%; display: block; text-align: center;">
+                    Abrir FAQ do Znuny
+                    </a>
+                </div>
+
+                <div class="modal-dashboard-meta">
+                    <p><i class="fa-solid fa-calendar-plus"></i> <span id="modalCreatedAt"></span></p>
+                    <p><i class="fa-solid fa-calendar-check"></i> <span id="modalUpdatedAt"></span></p>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+<!-- Move Modal -->
+<div id="moveModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" id="dashMoveModalClose" aria-label="Fechar">&times;</button>
+        <h3 class="move-modal-title">Mover Dashboards Para Cliente</h3>
+        <form id="moveForm" class="move-form" method="POST" action="{% url 'mover_dashboards' client_slug %}">
+            {% csrf_token %}
+            <div class="modal-form-group">
+                <label for="destinationClient" class="move-form-label">Selecione o cliente destino:</label>
+                <select id="destinationClient" name="destination_client" class="form-input move-form-select" required>
+                    <option value="">-- Selecionar Cliente --</option>
+                    {% load org_tags %}
+                    {% if request.organization %}
+                        {% for other_client in all_clients %}
+                            {% if other_client.id != cliente.id %}
+                                <option value="{{ other_client.id }}">{{ other_client.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </select>
+                <input type="hidden" id="selectedDashboardsInput" name="dashboard_ids" value="">
+            </div>
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary">Mover</button>
+                <button type="button" class="btn-move-cancel" id="dashMoveModalCancel">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeCategoryModal()">&times;</button>
+        <h3 id="categoryModalTitle" class="move-modal-title">Nova Categoria</h3>
+        <form id="categoryForm" class="move-form" method="POST" action="{% url 'criar_categoria' client_slug %}">
+            {% csrf_token %}
+            <div class="modal-form-group">
+                <label for="id_name" class="move-form-label">Nome da Categoria:</label>
+                <input type="text" name="name" id="id_category_name" class="form-input" required placeholder="Ex: Financeiro, Vendas...">
+            </div>
+            <div class="move-form-actions">
+                <button type="submit" id="btnSaveCategory" class="btn-primary">Criar</button>
+                <button type="button" class="btn-move-cancel" onclick="closeCategoryModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div id="deleteCategoryModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeDeleteCategoryModal()">&times;</button>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Categoria
+            {% else %}
+                Solicitar Exclusão de Categoria
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar a categoria <strong id="deleteCategoryName" style="color: var(--app-text);"></strong>? Isso não removerá os dashboards vinculados a ela.
+            {% else %}
+                Você está solicitando a exclusão da categoria <strong id="deleteCategoryName" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
+        <form id="deleteCategoryForm" method="POST" action="">
+            {% csrf_token %}
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="deleteCategoryReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="deleteCategoryReason" class="form-input" placeholder="Explique por que esta categoria deve ser removida..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
+            <div class="move-form-actions">
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
+                <button type="button" class="btn-move-cancel" onclick="closeDeleteCategoryModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Dashboard Modal -->
+<div id="deleteDashboardModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeDeleteDashboardModal()">&times;</button>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Dashboard
+            {% else %}
+                Solicitar Exclusão de Dashboard
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar o dashboard <strong id="deleteDashboardTitle" style="color: var(--app-text);"></strong>?
+            {% else %}
+                Você está solicitando a exclusão do dashboard <strong id="deleteDashboardTitle" style="color: var(--app-text);"></strong>. Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
+        <form id="deleteDashboardForm" method="POST" action="">
+            {% csrf_token %}
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="deleteDashboardReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="deleteDashboardReason" class="form-input" placeholder="Explique por que este dashboard deve ser removido..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
+            <div class="move-form-actions">
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
+                <button type="button" class="btn-move-cancel" onclick="closeDeleteDashboardModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk Delete Modal -->
+<div id="bulkDeleteModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" id="bulkDeleteClose">&times;</button>
+        <h3 class="move-modal-title">
+            {% if request.user|has_org_role:request.organization %}
+                Apagar Dashboards Selecionados
+            {% else %}
+                Solicitar Exclusão de Dashboards
+            {% endif %}
+        </h3>
+        <p class="modal-message" style="margin-bottom: 1.5rem; color: var(--app-muted);">
+            {% if request.user|has_org_role:request.organization %}
+                Tem certeza que deseja apagar <strong id="bulkDeleteCount" style="color: var(--app-text);"></strong> dashboard(s)? Esta ação é permanente.
+            {% else %}
+                Você está solicitando a exclusão de <strong id="bulkDeleteCount" style="color: var(--app-text);"></strong> dashboard(s). Um administrador precisará aprovar esta ação.
+            {% endif %}
+        </p>
+        <form id="bulkDeleteForm" method="POST" action="{% url 'deletar_dashboards_bulk' client_slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="dashboard_ids" id="bulkDeleteDashboardsInput" value="">
+            {% if not request.user|has_org_role:request.organization %}
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="bulkDeleteReason" style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Motivo da exclusão:</label>
+                    <textarea name="reason" id="bulkDeleteReason" class="form-input" placeholder="Explique por que estes dashboards devem ser removidos..." required style="width: 100%; min-height: 80px;"></textarea>
+                </div>
+            {% endif %}
+            <div class="move-form-actions">
+                {% if request.user|has_org_role:request.organization %}
+                    <button type="submit" class="btn-primary" style="background-color: #c92a2a;">Apagar</button>
+                {% else %}
+                    <button type="submit" class="btn-primary">Enviar Solicitação</button>
+                {% endif %}
+                <button type="button" class="btn-move-cancel" id="bulkDeleteCancel">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="bulkCreateModal" class="image-modal" style="z-index: 99999;">
+    <div class="modal-content" style="max-width: 1000px; width: 95%; max-height: 90vh;">
+        <button type="button" class="close-modal" onclick="closeBulkCreateModal()">&times;</button>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 class="move-modal-title" style="margin:0;">Criação de Dashboards em Massa</h3>
+            <button type="button" class="btn-secondary" onclick="startBulkTour()" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">
+                <i class="fa-solid fa-circle-question"></i> Como funciona?
+            </button>
+        </div>
+        
+        <div style="flex: 1; overflow-y: auto;">
+            <div id="bulkDropZone" class="drop-zone" 
+                 data-title="1. Upload de Arquivos" 
+                 data-intro="Arraste aqui os arquivos .JSON e as imagens (PNG/JPG). O sistema vai parear eles pelo nome automático!">
+                 <input type="file" id="bulkFileInput" multiple accept=".json, .png, .jpg, .jpeg" style="display: none;">
+                 <div class="bulk-drop-content">
+                     <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                     <div>
+                         <strong>Clique ou arraste arquivos aqui</strong>
+                         <p style="margin: 0.25rem 0 0; color: var(--app-muted); font-size: 0.95rem;">Envie JSONs e imagens juntas para criar dashboards em massa.</p>
+                     </div>
+                 </div>
+            </div>
+
+            <div id="bulkPreviewSection" style="display: none;" 
+                 data-title="2. Conferência Individual" 
+                 data-intro="Aqui você deve conferir os pares. O dashboard só será criado se tiver imagem e JSON detectados.">
+                <div id="bulkPairsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;"></div>
+            </div>
+        </div>
+
+        <div class="move-form-actions" 
+             data-title="3. Finalização" 
+             data-intro="Após conferir e selecionar as FAQs de cada um, clique aqui para salvar tudo de uma vez.">
+            <button type="button" id="btnConfirmBulkCreate" class="btn-primary" style="display: none;">Confirmar e Salvar Dashboards</button>
+            <button type="button" class="btn-move-cancel" onclick="closeBulkCreateModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div id="categoryBulkModal" class="image-modal">
+    <div class="modal-content">
+        <button type="button" class="close-modal" onclick="closeCategoryBulkModal()">&times;</button>
+        <h3 class="move-modal-title">Associar Categorias</h3>
+        <form id="categoryBulkForm" method="POST" action="{% url 'associar_categorias_bulk' client_slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="dashboard_ids" id="categoryBulkIdsInput">
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; color: var(--app-text);">Selecione as categorias que deseja adicionar:</label>
+                
+                <div class="category-checkbox-list" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--app-border); padding: 1rem; border-radius: 8px; background: var(--app-bg);">
+                    {% for categoria in categorias %}
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; cursor: pointer; color: var(--app-text);">
+                            <input type="checkbox" name="categorias" value="{{ categoria.id }}" style="width: 16px; height: 16px; accent-color: #3b82f6;">
+                            <i class="fa-solid fa-tag" style="color: var(--app-muted); font-size: 0.85rem;"></i> {{ categoria.name }}
+                        </label>
+                    {% empty %}
+                        <p style="color: var(--app-muted); font-size: 0.9rem; text-align: center;">Nenhuma categoria criada na organização.</p>
+                    {% endfor %}
+                </div>
+                <p style="font-size: 0.8rem; color: var(--app-muted); margin-top: 0.5rem;">
+                    * As categorias selecionadas serão <strong>adicionadas</strong> e não apagarão as que os dashboards já possuem.
+                </p>
+            </div>
+            
+            <div class="move-form-actions">
+                <button type="submit" class="btn-primary" style="background-color: #3b82f6;">Aplicar Categorias</button>
+                <button type="button" class="btn-move-cancel" onclick="closeCategoryBulkModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_scripts %}
+    <script>
+    // 1. ONDE COLOCAR: Exatamente aqui, antes de qualquer outro script.
+    // Isso transforma o seu banco de dados em um objeto que o JS entende.
+    const ALL_FAQS = [
+        {% for faq in faqs %}
+            { id: "{{ faq.id }}", title: "{{ faq.title|escapejs }}" },
+        {% endfor %}
+    ];
+
+    // Aqui você também define a URL da sua view para o JS usar
+    const URL_CRIAR_MASSA = "{% url 'criar_dashboards_massa' cliente.slug %}";
+</script>
+    <script src="{% static 'global/js/pages/cliente-dashboards.js' %}"></script>
+{% endblock %}

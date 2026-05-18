@@ -1,0 +1,29 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/org-criar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="org-form-container">
+    <div class="form-card">
+        <h1>Criar Organização</h1>
+        <p class="subtitle">Configure sua organização e comece a gerenciar dashboards</p>
+
+        <form method="POST" class="form-body">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="name">Nome da Organização</label>
+                <input type="text" id="name" name="name" placeholder="Ex: Minha Empresa" class="form-input" required>
+            </div>
+
+            <button type="submit" class="btn-primary btn-large">Criar Organização</button>
+        </form>
+
+        <p class="form-help">Após criar, você receberá um código para convidar colaboradores.</p>
+    </div>
+</div>
+
+{% endblock content %}

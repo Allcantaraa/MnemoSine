@@ -1,0 +1,30 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/remover-membro.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <div class="alert-icon">⚠️</div>
+
+        <h1>Remover Membro</h1>
+        <p class="alert-text">
+            Tem certeza que deseja remover <strong>{{ membership.user.username }}</strong>?
+        </p>
+
+        <p class="info-text">
+            Este usuário perderá acesso a todos os dashboards da organização.
+        </p>
+
+        <form method="POST" class="form-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Remover Membro</button>
+            <a href="{% url 'listar_membros' %}" class="btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+{% endblock content %}

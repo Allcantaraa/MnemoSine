@@ -1,0 +1,72 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/faq.css' %}?v=5">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    <!-- Navegação -->
+    <div class="faq-detalhe-nav">
+        <a href="{% url 'listar_faq' %}" class="btn-voltar">
+            <i class="fa-solid fa-arrow-left"></i>
+            Voltar para FAQ
+        </a>
+        {% if faq.f_number %}
+            <span class="faq-number">{{ faq.f_number }}</span>
+        {% endif %}
+    </div>
+
+    <!-- Título -->
+    <div class="faq-hero">
+        <h1 class="faq-hero-title">{{ faq.title }}</h1>
+        {% if faq.keywords %}
+            <div class="faq-tags">
+                {% for kw in faq.keywords.split %}
+                    <span class="faq-tag">{{ kw }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Seções -->
+    {% if faq.symptom %}
+        <div class="faq-secao faq-secao--sintoma">
+            <div class="faq-secao-label">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Sintoma
+            </div>
+            <div class="faq-secao-conteudo znuny-content">
+                {{ faq.symptom|safe }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if faq.problem %}
+        <div class="faq-secao faq-secao--problema">
+            <div class="faq-secao-label">
+                <i class="fa-solid fa-circle-info"></i>
+                Problema
+            </div>
+            <div class="faq-secao-conteudo znuny-content">
+                {{ faq.problem|safe }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if faq.content %}
+        <div class="faq-secao faq-secao--solucao">
+            <div class="faq-secao-label">
+                <i class="fa-solid fa-circle-check"></i>
+                Solução
+            </div>
+            <div class="faq-secao-conteudo znuny-content">
+                {{ faq.content|safe }}
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock content %}

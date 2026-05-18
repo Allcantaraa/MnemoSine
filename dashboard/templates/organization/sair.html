@@ -1,0 +1,29 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/org-flow.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="org-flow-layout">
+    <div class="org-flow-card">
+        <h1>Sair da Organização</h1>
+
+        <div class="org-flow-alert org-flow-alert--soft">
+            <p>Tem certeza que deseja sair de <strong>{{ organization.name }}</strong>?</p>
+        </div>
+
+        <p class="org-flow-text">
+            Você perderá acesso a todos os clientes e dashboards desta organização.
+            Para retornar, precisará de um código de convite válido.
+        </p>
+
+        <form method="POST" class="org-flow-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger">Sair da Organização</button>
+            <a href="{% url 'listar_membros' %}" class="btn-muted">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock content %}

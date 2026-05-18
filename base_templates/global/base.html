@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        {% include "global/partials/_head.html" %}
+        {% block extra_head %}{% endblock %}
+    </head>
+
+<body {% if user.is_authenticated %}class="authenticated"{% endif %}>
+    <div class="layout-wrapper">
+        {% if user.is_authenticated %}
+            <header>
+                {% include "global/partials/_header.html" %}
+            </header>
+        {% endif %}
+
+        <main>
+            {% include "global/partials/_messages.html" %}
+
+            <div class="main-content">
+                {% block content %}{% endblock content %}
+            </div>
+        </main>
+    </div>
+    <script src="{% static 'global/js/header.js' %}"></script>
+    <script src="{% static 'global/js/messages.js' %}"></script>
+    <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+    <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

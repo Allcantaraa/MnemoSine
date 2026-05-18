@@ -1,0 +1,59 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/perfil.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="perfil-layout">
+    <div class="perfil-hero">
+        <div class="perfil-hero-media">
+            {% if user.perfil.profile_image %}
+                <img src="{{ user.perfil.profile_image.url }}" alt="Foto" class="perfil-avatar-img">
+            {% else %}
+                <div class="perfil-avatar-placeholder">U</div>
+            {% endif %}
+        </div>
+        <div>
+            <h1>{{ user.username }}</h1>
+            <p class="perfil-email">{{ user.email }}</p>
+        </div>
+    </div>
+
+    <div class="perfil-panel">
+        <h2>Editar Perfil</h2>
+
+        <form method="POST" enctype="multipart/form-data" class="perfil-form">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="perfil-error-banner">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="form-field">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="perfil-field-errors">
+                            {% for error in field.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <small class="auth-help">{{ field.help_text|safe }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button type="submit" class="perfil-submit">Salvar Alterações</button>
+        </form>
+    </div>
+</div>
+{% endblock content %}

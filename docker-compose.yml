@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: mnemosine_web
+    restart: always
+    ports:
+      - "9000:8000" # Redireciona a porta 9000 do servidor direto para o seu Django
+    env_file:
+      - .env
+    volumes:
+      # MUITO IMPORTANTE: Salva seu banco e as imagens fora do container!
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./media:/app/media
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M

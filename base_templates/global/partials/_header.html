@@ -1,0 +1,110 @@
+{% load org_tags %}
+
+<nav class="sidebar">
+    <!-- Brand with Logo -->
+    <div class="sidebar-brand">
+        <div class="brand-logo-container">
+            <img src="https://storage.googleapis.com/flowbix-img/LogoFBX_noBck.png" alt="Flowbix" class="brand-logo-img">
+        </div>
+        <div class="brand-text">MnemoSine</div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="sidebar-nav">
+        <!-- Organization Selector as Nav Item - Visual Display -->
+        {% if request.organization %}
+            <div class="org-selector-item">
+                <div class="org-selector-header" onclick="toggleOrgDropdown(event)">
+                    <div class="org-selector-content">
+                        <span class="org-label">Organização</span>
+                        <span class="org-name">{{ request.organization.name }}</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down org-chevron"></i>
+                </div>
+
+                {% if request.user_organizations|length > 1 %}
+                    <div class="org-dropdown" id="orgDropdown">
+                        <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
+                            {% csrf_token %}
+                            <div class="org-options">
+                                {% for org_member in request.user_organizations %}
+                                    {% if org_member.organization != request.organization %}
+                                        <button type="submit" name="organization" value="{{ org_member.organization.id }}" class="org-option">
+                                            <i class="fa-solid fa-building"></i>
+                                            <span>{{ org_member.organization.name }}</span>
+                                        </button>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% elif request.user_organizations %}
+            <div class="org-selector-item">
+                <div class="org-selector-header" onclick="toggleOrgDropdown(event)">
+                    <div class="org-selector-content">
+                        <span class="org-label">Organização</span>
+                        <span class="org-name">Selecionar...</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-down org-chevron"></i>
+                </div>
+
+                <div class="org-dropdown" id="orgDropdown">
+                    <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
+                        {% csrf_token %}
+                        <div class="org-options">
+                            {% for org_member in request.user_organizations %}
+                                <button type="submit" name="organization" value="{{ org_member.organization.id }}" class="org-option">
+                                    <i class="fa-solid fa-building"></i>
+                                    <span>{{ org_member.organization.name }}</span>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Navigation Menu Items -->
+        <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+            <i class="fa-solid fa-house"></i>
+            <span class="nav-label">Início</span>
+        </a>
+
+        {% if request.organization %}
+            <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
+                <i class="fa-solid fa-users"></i>
+                <span class="nav-label">Membros</span>
+            </a>
+
+            {% if request.user|has_org_role:request.organization %}
+                <a href="{% url 'listar_notificacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_notificacoes' %}active{% endif %}">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="nav-label">Notificações</span>
+                </a>
+            {% endif %}
+        {% endif %}
+
+        <a href="{% url 'listar_faq' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_faq' %}active{% endif %}">
+            <i class="fa-solid fa-circle-question"></i>
+            <span class="nav-label">FAQ</span>
+        </a>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="sidebar-bottom">
+        <a href="{% url 'perfil' %}" class="nav-link {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+            <i class="fa-solid fa-user"></i>
+            <span class="nav-label">Perfil</span>
+        </a>
+        <button type="button" id="globalThemeToggle" class="nav-link nav-link-button">
+            <i class="fa-solid fa-moon"></i>
+            <span class="nav-label" id="globalThemeToggleLabel">Dark mode</span>
+        </button>
+        <a href="{% url 'logout' %}" class="nav-link logout-link">
+            <i class="fa-solid fa-sign-out-alt"></i>
+            <span class="nav-label">Sair</span>
+        </a>
+    </div>
+</nav>

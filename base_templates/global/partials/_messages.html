@@ -1,0 +1,21 @@
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="message message-{{ message.tags }}" role="alert">
+                <div class="message-content">
+                    {% if message.tags == "success" %}
+                        <i class="fa-solid fa-check-circle"></i>
+                    {% elif message.tags == "error" %}
+                        <i class="fa-solid fa-exclamation-circle"></i>
+                    {% elif message.tags == "warning" %}
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    {% elif message.tags == "info" %}
+                        <i class="fa-solid fa-info-circle"></i>
+                    {% endif %}
+                    <span>{{ message }}</span>
+                </div>
+                <button type="button" class="message-close" aria-label="Fechar"><i class="fa-solid fa-times"></i></button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}

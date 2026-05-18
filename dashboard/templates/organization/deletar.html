@@ -1,0 +1,35 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/org-flow.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="org-flow-layout">
+    <div class="org-flow-card org-flow-card--danger">
+        <h1>Deletar Organização</h1>
+
+        <div class="org-flow-alert org-flow-alert--strong">
+            <p>⚠️ Esta ação é irreversível!</p>
+        </div>
+
+        <p class="org-flow-text org-flow-text--tight">
+            Tem certeza que deseja deletar <strong>{{ organization.name }}</strong>?
+        </p>
+
+        <ul class="org-flow-list">
+            <li>Todos os membros serão removidos</li>
+            <li>Todos os clientes serão deletados</li>
+            <li>Todos os dashboards serão deletados</li>
+            <li>Esta ação não pode ser desfeita</li>
+        </ul>
+
+        <form method="POST" class="org-flow-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn-org-delete">Deletar Permanentemente</button>
+            <a href="{% url 'listar_membros' %}" class="btn-muted">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock content %}

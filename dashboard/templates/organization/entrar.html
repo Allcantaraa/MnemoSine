@@ -1,0 +1,31 @@
+{% extends "global/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'global/css/pages/org-entrar.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="org-form-container">
+    <div class="form-card">
+        <h1>Entrar em Organização</h1>
+        <p class="subtitle">Cole o código que você recebeu para acessar</p>
+
+        <form method="POST" class="form-body">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="code">Código da Organização</label>
+                <input type="text" id="code" name="code" placeholder="Ex: ABC123DEF456" maxlength="12" class="form-input" required>
+            </div>
+
+            <button type="submit" class="btn-primary btn-large">Entrar</button>
+        </form>
+
+        <div class="form-alternatives">
+            <p>Não tem um código? <a href="{% url 'criar_organizacao' %}">Crie uma organização</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
