@@ -277,26 +277,112 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function initKpiDashboardSlider() {
     const sliders = document.querySelectorAll('.dashboard-slider');
+    const defaultPerPage = 3;
+
+    const getSlidesPerPage = (slider) => {
+      const configured = parseInt(slider.dataset.slidesPerPage, 10) || defaultPerPage;
+      if (window.innerWidth < 600) return 1;
+      if (window.innerWidth < 900) return Math.min(2, configured);
+      return configured;
+    };
+
     sliders.forEach((slider) => {
       const track = slider.querySelector('.dashboard-slider-track');
-      const slides = slider.querySelectorAll('.dashboard-slide');
+      const slides = Array.from(slider.querySelectorAll('.dashboard-slide'));
+      const dotsContainer = slider.querySelector('.slider-dots');
       if (!track || slides.length === 0) return;
 
-      let currentIndex = 0;
+      let currentPage = 0;
+      let slidesPerPage = getSlidesPerPage(slider);
+      let totalPages = Math.max(1, Math.ceil(slides.length / slidesPerPage));
       const prevBtn = slider.querySelector('.slider-control.prev');
       const nextBtn = slider.querySelector('.slider-control.next');
       const intervalMs = parseInt(slider.dataset.sliderInterval, 10) || 6000;
       let autoAdvanceTimeout = null;
 
-      const updateSlide = (index) => {
-        currentIndex = (index + slides.length) % slides.length;
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      const windowEl = slider.querySelector('.dashboard-slider-window');
+      const pageIndicator = slider.closest('.dashboard-carousel-card')?.querySelector('.carousel-page-indicator');
+
+      const getGap = () => {
+        const gapValue = getComputedStyle(track).gap;
+        const parsed = parseFloat(gapValue);
+        return Number.isFinite(parsed) ? parsed : 12;
+      };
+
+      const applyLayout = () => {
+        if (!windowEl) return;
+        slidesPerPage = getSlidesPerPage(slider);
+        totalPages = Math.max(1, Math.ceil(slides.length / slidesPerPage));
+        const gap = getGap();
+        const windowWidth = windowEl.clientWidth;
+        const slideWidth = (windowWidth - gap * (slidesPerPage - 1)) / slidesPerPage;
+        const pageStride = slideWidth * slidesPerPage + gap * (slidesPerPage - 1);
+
+        slides.forEach((slide) => {
+          slide.style.flexBasis = `${slideWidth}px`;
+          slide.style.width = `${slideWidth}px`;
+        });
+
+        const trackWidth = slides.length * slideWidth + Math.max(0, slides.length - 1) * gap;
+        track.style.width = `${trackWidth}px`;
+        track.dataset.pageStride = String(pageStride);
+
+        if (currentPage >= totalPages) currentPage = 0;
+        slider.classList.toggle('is-single-page', totalPages <= 1);
+        renderDots();
+        goToPage(currentPage, false);
+      };
+
+      const renderDots = () => {
+        if (!dotsContainer) return;
+        dotsContainer.innerHTML = '';
+        if (totalPages <= 1) return;
+
+        for (let i = 0; i < totalPages; i += 1) {
+          const dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'slider-dot' + (i === currentPage ? ' active' : '');
+          dot.setAttribute('aria-label', `Página ${i + 1}`);
+          dot.setAttribute('role', 'tab');
+          dot.setAttribute('aria-selected', i === currentPage ? 'true' : 'false');
+          dot.addEventListener('click', (event) => {
+            event.preventDefault();
+            goToPage(i);
+            scheduleAutoAdvance();
+          });
+          dotsContainer.appendChild(dot);
+        }
+      };
+
+      const goToPage = (pageIndex, animate = true) => {
+        currentPage = ((pageIndex % totalPages) + totalPages) % totalPages;
+        const pageStride = parseFloat(track.dataset.pageStride) || 0;
+        track.style.transition = animate ? '' : 'none';
+        track.style.transform = `translateX(-${currentPage * pageStride}px)`;
+        if (!animate) {
+          requestAnimationFrame(() => {
+            track.style.transition = '';
+          });
+        }
+
+        if (dotsContainer) {
+          dotsContainer.querySelectorAll('.slider-dot').forEach((dot, i) => {
+            const isActive = i === currentPage;
+            dot.classList.toggle('active', isActive);
+            dot.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          });
+        }
+
+        if (pageIndicator) {
+          pageIndicator.textContent = totalPages > 1 ? `${currentPage + 1} / ${totalPages}` : '';
+        }
       };
 
       const scheduleAutoAdvance = () => {
         clearTimeout(autoAdvanceTimeout);
+        if (totalPages <= 1) return;
         autoAdvanceTimeout = setTimeout(() => {
-          updateSlide(currentIndex + 1);
+          goToPage(currentPage + 1);
           scheduleAutoAdvance();
         }, intervalMs);
       };
@@ -304,7 +390,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (prevBtn) {
         prevBtn.addEventListener('click', (event) => {
           event.preventDefault();
-          updateSlide(currentIndex - 1);
+          goToPage(currentPage - 1);
           scheduleAutoAdvance();
         });
       }
@@ -312,7 +398,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (nextBtn) {
         nextBtn.addEventListener('click', (event) => {
           event.preventDefault();
-          updateSlide(currentIndex + 1);
+          goToPage(currentPage + 1);
           scheduleAutoAdvance();
         });
       }
@@ -320,7 +406,13 @@ document.addEventListener("DOMContentLoaded", function () {
       slider.addEventListener('mouseenter', () => clearTimeout(autoAdvanceTimeout));
       slider.addEventListener('mouseleave', () => scheduleAutoAdvance());
 
-      updateSlide(0);
+      let resizeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(applyLayout, 150);
+      });
+
+      applyLayout();
       scheduleAutoAdvance();
     });
   }

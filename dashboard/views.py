@@ -309,7 +309,12 @@ def index(request):
 
     categorias = Categoria.objects.filter(organization=org)
     dashboards_qs = Dashboard.objects.filter(organization=org)
-    latest_dashboards = Dashboard.objects.filter(organization=org).order_by('-created_at')[:8]
+    latest_dashboards = (
+        Dashboard.objects.filter(organization=org)
+        .select_related('client', 'created_by', 'created_by__perfil', 'faq')
+        .prefetch_related('categories')
+        .order_by('-created_at')[:8]
+    )
 
     if category_filter:
         try:
