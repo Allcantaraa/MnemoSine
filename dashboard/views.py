@@ -309,6 +309,7 @@ def index(request):
 
     categorias = Categoria.objects.filter(organization=org)
     dashboards_qs = Dashboard.objects.filter(organization=org)
+    latest_dashboards = Dashboard.objects.filter(organization=org).order_by('-created_at')[:8]
 
     if category_filter:
         try:
@@ -326,6 +327,7 @@ def index(request):
         'clientes_favoritos': clientes_favoritos, # Nova variável
         'clientes_normais': clientes_normais,     # Nova variável
         'dashboards': dashboards_qs,
+        'latest_dashboards': latest_dashboards,
         'categorias': categorias,
         'total_clientes': total_clientes,
         'total_dashboards': total_dashboards,

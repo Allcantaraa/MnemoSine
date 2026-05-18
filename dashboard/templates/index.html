@@ -93,6 +93,41 @@
       <div class="kpi-label">Membros</div>
       <div class="kpi-description">Membros da organização</div>
     </div>
+    <div class="kpi-card kpi-slider-card">
+      <div class="slider-card-header">
+        <span>Últimos Dashboards</span>
+      </div>
+      <div class="dashboard-slider" data-slider-interval="6000">
+        <button type="button" class="slider-control prev" aria-label="Anterior">&lsaquo;</button>
+        <div class="dashboard-slider-window">
+          {% if latest_dashboards %}
+          <div class="dashboard-slider-track">
+            {% for dashboard in latest_dashboards %}
+            <a
+              href="#"
+              class="dashboard-slide js-open-dash-preview"
+              {% if dashboard.image %}data-preview-src="{{ dashboard.image.url }}"{% endif %}
+              data-preview-title="{{ dashboard.title|escape }}"
+              data-preview-description="{{ dashboard.description|default_if_none:''|escape }}"
+              data-preview-categories="{% for categoria in dashboard.categories.all %}{{ categoria.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
+              {% if dashboard.created_at %}data-preview-created-at="{{ dashboard.created_at|date:'d/m/Y' }}"{% endif %}
+              {% if dashboard.updated_at %}data-preview-updated-at="{{ dashboard.updated_at|date:'d/m/Y' }}"{% endif %}
+              {% if dashboard.created_by %}data-preview-creator-name="{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escape }}"{% endif %}
+              {% if dashboard.created_by and dashboard.created_by.perfil.profile_image %}data-preview-creator-avatar="{{ dashboard.created_by.perfil.profile_image.url|escape }}"{% endif %}
+              {% if dashboard.faq %}data-preview-faq-url="{% url 'detalhe_faq' dashboard.faq.znuny_id %}" data-preview-faq-title="{{ dashboard.faq.title|escape }}"{% endif %}
+            >
+              <span class="dashboard-slide-bg" style="background-image: {% if dashboard.image %}url('{{ dashboard.image.url }}'){% else %}linear-gradient(135deg, #6a11cb, #2575fc){% endif %};"></span>
+              <span class="dashboard-slide-title">{{ dashboard.title }}</span>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="dashboard-slider-empty">Nenhum dashboard recente.</div>
+          {% endif %}
+        </div>
+        <button type="button" class="slider-control next" aria-label="Próximo">&rsaquo;</button>
+      </div>
+    </div>
   </div>
 
   <div class="filters-bar">
@@ -183,14 +218,14 @@
             alt="{{ dashboard.title }}"
             class="dashboard-img-preview js-open-dash-preview"
             data-preview-src="{{ dashboard.image.url }}"
-            data-preview-title="{{ dashboard.title }}"
-            data-preview-description="{{ dashboard.description|default_if_none:''|escapejs }}"
+            data-preview-title="{{ dashboard.title|escape }}"
+            data-preview-description="{{ dashboard.description|default_if_none:''|escape }}"
             data-preview-categories="{% for categoria in dashboard.categories.all %}{{ categoria.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
             {% if dashboard.created_at %}data-preview-created-at="{{ dashboard.created_at|date:'d/m/Y' }}"{% endif %}
             {% if dashboard.updated_at %}data-preview-updated-at="{{ dashboard.updated_at|date:'d/m/Y' }}"{% endif %}
-            {% if dashboard.created_by %}data-preview-creator-name="{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escapejs }}"{% endif %}
+            {% if dashboard.created_by %}data-preview-creator-name="{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escape }}"{% endif %}
             {% if dashboard.created_by and dashboard.created_by.perfil.profile_image %}data-preview-creator-avatar="{{ dashboard.created_by.perfil.profile_image.url|escape }}"{% endif %}
-            {% if dashboard.faq %}data-preview-faq-url="{% url 'detalhe_faq' dashboard.faq.znuny_id %}" data-preview-faq-title="{{ dashboard.faq.title|escapejs }}"{% endif %}
+            {% if dashboard.faq %}data-preview-faq-url="{% url 'detalhe_faq' dashboard.faq.znuny_id %}" data-preview-faq-title="{{ dashboard.faq.title|escape }}"{% endif %}
           />
           {% else %}
           <div class="dashboard-no-image">Sem imagem</div>
@@ -217,14 +252,14 @@
                   href="#"
                   class="btn-view-dash js-open-dash-preview"
                   data-preview-src="{{ dashboard.image.url }}"
-                  data-preview-title="{{ dashboard.title }}"
-                  data-preview-description="{{ dashboard.description|default_if_none:''|escapejs }}"
+                  data-preview-title="{{ dashboard.title|escape }}"
+                  data-preview-description="{{ dashboard.description|default_if_none:''|escape }}"
                   data-preview-categories="{% for categoria in dashboard.categories.all %}{{ categoria.name }}{% if not forloop.last %}, {% endif %}{% endfor %}"
                   {% if dashboard.created_at %}data-preview-created-at="{{ dashboard.created_at|date:'d/m/Y' }}"{% endif %}
                   {% if dashboard.updated_at %}data-preview-updated-at="{{ dashboard.updated_at|date:'d/m/Y' }}"{% endif %}
-                  {% if dashboard.created_by %}data-preview-creator-name="{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escapejs }}"{% endif %}
+                  {% if dashboard.created_by %}data-preview-creator-name="{{ dashboard.created_by.get_full_name|default:dashboard.created_by.username|escape }}"{% endif %}
                   {% if dashboard.created_by and dashboard.created_by.perfil.profile_image %}data-preview-creator-avatar="{{ dashboard.created_by.perfil.profile_image.url|escape }}"{% endif %}
-                  {% if dashboard.faq %}data-preview-faq-url="{% url 'detalhe_faq' dashboard.faq.znuny_id %}" data-preview-faq-title="{{ dashboard.faq.title|escapejs }}"{% endif %}
+                  {% if dashboard.faq %}data-preview-faq-url="{% url 'detalhe_faq' dashboard.faq.znuny_id %}" data-preview-faq-title="{{ dashboard.faq.title|escape }}"{% endif %}
                   title="Ver imagem"
                   ><i class="fa-solid fa-eye"></i
                 ></a>

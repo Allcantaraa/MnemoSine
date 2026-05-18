@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  document.querySelector(".dashboards-section")?.addEventListener("click", function (e) {
+  document.body.addEventListener("click", function (e) {
     const t = e.target.closest(".js-open-dash-preview");
     if (!t) return;
     e.preventDefault();
@@ -274,6 +274,58 @@ document.addEventListener("DOMContentLoaded", function () {
 
     openImageModal(src, title, description, creatorName, creatorAvatar, categories, createdAt, updatedAt, faqUrl, faqTitle);
   });
+
+  function initKpiDashboardSlider() {
+    const sliders = document.querySelectorAll('.dashboard-slider');
+    sliders.forEach((slider) => {
+      const track = slider.querySelector('.dashboard-slider-track');
+      const slides = slider.querySelectorAll('.dashboard-slide');
+      if (!track || slides.length === 0) return;
+
+      let currentIndex = 0;
+      const prevBtn = slider.querySelector('.slider-control.prev');
+      const nextBtn = slider.querySelector('.slider-control.next');
+      const intervalMs = parseInt(slider.dataset.sliderInterval, 10) || 6000;
+      let autoAdvanceTimeout = null;
+
+      const updateSlide = (index) => {
+        currentIndex = (index + slides.length) % slides.length;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      };
+
+      const scheduleAutoAdvance = () => {
+        clearTimeout(autoAdvanceTimeout);
+        autoAdvanceTimeout = setTimeout(() => {
+          updateSlide(currentIndex + 1);
+          scheduleAutoAdvance();
+        }, intervalMs);
+      };
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          updateSlide(currentIndex - 1);
+          scheduleAutoAdvance();
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (event) => {
+          event.preventDefault();
+          updateSlide(currentIndex + 1);
+          scheduleAutoAdvance();
+        });
+      }
+
+      slider.addEventListener('mouseenter', () => clearTimeout(autoAdvanceTimeout));
+      slider.addEventListener('mouseleave', () => scheduleAutoAdvance());
+
+      updateSlide(0);
+      scheduleAutoAdvance();
+    });
+  }
+
+  initKpiDashboardSlider();
 
   categoryChips.forEach((chip) => {
     chip.addEventListener("click", function (e) {
