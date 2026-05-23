@@ -1494,37 +1494,30 @@ function startBulkTour() {
       prevLabel: 'Voltar',
       doneLabel: 'Entendi!',
       steps,
-      scrollToElement: false, // Desativado para controlarmos manualmente sem lag
+      scrollToElement: false,
+      scrollPadding: 24,
       overlayOpacity: 0.65,
       exitOnOverlayClick: false,
-      tooltipClass: 'custom-intro-tooltip',
-      
-      // O SEGREDO DO SUCESSO: Força o Intro.js a rodar no escopo do Modal, não da página
-      helperElementContainer: modalEl
+      autoPosition: true,
+      tooltipClass: 'custom-intro-tooltip'
     });
 
-    // Evento disparado para corrigir o posicionamento a cada mudança de passo
-    tour.onafterchange(function(targetElement) {
-        if (!targetElement || !modalEl) return;
-
-        // Localiza a div interna que tem o scroll (flex: 1; overflow-y: auto)
-        const scrollableContainer = modalEl.querySelector('div[style*="overflow-y"]');
-
-        // Só faz o scroll se o elemento alvo estiver dentro da área rolável
-        if (scrollableContainer && scrollableContainer.contains(targetElement)) {
-            targetElement.scrollIntoView({
-                behavior: 'auto', // Mudado para 'auto' (instantâneo) para evitar delay de cálculo
-                block: 'center'
-            });
-        }
-
-        // Recalcula a posição da caixinha imediatamente com base no novo container
+    function repositionBulkTourStep(targetElement) {
+      if (!targetElement) return;
+      scrollBulkModalStepIntoView(targetElement, { instant: true });
+      if (typeof tour.refresh === 'function') {
         tour.refresh();
-        
-        // Garante um segundo cálculo rápido caso o layout mude de tamanho
-        setTimeout(() => {
-            tour.refresh();
-        }, 50);
+      }
+    }
+
+    // Rola antes do passo renderizar para o cálculo do tooltip já usar a posição final
+    tour.onbeforechange(function(targetElement) {
+      repositionBulkTourStep(targetElement);
+    });
+
+    tour.onafterchange(function(targetElement) {
+      repositionBulkTourStep(targetElement);
+      requestAnimationFrame(() => repositionBulkTourStep(targetElement));
     });
 
     if (typeof tour.start === 'function') {

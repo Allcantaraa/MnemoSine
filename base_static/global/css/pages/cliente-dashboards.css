@@ -1545,10 +1545,18 @@
 }
 
 .introjs-overlay,
-.introjs-tooltip,
 .introjs-helperLayer,
-.introjs-tooltipReferenceLayer {
+.introjs-tooltipReferenceLayer,
+.introjs-tooltipReferenceLayer.introjs-fixedTooltip {
   position: fixed !important;
+  z-index: 999999999 !important;
+}
+
+/* O tooltip deve permanecer absolute dentro da reference layer.
+   Forçar fixed aqui desloca a caixa em passos com position top/right/bottom. */
+.introjs-tooltip,
+.custom-intro-tooltip.introjs-tooltip {
+  position: absolute !important;
   z-index: 999999999 !important;
 }
 
