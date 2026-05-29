@@ -31,6 +31,8 @@ DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = ['https://mnemosine.flowbix.com']
+
 
 # Application definition
 
