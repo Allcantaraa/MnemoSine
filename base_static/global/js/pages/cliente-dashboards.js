@@ -37,6 +37,18 @@ function openEditCategoryModal(actionUrl, name) {
   modal.classList.add("active");
 }
 
+function toggleCategoryManager() {
+  const panel = document.getElementById("categoryManagerPanel");
+  const btn = document.getElementById("btnToggleCategoryManager");
+  if (!panel) return;
+  const isVisible = panel.style.display !== "none";
+  panel.style.display = isVisible ? "none" : "";
+  if (btn) {
+    btn.classList.toggle("active", !isVisible);
+    btn.title = isVisible ? "Gerenciar categorias" : "Fechar gerenciamento";
+  }
+}
+
 function openDeleteCategoryModal(actionUrl, name) {
   const modal = document.getElementById("deleteCategoryModal");
   const nameSpan = document.getElementById("deleteCategoryName");
@@ -303,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ?.addEventListener("click", confirmBulkFavorite);
 
   const searchInput = document.getElementById("dashboardSearch");
-  const categoryChips = document.querySelectorAll(".category-chips .chip");
+  const categorySelect = document.getElementById("categorySelect");
   const dashboardCards = document.querySelectorAll(".dashboard-card");
   const dashboardsGrid = document.querySelector(".dashboards-grid");
   const checkboxes = document.querySelectorAll(".dashboard-select");
@@ -317,15 +329,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Category Filter
   let selectedCategory = "";
-  categoryChips.forEach((chip) => {
-    chip.addEventListener("click", function (e) {
-      e.preventDefault();
-      categoryChips.forEach((c) => c.classList.remove("active"));
-      this.classList.add("active");
-      selectedCategory = this.getAttribute("data-category");
+  if (categorySelect) {
+    categorySelect.addEventListener("change", function () {
+      selectedCategory = this.value;
       filterDashboards();
     });
-  });
+  }
 
   function filterDashboards() {
     const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";

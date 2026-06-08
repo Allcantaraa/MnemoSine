@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.http import FileResponse
+from django.core.paginator import Paginator
 import os
 from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, DeletionRequest
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
@@ -298,17 +299,17 @@ def index(request):
     total_dashboards = Dashboard.objects.filter(organization=org).count()
     membros_count = OrganizationMember.objects.filter(organization=org).count()
 
-    # Anotamos os favoritos
     clientes_qs = Cliente.objects.filter(organization=org).annotate(
         is_favorite=Count('favorited_by', filter=Q(favorited_by=request.user))
     ).order_by('-is_favorite', '-created_at')
 
-    # Separamos em duas listas para o template
     clientes_favoritos = [c for c in clientes_qs if c.is_favorite]
-    clientes_normais = [c for c in clientes_qs if not c.is_favorite]
+    clientes_normais_list = [c for c in clientes_qs if not c.is_favorite]
+
+    clientes_paginator = Paginator(clientes_normais_list, 12)
+    clientes_page_obj = clientes_paginator.get_page(request.GET.get('clientes_page'))
 
     categorias = Categoria.objects.filter(organization=org)
-    dashboards_qs = Dashboard.objects.filter(organization=org)
     latest_dashboards = (
         Dashboard.objects.filter(organization=org)
         .select_related('client', 'created_by', 'created_by__perfil', 'faq')
@@ -316,22 +317,36 @@ def index(request):
         .order_by('-created_at')[:8]
     )
 
+    dashboards_qs = (
+        Dashboard.objects.filter(organization=org)
+        .select_related('client', 'created_by', 'created_by__perfil', 'faq')
+        .prefetch_related('categories')
+    )
+
     if category_filter:
         try:
             category = Categoria.objects.get(id=category_filter, organization=org)
             dashboards_qs = dashboards_qs.filter(categories=category)
         except Categoria.DoesNotExist:
-            pass
+            category_filter = ''
 
     if search_query:
         dashboards_qs = dashboards_qs.filter(title__icontains=search_query)
 
-    dashboards_qs = dashboards_qs.distinct()
+    dashboards_qs = dashboards_qs.distinct().order_by('-created_at')
+    total_dashboards_filtered = dashboards_qs.count()
+
+    dashboards_paginator = Paginator(dashboards_qs, 12)
+    dashboards_page_obj = dashboards_paginator.get_page(request.GET.get('dash_page'))
 
     return render(request, 'index.html', {
-        'clientes_favoritos': clientes_favoritos, # Nova variável
-        'clientes_normais': clientes_normais,     # Nova variável
-        'dashboards': dashboards_qs,
+        'clientes_favoritos': clientes_favoritos,
+        'clientes_normais': clientes_page_obj,
+        'clientes_page_obj': clientes_page_obj,
+        'total_clientes_normais': clientes_paginator.count,
+        'dashboards': dashboards_page_obj,
+        'dashboards_page_obj': dashboards_page_obj,
+        'total_dashboards_filtered': total_dashboards_filtered,
         'latest_dashboards': latest_dashboards,
         'categorias': categorias,
         'total_clientes': total_clientes,

@@ -48,31 +48,44 @@
 </div>
 
         {% if categorias %}
-            <div class="category-chips">
-                <a href="javascript:void(0)" class="chip active" data-category="">
-                    <i class="fa-solid fa-list"></i>
-                    <span>Todas</span>
-                </a>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+            <i class="fa-solid fa-tag" style="color:var(--app-muted,#94a3b8);font-size:0.875rem;flex-shrink:0;"></i>
+            <select id="categorySelect" class="form-input" style="min-width:160px;max-width:240px;padding:0.45rem 0.75rem;font-size:0.875rem;">
+                <option value="">Todas as categorias</option>
                 {% for categoria in categorias %}
-                    <div class="chip-wrapper">
-                        <a href="javascript:void(0)" class="chip" data-category="{{ categoria.name }}">
-                            <i class="fa-solid fa-tag"></i>
-                            <span>{{ categoria.name }}</span>
-                        </a>
-                        <div class="chip-actions">
-                            <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
-    <i class="fa-solid fa-pencil"></i>
-</button>
-
-<button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
-    <i class="fa-solid fa-trash"></i>
-</button>
-                        </div>
-                    </div>
+                <option value="{{ categoria.name }}">{{ categoria.name }}</option>
                 {% endfor %}
-            </div>
+            </select>
+            <button type="button" class="btn-secondary" onclick="toggleCategoryManager()" id="btnToggleCategoryManager" title="Gerenciar categorias" style="padding:0.4rem 0.7rem;font-size:0.875rem;">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
         {% endif %}
     </div>
+
+    {% if categorias %}
+    <div id="categoryManagerPanel" style="display:none;margin-top:-1rem;margin-bottom:1.25rem;">
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.75rem 1rem;background:var(--app-surface,#1e293b);border-radius:8px;border:1px solid var(--app-border,#334155);align-items:center;">
+            <span style="font-size:0.8rem;color:var(--app-muted,#94a3b8);margin-right:0.25rem;flex-shrink:0;">Categorias:</span>
+            {% for categoria in categorias %}
+            <div class="chip-wrapper">
+                <span class="chip" style="cursor:default;user-select:none;">
+                    <i class="fa-solid fa-tag"></i>
+                    <span>{{ categoria.name }}</span>
+                </span>
+                <div class="chip-actions">
+                    <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Bulk Actions Bar (always in DOM, hidden by default) -->
     <div class="bulk-actions-bar" id="bulkActionsBar">

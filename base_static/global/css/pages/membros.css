@@ -50,6 +50,24 @@
         flex-wrap: wrap;
         align-items: center;
     }
+    .member-search-form {
+        /* Reset do forms.css global que estiliza <form> como card */
+        max-width: none;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        flex-direction: row;
+        min-width: 260px;
+        flex: 1 1 0%;
+    }
+    .member-search-form .form-input {
+        height: 42px;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
     .btn-create-user,
     .btn-import-csv,
     .btn-generate,
@@ -57,7 +75,8 @@
     .btn-leave {
         border: 1px solid transparent;
         border-radius: 8px;
-        padding: 0.6rem 0.95rem;
+        padding: 0 0.95rem;
+        height: 42px;
         font-size: 0.9rem;
         font-weight: 600;
         text-decoration: none;
@@ -66,6 +85,7 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        white-space: nowrap;
     }
     .btn-create-user { background: #2b8a3e; color: white; }
     .btn-create-user:hover { background: #237032; }
