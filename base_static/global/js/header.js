@@ -3,17 +3,10 @@ function toggleOrgDropdown(event) {
 
         const header = event.currentTarget;
         const orgSelector = header.closest('.org-selector-item');
-        if (!orgSelector) {
-            console.warn('org-selector-item não encontrado');
-            return;
-        }
+        if (!orgSelector) return;
 
         const dropdown = orgSelector.querySelector('.org-dropdown');
-
-        if (!dropdown) {
-            console.warn('org-dropdown não encontrado');
-            return;
-        }
+        if (!dropdown) return;
 
         document.querySelectorAll('.org-dropdown.active').forEach(d => {
             if (d !== dropdown) {
@@ -24,6 +17,11 @@ function toggleOrgDropdown(event) {
 
         dropdown.classList.toggle('active');
         header.classList.toggle('active');
+
+        const isOpen = dropdown.classList.contains('active');
+        const sidebarNav = header.closest('.sidebar-nav');
+        if (sidebarNav) sidebarNav.classList.toggle('org-open', isOpen);
+        document.querySelector('.sidebar-bottom')?.classList.toggle('org-open', isOpen);
     }
 
     document.addEventListener('click', function(event) {
@@ -31,10 +29,10 @@ function toggleOrgDropdown(event) {
         if (!orgSelector) {
             document.querySelectorAll('.org-dropdown.active').forEach(dropdown => {
                 dropdown.classList.remove('active');
+                dropdown.closest('.org-selector-item')?.querySelector('.org-selector-header')?.classList.remove('active');
             });
-            document.querySelectorAll('.org-selector-header.active').forEach(header => {
-                header.classList.remove('active');
-            });
+            document.querySelector('.sidebar-nav')?.classList.remove('org-open');
+            document.querySelector('.sidebar-bottom')?.classList.remove('org-open');
         }
     });
 

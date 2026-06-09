@@ -27,8 +27,13 @@
                         <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
                             {% csrf_token %}
                             <div class="org-options">
-                                {% for org_member in request.user_organizations %}
-                                    {% if org_member.organization != request.organization %}
+                                {% for org_member in request.user_organizations|dictsort:"organization.name" %}
+                                    {% if org_member.organization == request.organization %}
+                                        <button type="button" class="org-option org-option-active">
+                                            <i class="fa-solid fa-building"></i>
+                                            <span>{{ org_member.organization.name }}</span>
+                                        </button>
+                                    {% else %}
                                         <button type="submit" name="organization" value="{{ org_member.organization.id }}" class="org-option">
                                             <i class="fa-solid fa-building"></i>
                                             <span>{{ org_member.organization.name }}</span>
@@ -54,7 +59,7 @@
                     <form method="POST" action="{% url 'selecionar_organizacao' %}" class="org-dropdown-form">
                         {% csrf_token %}
                         <div class="org-options">
-                            {% for org_member in request.user_organizations %}
+                            {% for org_member in request.user_organizations|dictsort:"organization.name" %}
                                 <button type="submit" name="organization" value="{{ org_member.organization.id }}" class="org-option">
                                     <i class="fa-solid fa-building"></i>
                                     <span>{{ org_member.organization.name }}</span>

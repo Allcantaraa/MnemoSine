@@ -56,7 +56,7 @@
     /* Organization Selector - Dropdown Item */
     .org-selector-item {
         position: relative;
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.5rem;
         padding-bottom: 0.75rem;
         border-bottom: 1px solid var(--app-border);
     }
@@ -122,13 +122,13 @@
         top: 100%;
         left: 0;
         right: 0;
-        background: var(--app-surface);
-        border: 1px solid var(--app-border);
-        border-top: none;
-        border-radius: 0 0 8px 8px;
-        box-shadow: var(--app-shadow);
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        box-shadow: none;
         z-index: 1000;
-        margin-top: -1px;
+        margin-top: 1.05rem;
+        overflow: hidden;
     }
 
     .org-dropdown.active {
@@ -136,13 +136,22 @@
     }
 
     .org-dropdown-form {
-        margin: 0;
+        display: block !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        gap: 0 !important;
     }
 
     .org-options {
         display: flex;
         flex-direction: column;
-        gap: 0;
+        gap: 0.75rem;
+        padding: 0.25rem 0;
     }
 
     .org-option {
@@ -150,35 +159,55 @@
         align-items: center;
         gap: 0.75rem;
         padding: 0.75rem;
-        background: none;
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: transparent;
         border: none;
+        border-left: 3px solid transparent;
+        border-radius: 8px;
+        box-sizing: border-box;
         color: var(--app-muted);
         cursor: pointer;
         text-align: left;
+        font-family: inherit;
         font-size: 0.9rem;
         font-weight: 500;
-        transition: all 0.2s ease;
+        line-height: 1.5;
+        transition: all 0.3s ease;
         width: 100%;
     }
 
-    .org-option:first-child {
-        border-radius: 0;
-    }
-
-    .org-option:last-child {
-        border-radius: 0 0 8px 8px;
-    }
-
     .org-option:hover {
-        background-color: var(--app-bg);
+        background-color: rgba(255, 255, 255, 0.06);
         color: #c92a2a;
     }
 
+    [data-theme="light"] .org-option:hover {
+        background-color: #f5f5f5;
+    }
+
+    .org-option-active {
+        color: #c92a2a;
+        background-color: rgba(201, 42, 42, 0.16);
+        border-left-color: #c92a2a;
+        cursor: default;
+    }
+
+    [data-theme="light"] .org-option-active {
+        background-color: #ffe6e6;
+    }
+
     .org-option i {
-        font-size: 0.9rem;
+        font-size: 1rem;
         width: 20px;
         text-align: center;
         flex-shrink: 0;
+    }
+
+    /* Oculta nav links quando o dropdown de org está aberto */
+    .sidebar-nav.org-open .nav-link,
+    .sidebar-bottom.org-open {
+        display: none;
     }
 
     /* Nav Links */
@@ -193,6 +222,7 @@
         transition: all 0.3s ease;
         font-size: 0.9rem;
         font-weight: 500;
+        line-height: 1.5;
         border-left: 3px solid transparent;
         min-width: 0;
     }
@@ -212,23 +242,31 @@
     }
 
     .nav-link:hover {
-        background-color: #f5f5f5;
+        background-color: rgba(255, 255, 255, 0.06);
         color: #c92a2a;
     }
 
     .nav-link.active {
         color: #c92a2a;
-        background-color: #ffe6e6;
+        background-color: rgba(201, 42, 42, 0.16);
         border-left-color: #c92a2a;
     }
 
-    [data-theme="dark"] .nav-link.active {
-        background-color: rgba(201, 42, 42, 0.16);
+    [data-theme="light"] .nav-link:hover {
+        background-color: #f5f5f5;
+    }
+
+    [data-theme="light"] .nav-link.active {
+        background-color: #ffe6e6;
     }
 
     .nav-link.logout-link:hover {
-        background-color: #fff5f5;
+        background-color: rgba(220, 53, 69, 0.1);
         color: #dc3545;
+    }
+
+    [data-theme="light"] .nav-link.logout-link:hover {
+        background-color: #fff5f5;
     }
 
     /* Bottom Section */
