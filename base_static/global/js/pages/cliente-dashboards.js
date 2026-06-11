@@ -41,13 +41,70 @@ function toggleCategoryManager() {
   const panel = document.getElementById("categoryManagerPanel");
   const btn = document.getElementById("btnToggleCategoryManager");
   if (!panel) return;
-  const isVisible = panel.style.display !== "none";
-  panel.style.display = isVisible ? "none" : "";
+  const isOpen = panel.classList.contains("open");
+  panel.classList.toggle("open", !isOpen);
   if (btn) {
-    btn.classList.toggle("active", !isVisible);
-    btn.title = isVisible ? "Gerenciar categorias" : "Fechar gerenciamento";
+    btn.classList.toggle("active", !isOpen);
+    btn.title = isOpen ? "Filtros" : "Fechar filtros";
   }
 }
+
+function openCategoryManagerModal() {
+  document.getElementById("categoryManagerModal")?.classList.add("active");
+}
+
+function closeCategoryManagerModal() {
+  document.getElementById("categoryManagerModal")?.classList.remove("active");
+}
+
+function openFilterModal() {
+  const modal = document.getElementById("filterModal");
+  if (!modal) return;
+  const cats = window.selectedCategories || new Set();
+  modal.querySelectorAll(".filter-picker-checkbox").forEach(cb => {
+    cb.checked = cats.has(cb.value.toLowerCase());
+  });
+  modal.classList.add("active");
+  document.getElementById("btnFilterPicker")?.classList.add("active");
+}
+
+function closeFilterModal() {
+  document.getElementById("filterModal")?.classList.remove("active");
+  document.getElementById("btnFilterPicker")?.classList.remove("active");
+}
+
+function clearFilterModal() {
+  document.querySelectorAll("#filterModalList .filter-picker-checkbox").forEach(cb => cb.checked = false);
+}
+
+function applyFilterModal() {
+  const checked = [...document.querySelectorAll("#filterModalList .filter-picker-checkbox:checked")]
+    .map(cb => cb.value.toLowerCase());
+  const cats = window.selectedCategories;
+  if (cats) {
+    cats.clear();
+    checked.forEach(c => cats.add(c));
+  }
+  document.querySelectorAll(".category-filter-chip").forEach(chip => {
+    const cat = chip.dataset.category.toLowerCase();
+    chip.classList.toggle("active", checked.includes(cat));
+  });
+  if (window.filterDashboards) window.filterDashboards();
+  closeFilterModal();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const search = document.getElementById("filterModalSearch");
+  if (search) {
+    search.addEventListener("input", function () {
+      const term = this.value.toLowerCase();
+      document.querySelectorAll("#filterModalList .filter-picker-item").forEach(item => {
+        const name = item.querySelector("span").textContent.toLowerCase();
+        item.style.display = name.includes(term) ? "" : "none";
+      });
+    });
+  }
+});
 
 function openDeleteCategoryModal(actionUrl, name) {
   const modal = document.getElementById("deleteCategoryModal");
@@ -315,7 +372,6 @@ document.addEventListener("DOMContentLoaded", function () {
     ?.addEventListener("click", confirmBulkFavorite);
 
   const searchInput = document.getElementById("dashboardSearch");
-  const categorySelect = document.getElementById("categorySelect");
   const dashboardCards = document.querySelectorAll(".dashboard-card");
   const dashboardsGrid = document.querySelector(".dashboards-grid");
   const checkboxes = document.querySelectorAll(".dashboard-select");
@@ -327,15 +383,24 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Category Filter
-  let selectedCategory = "";
-  if (categorySelect) {
-    categorySelect.addEventListener("change", function () {
-      selectedCategory = this.value;
+  // Category Multi-Filter (chips)
+  window.selectedCategories = new Set();
+  const selectedCategories = window.selectedCategories;
+  document.querySelectorAll(".category-filter-chip").forEach((chip) => {
+    chip.addEventListener("click", function () {
+      const cat = this.dataset.category.toLowerCase();
+      if (selectedCategories.has(cat)) {
+        selectedCategories.delete(cat);
+        this.classList.remove("active");
+      } else {
+        selectedCategories.add(cat);
+        this.classList.add("active");
+      }
       filterDashboards();
     });
-  }
+  });
 
+  window.filterDashboards = filterDashboards;
   function filterDashboards() {
     const searchTerm = searchInput ? searchInput.value.toLowerCase() : "";
     let visibleCount = 0;
@@ -343,12 +408,13 @@ document.addEventListener("DOMContentLoaded", function () {
     dashboardCards.forEach((card) => {
       const dashboardTitle = card.querySelector("h3").textContent.toLowerCase();
       const dashboardCategories = card.getAttribute("data-categories") || "";
+      const cardCats = dashboardCategories.split(",").map((c) => c.trim().toLowerCase());
       const matchesSearch =
         dashboardTitle.includes(searchTerm) ||
         dashboardCategories.includes(searchTerm);
       const matchesCategory =
-        !selectedCategory ||
-        dashboardCategories.split(",").includes(selectedCategory.toLowerCase());
+        selectedCategories.size === 0 ||
+        [...selectedCategories].some((cat) => cardCats.includes(cat));
 
       if (matchesSearch && matchesCategory) {
         card.style.display = "";

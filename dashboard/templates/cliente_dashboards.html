@@ -26,66 +26,112 @@
                 <i class="fa-solid fa-layer-group"></i> Criar em Massa
             </button>
             <a href="{% url "criar_dashboard" client_slug %}" class="btn-primary">+ Novo Dashboard</a>
-            <button type="button" class="btn-secondary" onclick="openCategoryModal('{% url 'criar_categoria' client_slug %}')">+ Nova Categoria</button>
+            <button type="button" class="btn-secondary" onclick="openCategoryManagerModal()"><i class="fa-solid fa-layer-group"></i> Categorias</button>
         </div>
     </div>
 
     <!-- Filters and Search Bar -->
-    <div class="filters-bar">
-        <div class="search-input faq-search-wrapper" style="position: relative;">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <input 
-        type="text" 
-        id="dashboardSearch" 
-        placeholder="Buscar dashboards ou ajuda..." 
-        class="form-input"
-        autocomplete="off"
-        data-url="{% url 'buscar_faq_ajax' %}"
-    >
-    <div class="faq-dropdown" id="faqDropdown">
-        <div class="faq-dropdown-list" id="faqDropdownList"></div>
-    </div>
-</div>
+    <div class="filters-wrapper">
+        <div class="filters-bar">
+            <div class="search-input faq-search-wrapper">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input
+                    type="text"
+                    id="dashboardSearch"
+                    placeholder="Buscar dashboards ou ajuda..."
+                    class="form-input"
+                    autocomplete="off"
+                    data-url="{% url 'buscar_faq_ajax' %}"
+                >
+                <div class="faq-dropdown" id="faqDropdown">
+                    <div class="faq-dropdown-list" id="faqDropdownList"></div>
+                </div>
+            </div>
+            {% if categorias %}
+            <div class="filter-btn-group">
+                <span class="filter-btn-label">Filtros</span>
+                <button type="button" class="filter-btn-icon" onclick="toggleCategoryManager()" id="btnToggleCategoryManager" title="Ver filtros aplicados">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                <button type="button" class="filter-btn-icon" onclick="openFilterModal()" id="btnFilterPicker" title="Selecionar filtros">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+            {% endif %}
+        </div>
 
         {% if categorias %}
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-            <i class="fa-solid fa-tag" style="color:var(--app-muted,#94a3b8);font-size:0.875rem;flex-shrink:0;"></i>
-            <select id="categorySelect" class="form-input" style="min-width:160px;max-width:240px;padding:0.45rem 0.75rem;font-size:0.875rem;">
-                <option value="">Todas as categorias</option>
-                {% for categoria in categorias %}
-                <option value="{{ categoria.name }}">{{ categoria.name }}</option>
-                {% endfor %}
-            </select>
-            <button type="button" class="btn-secondary" onclick="toggleCategoryManager()" id="btnToggleCategoryManager" title="Gerenciar categorias" style="padding:0.4rem 0.7rem;font-size:0.875rem;">
-                <i class="fa-solid fa-sliders"></i>
-            </button>
+        <div id="categoryManagerPanel" class="filter-drawer">
+            <div class="filter-drawer-content">
+                <div class="filter-chips" id="categoryFilterChips">
+                    {% for categoria in categorias %}
+                    <button type="button" class="chip category-filter-chip" data-category="{{ categoria.name }}">
+                        <i class="fa-solid fa-tag"></i>
+                        {{ categoria.name }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
         {% endif %}
     </div>
 
+    <!-- Filter Selection Modal -->
     {% if categorias %}
-    <div id="categoryManagerPanel" style="display:none;margin-top:-1rem;margin-bottom:1.25rem;">
-        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.75rem 1rem;background:var(--app-surface,#1e293b);border-radius:8px;border:1px solid var(--app-border,#334155);align-items:center;">
-            <span style="font-size:0.8rem;color:var(--app-muted,#94a3b8);margin-right:0.25rem;flex-shrink:0;">Categorias:</span>
-            {% for categoria in categorias %}
-            <div class="chip-wrapper">
-                <span class="chip" style="cursor:default;user-select:none;">
+    <div id="filterModal" class="image-modal">
+        <div class="modal-content filter-modal-content">
+            <button type="button" class="close-modal" onclick="closeFilterModal()">&times;</button>
+            <h3 class="move-modal-title"><i class="fa-solid fa-sliders"></i> Selecionar Filtros</h3>
+            <div class="filter-modal-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="filterModalSearch" placeholder="Buscar categoria..." autocomplete="off">
+            </div>
+            <div class="filter-modal-list" id="filterModalList">
+                {% for categoria in categorias %}
+                <label class="filter-picker-item">
+                    <input type="checkbox" class="filter-picker-checkbox" value="{{ categoria.name }}">
                     <i class="fa-solid fa-tag"></i>
                     <span>{{ categoria.name }}</span>
-                </span>
-                <div class="chip-actions">
-                    <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
-                        <i class="fa-solid fa-pencil"></i>
-                    </button>
-                    <button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </div>
+                </label>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <div class="filter-picker-footer">
+                <button type="button" class="filter-picker-clear" onclick="clearFilterModal()">Limpar tudo</button>
+                <button type="button" class="btn-primary btn-sm" onclick="applyFilterModal()">Aplicar</button>
+            </div>
         </div>
     </div>
     {% endif %}
+
+    <!-- Category Manager Modal -->
+    <div id="categoryManagerModal" class="image-modal">
+        <div class="modal-content">
+            <button type="button" class="close-modal" onclick="closeCategoryManagerModal()">&times;</button>
+            <h3 class="move-modal-title"><i class="fa-solid fa-layer-group"></i> Gerenciar Categorias</h3>
+            <div class="category-manager-list">
+                {% for categoria in categorias %}
+                <div class="category-manager-item">
+                    <span class="category-manager-name"><i class="fa-solid fa-tag"></i> {{ categoria.name }}</span>
+                    <div class="category-manager-actions">
+                        <button type="button" class="btn-chip-edit" onclick="openEditCategoryModal('{% url 'atualizar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Editar">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        <button type="button" class="btn-chip-delete" onclick="openDeleteCategoryModal('{% url 'deletar_categoria' client_slug categoria.slug %}', '{{ categoria.name|escapejs }}')" title="Deletar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="category-manager-empty"><i class="fa-solid fa-tag"></i> Nenhuma categoria criada ainda.</p>
+                {% endfor %}
+            </div>
+            <div class="category-manager-footer">
+                <button type="button" class="btn-primary" onclick="closeCategoryManagerModal(); openCategoryModal('{% url 'criar_categoria' client_slug %}')">
+                    <i class="fa-solid fa-plus"></i> Nova Categoria
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Bulk Actions Bar (always in DOM, hidden by default) -->
     <div class="bulk-actions-bar" id="bulkActionsBar">
