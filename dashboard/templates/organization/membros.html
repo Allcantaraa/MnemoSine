@@ -18,6 +18,13 @@
         </div>
 
         <div class="action-bar">
+            <form method="get" action="" class="member-search-form" style="display:flex;align-items:center;gap:0.5rem;flex:1 1 0%;min-width:200px;">
+                <div style="position:relative;flex:1;min-width:0;">
+                    <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--app-muted,#94a3b8);pointer-events:none;"></i>
+                    <input type="text" name="search" value="{{ search_query }}" placeholder="Buscar por nome ou e-mail..." class="form-input" style="padding-left:2.2rem;" autocomplete="off">
+                </div>
+                {% if search_query %}<a href="{% url 'listar_membros' %}" class="btn-secondary" style="white-space:nowrap;">Limpar</a>{% endif %}
+            </form>
             {% if request.user|has_org_role:organization %}
                 <div class="bulk-actions">
                     <button type="button" class="btn-create-user" onclick="openCreateUserModal()">
@@ -86,6 +93,16 @@
 {% endif %}
         </div>
 
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+            <span style="font-size:0.875rem;color:var(--app-muted,#94a3b8);">
+                {% if search_query %}
+                    {{ total_membros }} resultado{{ total_membros|pluralize }} para "<strong>{{ search_query }}</strong>"
+                {% else %}
+                    {{ total_membros }} membro{{ total_membros|pluralize }} no total
+                {% endif %}
+            </span>
+        </div>
+
         {% if membros %}
             <div class="table-wrap">
                 <table class="members-table">
@@ -143,8 +160,31 @@
                     </tbody>
                 </table>
             </div>
+
+            {% if page_obj.has_other_pages %}
+            <nav style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:1.5rem;flex-wrap:wrap;" aria-label="Paginação de membros">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;">‹ Anterior</a>
+                {% else %}
+                <span class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;opacity:0.4;cursor:not-allowed;">‹ Anterior</span>
+                {% endif %}
+
+                <span style="font-size:0.875rem;color:var(--app-muted,#94a3b8);padding:0 0.5rem;">
+                    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;">Próxima ›</a>
+                {% else %}
+                <span class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;opacity:0.4;cursor:not-allowed;">Próxima ›</span>
+                {% endif %}
+            </nav>
+            {% endif %}
+
         {% else %}
-            <p class="empty-message">Nenhum membro encontrado.</p>
+            <p class="empty-message">
+                {% if search_query %}Nenhum membro encontrado para "{{ search_query }}".{% else %}Nenhum membro encontrado.{% endif %}
+            </p>
         {% endif %}
     </div>
 </div>

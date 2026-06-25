@@ -183,22 +183,24 @@
     </div>
 
     {% if categorias %}
-    <div class="category-chips">
-      <a href="javascript:void(0)" class="chip active" data-category="">
-        <i class="fa-solid fa-list"></i>
-        <span>Todas</span>
-      </a>
-      {% for categoria in categorias %}
-      <a
-        href="javascript:void(0)"
-        class="chip"
-        data-category="{{ categoria.name }}"
-      >
-        <i class="fa-solid fa-tag"></i>
-        <span>{{ categoria.name }}</span>
-      </a>
-      {% endfor %}
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <i class="fa-solid fa-tag" style="color:var(--app-muted,#94a3b8);font-size:0.875rem;"></i>
+      <select id="categorySelect" class="form-input" style="min-width:180px;max-width:260px;padding:0.45rem 0.75rem;font-size:0.875rem;">
+        <option value="">Todas as categorias</option>
+        {% for categoria in categorias %}
+        <option value="{{ categoria.id }}" {% if selected_category == categoria.id|stringformat:"s" %}selected{% endif %}>{{ categoria.name }}</option>
+        {% endfor %}
+      </select>
     </div>
+    <script>
+      document.getElementById('categorySelect').addEventListener('change', function() {
+        var url = new URL(window.location.href);
+        if (this.value) { url.searchParams.set('category', this.value); } else { url.searchParams.delete('category'); }
+        url.searchParams.delete('dash_page');
+        url.searchParams.delete('clientes_page');
+        window.location = url.toString();
+      });
+    </script>
     {% endif %}
   </div>
 
@@ -224,23 +226,47 @@
 
   <div class="section-header">
     <h2>Diretório de Clientes</h2>
-    <span class="client-count" >{{ clientes_normais|length }} cliente{{ clientes_normais|length|pluralize}}</span
-    >
+    <span class="client-count">{{ total_clientes_normais }} cliente{{ total_clientes_normais|pluralize }}</span>
   </div>
 
   <div class="clients-grid">
-    {% for cliente in clientes_normais %} 
-    {% include "global/partials/_cliente_card.html" with cliente=cliente %} {% empty %}
+    {% for cliente in clientes_normais %}
+    {% include "global/partials/_cliente_card.html" with cliente=cliente %}
+    {% empty %}
     {% if not clientes_favoritos %}
     <div class="empty-state" style="grid-column: 1 / -1">
       <p>Nenhum cliente encontrado.</p>
     </div>
-    {% endif %} {% endfor %}
+    {% endif %}
+    {% endfor %}
   </div>
 
-  {% if dashboards %}
+  {% if clientes_page_obj.has_other_pages %}
+  <nav style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:1rem;margin-bottom:0.5rem;flex-wrap:wrap;" aria-label="Paginação de clientes">
+    {% if clientes_page_obj.has_previous %}
+    <a href="?clientes_page={{ clientes_page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;">‹ Anterior</a>
+    {% else %}
+    <span class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;opacity:0.4;cursor:not-allowed;">‹ Anterior</span>
+    {% endif %}
+    <span style="font-size:0.875rem;color:var(--app-muted,#94a3b8);padding:0 0.5rem;">Página {{ clientes_page_obj.number }} de {{ clientes_page_obj.paginator.num_pages }}</span>
+    {% if clientes_page_obj.has_next %}
+    <a href="?clientes_page={{ clientes_page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;">Próxima ›</a>
+    {% else %}
+    <span class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;opacity:0.4;cursor:not-allowed;">Próxima ›</span>
+    {% endif %}
+  </nav>
+  {% endif %}
+
   <div class="dashboards-section">
-    <h2>Dashboards Filtrados</h2>
+    <div class="section-header" style="margin-bottom:1rem;">
+      <h2>
+        {% if selected_category or search_query %}Dashboards Filtrados{% else %}Todos os Dashboards{% endif %}
+      </h2>
+      <span class="client-count">
+        {{ total_dashboards_filtered }} dashboard{{ total_dashboards_filtered|pluralize }}
+        {% if selected_category or search_query %} encontrado{{ total_dashboards_filtered|pluralize }}{% endif %}
+      </span>
+    </div>
     <div class="dashboards-grid">
       {% for dashboard in dashboards %}
       <div
@@ -303,9 +329,9 @@
 			<a
 			href="#"
 			class="btn-view-dash disabled"
-			style="opacity: 0.5, cursor: not-allowed;"
+			style="opacity: 0.5; cursor: not-allowed;"
 			title="Sem imagem disponível"
-			><i class "fa-solid fa-eye-slash"></i></a>
+			><i class="fa-solid fa-eye-slash"></i></a>
 		{% endif %}
             {% if dashboard.client %}
             <a
@@ -325,10 +351,34 @@
           </div>
         </div>
       </div>
+      {% empty %}
+      <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:2rem 0;">
+        {% if selected_category or search_query %}
+        <p style="color:var(--app-muted,#94a3b8);">Nenhum dashboard encontrado{% if search_query %} para "{{ search_query }}"{% endif %}{% if selected_category %} nesta categoria{% endif %}.</p>
+        {% else %}
+        <p style="color:var(--app-muted,#94a3b8);">Nenhum dashboard cadastrado ainda.</p>
+        {% endif %}
+      </div>
       {% endfor %}
     </div>
+
+    {% if dashboards_page_obj.has_other_pages %}
+    <nav style="display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:1.5rem;flex-wrap:wrap;" aria-label="Paginação de dashboards">
+      {% if dashboards_page_obj.has_previous %}
+      <a href="?dash_page={{ dashboards_page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;">‹ Anterior</a>
+      {% else %}
+      <span class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;opacity:0.4;cursor:not-allowed;">‹ Anterior</span>
+      {% endif %}
+      <span style="font-size:0.875rem;color:var(--app-muted,#94a3b8);padding:0 0.5rem;">Página {{ dashboards_page_obj.number }} de {{ dashboards_page_obj.paginator.num_pages }}</span>
+      {% if dashboards_page_obj.has_next %}
+      <a href="?dash_page={{ dashboards_page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;">Próxima ›</a>
+      {% else %}
+      <span class="btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.875rem;opacity:0.4;cursor:not-allowed;">Próxima ›</span>
+      {% endif %}
+    </nav>
+    {% endif %}
   </div>
-  {% endif %} {% else %}
+  {% else %}
   <div class="empty-state">
     <div class="empty-icon"></div>
     <h3>Nenhum cliente ainda</h3>

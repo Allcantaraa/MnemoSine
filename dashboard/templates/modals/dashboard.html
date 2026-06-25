@@ -6,7 +6,8 @@
 {% endblock %}
 
 {% block content %}
-    <form method="POST" enctype="multipart/form-data" action="{{ form_action }}">
+    <form method="POST" enctype="multipart/form-data" action="{{ form_action }}" class="dashboard-form-card">
+    <a href="{% url 'cliente_dashboard' cliente.slug %}" class="form-close-btn" aria-label="Fechar">&times;</a>
     {% csrf_token %}
 
     <h3>Dados do Dashboard</h3>

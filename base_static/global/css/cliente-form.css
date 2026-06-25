@@ -14,6 +14,22 @@
     max-width: 600px;
     width: 100%;
     border: 1px solid var(--app-border);
+    position: relative;
+}
+
+.form-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--app-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.form-close-btn:hover {
+    color: #c92a2a;
 }
 
 .cliente-form-card h1 {
@@ -85,6 +101,7 @@
     transition: all 0.3s ease;
     align-self: flex-start;
 }
+
 
 .cliente-form-card form {
     max-width: none;

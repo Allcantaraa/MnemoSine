@@ -360,7 +360,7 @@
 [data-theme="dark"] .modal-content input,
 [data-theme="dark"] .modal-content select,
 [data-theme="dark"] .modal-content textarea {
-  background-color: var(--app-bg) !important;
+  /* background-color: var(--app-bg) !important; */
   color: var(--app-text) !important;
   border-color: var(--app-border) !important;
 }

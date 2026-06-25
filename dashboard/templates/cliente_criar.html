@@ -8,6 +8,7 @@
 {% block content %}
 <div class="cliente-form-page">
     <div class="cliente-form-card">
+        <a href="{% url 'index' %}" class="form-close-btn" aria-label="Fechar">&times;</a>
         {% if 'criar' in form_action %}
             <h1>Criar Cliente</h1>
             <p class="lead">Adicione um novo cliente ao seu portfólio</p>

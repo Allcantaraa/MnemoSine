@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.db import transaction
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.db.models import Q
 from django.http import JsonResponse
 from .models import Organization, OrganizationMember
 from .decorators import organization_admin_required, organization_required
@@ -19,11 +21,27 @@ from .forms import OrganizationUserCreateForm
 def listar_membros(request):
     """Lista todos os membros da organização ativa."""
     org = request.organization
-    membros = OrganizationMember.objects.filter(organization=org).select_related('user')
+    search_query = request.GET.get('search', '').strip()
+
+    membros_qs = OrganizationMember.objects.filter(organization=org).select_related('user')
+
+    if search_query:
+        membros_qs = membros_qs.filter(
+            Q(user__first_name__icontains=search_query) |
+            Q(user__last_name__icontains=search_query) |
+            Q(user__username__icontains=search_query) |
+            Q(user__email__icontains=search_query)
+        )
+
+    paginator = Paginator(membros_qs, 15)
+    page_obj = paginator.get_page(request.GET.get('page'))
 
     return render(request, 'organization/membros.html', {
         'organization': org,
-        'membros': membros
+        'membros': page_obj,
+        'page_obj': page_obj,
+        'search_query': search_query,
+        'total_membros': paginator.count,
     })
 
 

@@ -1,3 +1,22 @@
+.dashboard-form-card {
+    position: relative;
+}
+
+.form-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--app-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.form-close-btn:hover {
+    color: #c92a2a;
+}
+
 .image-form-row {
     border-bottom: 1px solid var(--app-border);
     margin-bottom: 1.5rem;
@@ -123,3 +142,4 @@
     color: #c92a2a;
     font-size: 0.85rem;
 }
+
