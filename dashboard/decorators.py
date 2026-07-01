@@ -59,7 +59,7 @@ def organization_required(view_func):
                 request.session['active_org_id'] = membership.organization.id
             else:
                 messages.error(request, 'Você não pertence a nenhuma organização.')
-                return redirect('index') # Mudado de criar_organizacao para index
+                return redirect('login')
 
         return view_func(request, *args, **kwargs)
     return wrapped_view

@@ -24,6 +24,8 @@
                 --app-primary: #c92a2a;
                 --app-bg-card: #ffffff;
                 --app-bg-hover: #f1f3f5;
+                --text-primary: #2c3e50;
+                --text-secondary: #6c757d;
             }
 
             [data-theme="dark"] {
@@ -36,6 +38,8 @@
                 --app-primary: #c92a2a;
                 --app-bg-card: #161b26;
                 --app-bg-hover: #1e2535;
+                --text-primary: #e6e9ef;
+                --text-secondary: #a4adbd;
             }
 
             .layout-wrapper {
@@ -65,7 +69,8 @@
             main {
                 margin-left: 280px;
                 width: calc(100% - 280px);
-                min-height: 100vh;
+                height: 100vh;
+                overflow-y: auto;
                 padding: 2rem;
                 background-color: var(--app-bg);
                 display: flex;

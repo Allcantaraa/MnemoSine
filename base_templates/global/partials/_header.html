@@ -1,12 +1,24 @@
 {% load org_tags %}
 
-<nav class="sidebar">
+<nav class="sidebar" {% if request.resolver_match.app_name == 'forge' %}data-app="forge"{% endif %}>
     <!-- Brand with Logo -->
     <div class="sidebar-brand">
         <div class="brand-logo-container">
             <img src="https://storage.googleapis.com/flowbix-img/LogoFBX_noBck.png" alt="Flowbix" class="brand-logo-img">
         </div>
-        <div class="brand-text">MnemoSine</div>
+        <div class="brand-text">
+            {% if request.resolver_match.app_name == 'forge' %}Forge{% else %}MnemoSine{% endif %}
+        </div>
+        {% if request.organization %}
+        <a href="{% if request.resolver_match.app_name == 'forge' %}{% url 'index' %}{% else %}{% url 'forge:home' %}{% endif %}"
+           class="brand-switch-btn"
+           title="{% if request.resolver_match.app_name == 'forge' %}Ir para MnemoSine{% else %}Ir para Forge{% endif %}">
+            <span class="brand-switch-arrows">
+                <i class="fa-solid fa-arrow-right"></i>
+                <i class="fa-solid fa-arrow-left"></i>
+            </span>
+        </a>
+        {% endif %}
     </div>
 
     <!-- Navigation Links -->
@@ -72,29 +84,46 @@
         {% endif %}
 
         <!-- Navigation Menu Items -->
-        <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
-            <i class="fa-solid fa-house"></i>
-            <span class="nav-label">Início</span>
-        </a>
+        {% if request.resolver_match.app_name == 'forge' %}
 
-        {% if request.organization %}
-            <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
-                <i class="fa-solid fa-users"></i>
-                <span class="nav-label">Membros</span>
+            <!-- Forge navigation -->
+            <a href="{% url 'forge:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                <i class="fa-solid fa-house"></i>
+                <span class="nav-label">Início</span>
+            </a>
+            <a href="{% url 'forge:biblioteca' %}" class="nav-link {% if request.resolver_match.url_name == 'biblioteca' %}active{% endif %}">
+                <i class="fa-solid fa-layer-group"></i>
+                <span class="nav-label">Biblioteca</span>
             </a>
 
-            {% if request.user|has_org_role:request.organization %}
-                <a href="{% url 'listar_notificacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_notificacoes' %}active{% endif %}">
-                    <i class="fa-solid fa-bell"></i>
-                    <span class="nav-label">Notificações</span>
-                </a>
-            {% endif %}
-        {% endif %}
+        {% else %}
 
-        <a href="{% url 'listar_faq' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_faq' %}active{% endif %}">
-            <i class="fa-solid fa-circle-question"></i>
-            <span class="nav-label">FAQ</span>
-        </a>
+            <!-- MnemoSine navigation -->
+            <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                <i class="fa-solid fa-house"></i>
+                <span class="nav-label">Início</span>
+            </a>
+
+            {% if request.organization %}
+                <a href="{% url 'listar_membros' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_membros' %}active{% endif %}">
+                    <i class="fa-solid fa-users"></i>
+                    <span class="nav-label">Membros</span>
+                </a>
+
+                {% if request.user|has_org_role:request.organization %}
+                    <a href="{% url 'listar_notificacoes' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_notificacoes' %}active{% endif %}">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="nav-label">Notificações</span>
+                    </a>
+                {% endif %}
+            {% endif %}
+
+            <a href="{% url 'listar_faq' %}" class="nav-link {% if request.resolver_match.url_name == 'listar_faq' %}active{% endif %}">
+                <i class="fa-solid fa-circle-question"></i>
+                <span class="nav-label">FAQ</span>
+            </a>
+
+        {% endif %}
     </div>
 
     <!-- Bottom Section -->

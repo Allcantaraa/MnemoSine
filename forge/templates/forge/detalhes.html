@@ -1,0 +1,236 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'global/css/pages/forge.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="forge-container">
+
+    <div class="forge-page-header">
+        <div class="header-content">
+            <div class="forge-detail-breadcrumb">
+                <a href="{% url 'forge:biblioteca' %}" class="forge-breadcrumb-link">
+                    <i class="fa-solid fa-layer-group"></i> Biblioteca
+                </a>
+                <i class="fa-solid fa-chevron-right forge-breadcrumb-sep"></i>
+                <span>{{ code.name }}</span>
+            </div>
+            <div class="forge-detail-badges">
+                <span class="forge-badge forge-badge-type">{{ code.get_type_display }}</span>
+                <span class="forge-badge {% if code.status == 'active' %}forge-badge-active{% else %}forge-badge-draft{% endif %}">
+                    {{ code.get_status_display }}
+                </span>
+                <span class="forge-badge forge-badge-version">v{{ code.version }}</span>
+            </div>
+        </div>
+        <div class="forge-detail-actions">
+            <a href="{% url 'forge:editar_codigo' code.slug %}" class="btn-forge-secondary">
+                <i class="fa-solid fa-pen"></i> Editar
+            </a>
+            <a href="{% url 'forge:exportar' code.slug %}" class="btn-forge-secondary" id="btnExportar">
+                <i class="fa-solid fa-download"></i> Exportar
+            </a>
+        </div>
+    </div>
+
+    <div class="forge-detail-grid">
+
+        <!-- Coluna principal -->
+        <div class="forge-detail-main">
+
+            <!-- Preview iframe (apenas para HTML) -->
+            {% if code.type in 'html_graphics,html_text,business_text' %}
+            <div class="surface-card forge-detail-section">
+                <h3 class="forge-section-title"><i class="fa-solid fa-eye forge-icon-accent"></i> Preview</h3>
+                <div class="forge-preview-wrap">
+                    <iframe
+                        id="forgePreviewFrame"
+                        class="forge-preview-frame"
+                        sandbox="allow-scripts allow-same-origin"
+                        srcdoc=""
+                    ></iframe>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Código -->
+            <div class="surface-card forge-detail-section">
+                <div class="forge-code-header">
+                    <h3 class="forge-section-title"><i class="fa-solid fa-code forge-icon-accent"></i> Conteúdo</h3>
+                    <button type="button" class="btn-forge-secondary forge-btn-copy" id="btnCopiarCodigo">
+                        <i class="fa-solid fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <pre class="forge-code-block" id="codeBlock">{{ content_json }}</pre>
+            </div>
+
+            <!-- Histórico de versões -->
+            {% if versions %}
+            <div class="surface-card forge-detail-section">
+                <h3 class="forge-section-title"><i class="fa-solid fa-code-branch forge-icon-accent"></i> Histórico de versões</h3>
+                <div class="forge-versions-list">
+                    {% for v in versions %}
+                    <div class="forge-version-item {% if forloop.first %}forge-version-current{% endif %}">
+                        <div class="forge-version-badge">v{{ v.version }}</div>
+                        <div class="forge-version-info">
+                            <span class="forge-version-log">{{ v.changelog|default:"Sem changelog" }}</span>
+                            <span class="forge-version-meta">
+                                {% if v.created_by %}{{ v.created_by.get_full_name|default:v.created_by.username }}{% endif %}
+                                · {{ v.created_at|date:"d/m/Y H:i" }}
+                            </span>
+                        </div>
+                        {% if forloop.first %}
+                        <span class="forge-version-label-current">atual</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Coluna lateral -->
+        <div class="forge-detail-side">
+
+            <!-- Thumbnail -->
+            {% if code.thumbnail %}
+            <div class="surface-card forge-detail-section">
+                <h3 class="forge-section-title">Preview da imagem</h3>
+                <img src="{{ code.thumbnail.url }}" alt="{{ code.name }}" class="forge-detail-thumb">
+            </div>
+            {% endif %}
+
+            <!-- Metadados -->
+            <div class="surface-card forge-detail-section">
+                <h3 class="forge-section-title">Informações</h3>
+                <ul class="forge-meta-list">
+                    {% if code.category %}
+                    <li><span class="forge-meta-key">Categoria</span><span class="forge-meta-val">{{ code.category }}</span></li>
+                    {% endif %}
+                    {% if code.description %}
+                    <li><span class="forge-meta-key">Descrição</span><span class="forge-meta-val">{{ code.description }}</span></li>
+                    {% endif %}
+                    <li><span class="forge-meta-key">Criado por</span><span class="forge-meta-val">{{ code.created_by.get_full_name|default:code.created_by.username|default:"—" }}</span></li>
+                    <li><span class="forge-meta-key">Criado em</span><span class="forge-meta-val">{{ code.created_at|date:"d/m/Y" }}</span></li>
+                    <li><span class="forge-meta-key">Atualizado</span><span class="forge-meta-val">{{ code.updated_at|date:"d/m/Y" }}</span></li>
+                    {% if code.last_used_at %}
+                    <li><span class="forge-meta-key">Último uso</span><span class="forge-meta-val">{{ code.last_used_at|date:"d/m/Y H:i" }}</span></li>
+                    {% endif %}
+                </ul>
+            </div>
+
+            <!-- Métricas -->
+            <div class="surface-card forge-detail-section">
+                <h3 class="forge-section-title">Métricas de uso</h3>
+                <div class="forge-metrics">
+                    <div class="forge-metric"><i class="fa-solid fa-eye"></i><span>{{ code.view_count }}</span><small>visualizações</small></div>
+                    <div class="forge-metric"><i class="fa-solid fa-copy"></i><span>{{ code.copy_count }}</span><small>cópias</small></div>
+                    <div class="forge-metric"><i class="fa-solid fa-download"></i><span>{{ code.export_count }}</span><small>exportações</small></div>
+                    <div class="forge-metric"><i class="fa-solid fa-pen"></i><span>{{ code.edit_count }}</span><small>edições</small></div>
+                </div>
+            </div>
+
+            <!-- Tags -->
+            {% if code.tags_list %}
+            <div class="surface-card forge-detail-section">
+                <h3 class="forge-section-title">Tags</h3>
+                <div class="forge-card-tags">
+                    {% for tag in code.tags_list %}
+                    <span class="forge-tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+{{ code.content|json_script:"forge-content-data" }}
+<script>
+(function () {
+    const contentJson = JSON.parse(document.getElementById('forge-content-data').textContent);
+    const codeType = "{{ code.type }}";
+
+    // Preview iframe para componentes HTML
+    const frame = document.getElementById('forgePreviewFrame');
+    if (frame) {
+        let bodyContent = '';
+        let styleContent = '';
+
+        if (codeType === 'html_graphics' || codeType === 'html_text') {
+            bodyContent = contentJson.html || '';
+            styleContent = contentJson.css || '';
+        } else if (codeType === 'business_text') {
+            bodyContent = contentJson.html || '';
+        }
+
+        const srcdoc = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; }
+  ${styleContent}
+</style>
+</head>
+<body>${bodyContent}</body>
+</html>`;
+
+        frame.srcdoc = srcdoc;
+
+        if (contentJson.onRender) {
+            frame.addEventListener('load', () => {
+                try {
+                    const fn = new Function(contentJson.onRender);
+                    frame.contentWindow.eval(contentJson.onRender);
+                } catch(e) { console.warn('onRender error:', e); }
+            });
+        }
+    }
+
+    // Copiar código
+    document.getElementById('btnCopiarCodigo').addEventListener('click', function () {
+        const trackUrl = "{% url 'forge:track' code.slug %}";
+        const csrfToken = "{{ csrf_token }}";
+
+        let textToCopy = '';
+        if (codeType === 'html_text') {
+            textToCopy = contentJson.html || JSON.stringify(contentJson, null, 2);
+        } else if (codeType === 'business_text') {
+            textToCopy = contentJson.html || JSON.stringify(contentJson, null, 2);
+        } else {
+            textToCopy = JSON.stringify(contentJson, null, 2);
+        }
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const btn = this;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copiar';
+            }, 2000);
+
+            fetch(trackUrl, {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'action=copy'
+            });
+        });
+    });
+
+    // Track exportar
+    document.getElementById('btnExportar').addEventListener('click', function () {
+        fetch("{% url 'forge:track' code.slug %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': "{{ csrf_token }}", 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=export'
+        });
+    });
+})();
+</script>
+{% endblock %}

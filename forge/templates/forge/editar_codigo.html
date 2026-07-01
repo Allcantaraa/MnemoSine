@@ -1,0 +1,140 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'global/css/pages/forge.css' %}">
+{% endblock %}
+{% block extra_scripts %}
+<script>window.FORGE_BULK_URL = "";</script>
+<script src="{% static 'global/js/pages/forge.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="forge-container">
+
+    <div class="forge-page-header">
+        <div class="header-content">
+            <h1>Editar Código</h1>
+            <p class="subtitle">{{ code.name }}</p>
+        </div>
+        <a href="{% url 'forge:detalhes' code.slug %}" class="btn-forge-close" title="Cancelar">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="forge-form surface-card">
+        {% csrf_token %}
+
+        <div class="forge-form-grid">
+            <div class="forge-form-main">
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Nome <span class="forge-required">*</span></label>
+                    <input type="text" name="name" class="form-input" value="{{ code.name }}" required autofocus>
+                </div>
+
+                <div class="forge-field-row">
+                    <div class="forge-field-group">
+                        <label class="forge-label">Tipo <span class="forge-required">*</span></label>
+                        <select name="type" class="form-input" required>
+                            {% for value, label in type_choices %}
+                            <option value="{{ value }}" {% if code.type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="forge-field-group">
+                        <label class="forge-label">Categoria</label>
+                        <div class="forge-category-filter-wrap">
+                            <select name="category" class="form-input" id="categorySelect" required>
+                                <option value="" disabled {% if not code.category %}selected{% endif %}>Selecione uma categoria...</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}" {% if code.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="forge-btn-nova-cat" id="btnNovaCategoria"
+                                    title="Nova categoria"
+                                    data-url="{% url 'forge:create_category' %}">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Descrição</label>
+                    <textarea name="description" class="form-input forge-textarea-sm">{{ code.description }}</textarea>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Conteúdo (JSON) <span class="forge-required">*</span></label>
+                    <textarea
+                        name="content"
+                        class="form-input forge-code-editor"
+                        required
+                        spellcheck="false"
+                    >{{ content_json }}</textarea>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Changelog desta versão</label>
+                    <input type="text" name="changelog" class="form-input" placeholder="Ex: Ajuste visual no header">
+                </div>
+
+            </div>
+
+            <div class="forge-form-side">
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Status</label>
+                    <select name="status" class="form-input">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if code.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Versão</label>
+                    <input type="text" name="version" class="form-input" value="{{ code.version }}">
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Thumbnail</label>
+                    {% if code.thumbnail %}
+                    <img src="{{ code.thumbnail.url }}" class="forge-thumb-preview" alt="Thumbnail atual">
+                    {% endif %}
+                    <input type="file" name="thumbnail" class="form-input forge-file-input" accept="image/*">
+                </div>
+
+                <div class="forge-form-actions">
+                    <button type="submit" class="btn-forge-primary forge-btn-full">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar alterações
+                    </button>
+                    <a href="{% url 'forge:detalhes' code.slug %}" class="btn-forge-secondary forge-btn-full">
+                        Cancelar
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<div class="forge-modal-overlay" id="novaCatModal">
+    <div class="forge-modal">
+        <div class="forge-modal-header">
+            <h3 class="forge-modal-title"><i class="fa-solid fa-tag"></i> Nova Categoria</h3>
+            <button type="button" class="forge-modal-close" id="btnFecharModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="forge-modal-body">
+            <input type="text" class="form-input" id="novaCatInput" placeholder="Nome da categoria..." maxlength="100" autocomplete="off">
+        </div>
+        <div class="forge-modal-footer">
+            <button type="button" class="btn-forge-secondary" id="btnCancelarCategoria">Cancelar</button>
+            <button type="button" class="btn-forge-primary" id="btnSalvarCategoria">
+                <i class="fa-solid fa-plus"></i> Criar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'global/css/pages/forge.css' %}">
+{% endblock %}
+{% block extra_scripts %}
+<script>window.FORGE_BULK_URL = "{% url 'forge:bulk_action' %}";</script>
+<script src="{% static 'global/js/pages/forge.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="forge-container">
+
+    <div class="forge-page-header">
+        <div class="header-content">
+            <h1>Biblioteca</h1>
+            <p class="subtitle">{{ codes|length }} código{{ codes|length|pluralize }} encontrado{{ codes|length|pluralize }}</p>
+        </div>
+        <a href="{% url 'forge:novo_codigo' %}" class="btn-forge-primary">
+            <i class="fa-solid fa-plus"></i> Novo Código
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <form method="GET" class="forge-filters-bar">
+        <div class="forge-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Buscar por nome, descrição, categoria..."
+                class="form-input"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="forge-filter-group">
+            <i class="fa-solid fa-layer-group forge-filter-icon"></i>
+            <select name="type" class="form-input forge-filter-select">
+                <option value="">Todos os tipos</option>
+                {% for value, label in type_choices %}
+                <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="forge-filter-group">
+            <i class="fa-solid fa-tag forge-filter-icon"></i>
+            <select name="category" class="form-input forge-filter-select">
+                <option value="">Todas as categorias</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="forge-filter-group">
+            <i class="fa-solid fa-circle-half-stroke forge-filter-icon"></i>
+            <select name="status" class="form-input forge-filter-select">
+                <option value="">Todos os status</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn-forge-primary forge-btn-buscar">
+            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+        </button>
+
+        {% if search or type_filter or category_filter or status_filter %}
+        <a href="{% url 'forge:biblioteca' %}" class="btn-forge-secondary">
+            <i class="fa-solid fa-xmark"></i> Limpar
+        </a>
+        {% endif %}
+    </form>
+
+    <!-- Grid de cards -->
+    {% if codes %}
+    <div class="forge-grid">
+        {% for code in codes %}
+        {% include "forge/partials/_code_card.html" with code=code %}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="forge-empty-state">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <h3>Nenhum código encontrado</h3>
+        {% if search or type_filter or category_filter or status_filter %}
+        <p>Tente ajustar os filtros ou <a href="{% url 'forge:biblioteca' %}">limpar a busca</a>.</p>
+        {% else %}
+        <p>A biblioteca está vazia. Comece adicionando um código.</p>
+        <a href="{% url 'forge:novo_codigo' %}" class="btn-forge-primary">
+            <i class="fa-solid fa-plus"></i> Adicionar código
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+<div class="forge-bulk-bar" id="forgeBulkBar" style="display: none">
+    <div class="forge-bulk-info">
+        <span id="forgeSelectedCount">0</span> código(s) selecionado(s)
+    </div>
+    <div class="forge-bulk-buttons">
+        <button type="button" class="forge-btn-bulk-duplicate" onclick="forgeBulkAction('duplicate')">
+            <i class="fa-solid fa-copy"></i> Duplicar
+        </button>
+        <button type="button" class="forge-btn-bulk-favorite" onclick="forgeBulkAction('favorite')">
+            <i class="fa-solid fa-star"></i> Favoritar
+        </button>
+        <button type="button" class="forge-btn-bulk-delete" onclick="forgeBulkAction('delete')">
+            <i class="fa-solid fa-trash"></i> Deletar
+        </button>
+        <button type="button" class="forge-btn-bulk-cancel" onclick="clearForgeSelection()">
+            Cancelar
+        </button>
+    </div>
+</div>
+{% endblock %}

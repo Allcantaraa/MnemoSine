@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('dashboard.urls')),
     path('user/', include('usuario.urls')),
     path('', include('faq.urls')),
+    path('forge/', include('forge.urls')),
 ]
 
 

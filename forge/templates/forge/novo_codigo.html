@@ -1,0 +1,189 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'global/css/pages/forge.css' %}">
+{% endblock %}
+{% block extra_scripts %}
+<script>window.FORGE_BULK_URL = "";</script>
+<script src="{% static 'global/js/pages/forge.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="forge-container">
+
+    <div class="forge-page-header">
+        <div class="header-content">
+            <h1>Novo Código</h1>
+            <p class="subtitle">Adicione um novo componente à biblioteca Forge</p>
+        </div>
+        <a href="{% url 'forge:biblioteca' %}" class="btn-forge-close" title="Cancelar">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="forge-form surface-card">
+        {% csrf_token %}
+
+        <div class="forge-form-grid">
+            <!-- Coluna principal -->
+            <div class="forge-form-main">
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Nome <span class="forge-required">*</span></label>
+                    <input
+                        type="text"
+                        name="name"
+                        class="form-input"
+                        placeholder="Ex: Gauge CPU / RAM"
+                        value="{{ form_data.name|default:'' }}"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="forge-field-row">
+                    <div class="forge-field-group">
+                        <label class="forge-label">Tipo <span class="forge-required">*</span></label>
+                        <select name="type" class="form-input" id="codeTypeSelect" required>
+                            <option value="">Selecione o tipo</option>
+                            {% for value, label in type_choices %}
+                            <option value="{{ value }}" {% if form_data.type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="forge-field-group">
+                        <label class="forge-label">Categoria</label>
+                        <div class="forge-category-filter-wrap">
+                            <select name="category" class="form-input" id="categorySelect" required>
+                                <option value="" disabled selected>Selecione uma categoria...</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}" {% if form_data.category == cat %}selected{% endif %}>{{ cat }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="forge-btn-nova-cat" id="btnNovaCategoria"
+                                    title="Nova categoria"
+                                    data-url="{% url 'forge:create_category' %}">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Descrição</label>
+                    <textarea
+                        name="description"
+                        class="form-input forge-textarea-sm"
+                        placeholder="Descreva brevemente o que este componente faz..."
+                    >{{ form_data.description|default:'' }}</textarea>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">
+                        Conteúdo (JSON) <span class="forge-required">*</span>
+                        <span class="forge-label-hint">Cole o JSON exportado do Grafana ou o código estruturado</span>
+                    </label>
+                    <div class="forge-code-editor-wrap">
+                        <textarea
+                            name="content"
+                            id="contentEditor"
+                            class="form-input forge-code-editor"
+                            placeholder='{"html": "<div>...</div>", "css": "", "onRender": ""}'
+                            required
+                            spellcheck="false"
+                        >{{ form_data.content|default:'' }}</textarea>
+                    </div>
+                    <div class="forge-code-hint" id="codeHint"></div>
+                </div>
+
+            </div>
+
+            <!-- Coluna lateral -->
+            <div class="forge-form-side">
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Status</label>
+                    <select name="status" class="form-input">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if form_data.status == value or not form_data and value == 'draft' %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Versão</label>
+                    <input
+                        type="text"
+                        name="version"
+                        class="form-input"
+                        placeholder="1.0.0"
+                        value="{{ form_data.version|default:'1.0.0' }}"
+                    >
+                </div>
+
+                <div class="forge-field-group">
+                    <label class="forge-label">Thumbnail</label>
+                    <input type="file" name="thumbnail" class="form-input forge-file-input" accept="image/*">
+                    <span class="forge-field-hint">Imagem do componente em funcionamento</span>
+                </div>
+
+                <div class="forge-form-actions">
+                    <button type="submit" class="btn-forge-primary forge-btn-full">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar código
+                    </button>
+                    <a href="{% url 'forge:biblioteca' %}" class="btn-forge-secondary forge-btn-full">
+                        Cancelar
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<script>
+const typeHints = {
+    'html_graphics': '{"html": "<div>...</div>", "css": ".class { }", "onRender": "const node = document; ...", "renderOnMount": true}',
+    'html_text': '{"source": "raw_html", "html": "<style>...</style><div>...</div>", "css": "", "onRender": "", "renderOnMount": true}',
+    'business_text': '{"source": "business_text", "plugin": "Business Text", "html": "<div></div>", "afterContentReady": "try { } catch(e) { }", "contentPartials": [], "renderOnMount": true}',
+    'dashboard_json': '{ ...cole o JSON completo do dashboard Grafana... }',
+    'sql': '{"query": "SELECT ..."}',
+    'javascript': '{"code": "function exemplo() { }"}',
+    'css': '{"code": ".classe { color: white; }"}',
+    'svg': '{"code": "<svg>...</svg>"}',
+};
+
+document.getElementById('codeTypeSelect').addEventListener('change', function () {
+    const hint = document.getElementById('codeHint');
+    const editor = document.getElementById('contentEditor');
+    const selected = this.value;
+    if (typeHints[selected]) {
+        hint.textContent = 'Estrutura esperada: ' + typeHints[selected].substring(0, 80) + '...';
+        if (!editor.value.trim()) {
+            editor.placeholder = typeHints[selected];
+        }
+    } else {
+        hint.textContent = '';
+    }
+});
+</script>
+
+<div class="forge-modal-overlay" id="novaCatModal">
+    <div class="forge-modal">
+        <div class="forge-modal-header">
+            <h3 class="forge-modal-title"><i class="fa-solid fa-tag"></i> Nova Categoria</h3>
+            <button type="button" class="forge-modal-close" id="btnFecharModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="forge-modal-body">
+            <input type="text" class="form-input" id="novaCatInput" placeholder="Nome da categoria..." maxlength="100" autocomplete="off">
+        </div>
+        <div class="forge-modal-footer">
+            <button type="button" class="btn-forge-secondary" id="btnCancelarCategoria">Cancelar</button>
+            <button type="button" class="btn-forge-primary" id="btnSalvarCategoria">
+                <i class="fa-solid fa-plus"></i> Criar
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
