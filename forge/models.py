@@ -20,9 +20,11 @@ class Category(models.Model):
 
 class CodeEntry(models.Model):
     class Type(models.TextChoices):
-        HTML_GRAPHICS = 'html_graphics', 'HTML Graphics JSON'
+        HTML_GRAPHICS = 'html_graphics', 'HTML Graphics'
         HTML_TEXT = 'html_text', 'HTML / Text Panel'
         BUSINESS_TEXT = 'business_text', 'Business Text'
+        BUSINESS_CHARTS = 'business_charts', 'Business Charts'
+        CANVAS = 'canvas', 'Canvas'
         DASHBOARD_JSON = 'dashboard_json', 'Dashboard JSON'
         SQL = 'sql', 'SQL Query'
         JAVASCRIPT = 'javascript', 'JavaScript'
@@ -80,7 +82,9 @@ class CodeEntry(models.Model):
 
     @property
     def is_previewable(self):
-        return self.type in (self.Type.HTML_GRAPHICS, self.Type.HTML_TEXT, self.Type.BUSINESS_TEXT)
+        return self.type in (
+            self.Type.HTML_GRAPHICS, self.Type.HTML_TEXT, self.Type.BUSINESS_TEXT
+        )
 
     @property
     def content_json_str(self):

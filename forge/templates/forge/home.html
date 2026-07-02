@@ -13,7 +13,7 @@
 
     <div class="forge-page-header">
         <div class="header-content">
-            <h1>Forge</h1>
+            <h1>FlowPanel</h1>
             <p class="subtitle">Biblioteca de componentes para seus dashboards</p>
         </div>
     </div>
@@ -54,15 +54,19 @@
 
     <!-- KPIs -->
     <div class="forge-kpis">
-        <div class="forge-kpi-total-card">
+        <div class="forge-kpi-total-card {% if not type_filter %}forge-kpi-total-card--active{% endif %}"
+             onclick="window.location='{% url 'forge:home' %}{% if category_filter %}?category={{ category_filter }}{% endif %}'"
+             title="Mostrar todos">
             <div class="forge-kpi-total-icon"><i class="fa-solid fa-layer-group"></i></div>
             <div class="forge-kpi-total-number">{{ total }}</div>
             <div class="forge-kpi-total-label">componentes</div>
         </div>
         <div class="forge-kpi-breakdown-card">
-<div class="forge-kpi-breakdown-list">
+            <div class="forge-kpi-breakdown-list">
                 {% for item in type_breakdown %}
-                <div class="forge-kpi-type-card">
+                <div class="forge-kpi-type-card {% if type_filter == item.value %}forge-kpi-type-card--active{% endif %}"
+                     onclick="window.location='?type={{ item.value }}{% if category_filter %}&category={{ category_filter }}{% endif %}'"
+                     title="Filtrar por {{ item.label }}">
                     <i class="fa-solid {{ item.icon }} forge-kpi-type-icon"></i>
                     <span class="forge-kpi-type-count">{{ item.count }}</span>
                     <span class="forge-kpi-type-label">{{ item.label }}</span>
@@ -127,7 +131,7 @@
     <div class="forge-empty-state">
         <i class="fa-solid fa-fire-flame-curved"></i>
         <h3>A biblioteca está vazia</h3>
-        <p>Comece adicionando o primeiro componente ao Forge.</p>
+        <p>Comece adicionando o primeiro componente ao FlowPanel.</p>
         <a href="{% url 'forge:novo_codigo' %}" class="btn-forge-primary">
             <i class="fa-solid fa-plus"></i> Adicionar primeiro código
         </a>

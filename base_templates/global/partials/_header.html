@@ -7,12 +7,12 @@
             <img src="https://storage.googleapis.com/flowbix-img/LogoFBX_noBck.png" alt="Flowbix" class="brand-logo-img">
         </div>
         <div class="brand-text">
-            {% if request.resolver_match.app_name == 'forge' %}Forge{% else %}MnemoSine{% endif %}
+            {% if request.resolver_match.app_name == 'forge' %}FlowPanel{% else %}FlowDash{% endif %}
         </div>
         {% if request.organization %}
         <a href="{% if request.resolver_match.app_name == 'forge' %}{% url 'index' %}{% else %}{% url 'forge:home' %}{% endif %}"
            class="brand-switch-btn"
-           title="{% if request.resolver_match.app_name == 'forge' %}Ir para MnemoSine{% else %}Ir para Forge{% endif %}">
+           title="{% if request.resolver_match.app_name == 'forge' %}Ir para FlowDash{% else %}Ir para FlowPanel{% endif %}">
             <span class="brand-switch-arrows">
                 <i class="fa-solid fa-arrow-right"></i>
                 <i class="fa-solid fa-arrow-left"></i>

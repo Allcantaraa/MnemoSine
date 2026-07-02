@@ -35,7 +35,7 @@
                 <div class="forge-field-row">
                     <div class="forge-field-group">
                         <label class="forge-label">Tipo <span class="forge-required">*</span></label>
-                        <select name="type" class="form-input" required>
+                        <select name="type" class="form-input" id="codeTypeSelect" required>
                             {% for value, label in type_choices %}
                             <option value="{{ value }}" {% if code.type == value %}selected{% endif %}>{{ label }}</option>
                             {% endfor %}
@@ -64,14 +64,80 @@
                     <textarea name="description" class="form-input forge-textarea-sm">{{ code.description }}</textarea>
                 </div>
 
-                <div class="forge-field-group">
-                    <label class="forge-label">Conteúdo (JSON) <span class="forge-required">*</span></label>
-                    <textarea
-                        name="content"
-                        class="form-input forge-code-editor"
-                        required
-                        spellcheck="false"
-                    >{{ content_json }}</textarea>
+                <div class="forge-field-group" id="contentFieldGroup" style="display:none">
+                    <label class="forge-label" id="contentLabel">
+                        Conteúdo <span class="forge-required">*</span>
+                    </label>
+
+                    <textarea name="content" id="contentEditor" style="display:none" spellcheck="false"></textarea>
+
+                    <!-- JSON block (canvas, dashboard_json, sql, javascript, css, svg) -->
+                    <div class="forge-content-block" id="block-json">
+                        <textarea id="jsonEditor" class="form-input forge-code-editor" spellcheck="false"></textarea>
+                    </div>
+
+                    <!-- HTML Graphics block -->
+                    <div class="forge-content-block" id="block-html-graphics">
+                        <div class="forge-mode-tabs" id="hgModeTabs">
+                            <button type="button" class="forge-mode-tab active" data-mode="json">JSON</button>
+                            <button type="button" class="forge-mode-tab" data-mode="code">Campos</button>
+                        </div>
+                        <div id="hg-panel-json">
+                            <textarea id="hgJsonEditor" class="form-input forge-code-editor" spellcheck="false" placeholder='{"html": "<div>...</div>", "css": "", "onRender": ""}'></textarea>
+                        </div>
+                        <div id="hg-panel-code" style="display:none">
+                            <div class="forge-subfield">
+                                <label class="forge-label-sm">HTML</label>
+                                <textarea id="hgHtml" class="form-input forge-code-editor forge-code-editor--md" spellcheck="false" placeholder="<div>...</div>"></textarea>
+                            </div>
+                            <div class="forge-subfield">
+                                <label class="forge-label-sm">CSS</label>
+                                <textarea id="hgCss" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false" placeholder=".myClass { color: white; }"></textarea>
+                            </div>
+                            <div class="forge-subfield">
+                                <label class="forge-label-sm">Root CSS</label>
+                                <textarea id="hgRootCss" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false" placeholder=":root { --color: white; }"></textarea>
+                            </div>
+                            <div class="forge-subfield">
+                                <label class="forge-label-sm">onRender</label>
+                                <textarea id="hgOnRender" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false" placeholder="// Executed on each render"></textarea>
+                            </div>
+                            <div class="forge-subfield">
+                                <label class="forge-label-sm">onInit</label>
+                                <textarea id="hgOnInit" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false" placeholder="// Executed on init"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Text block -->
+                    <div class="forge-content-block" id="block-business-text">
+                        <div class="forge-subfield">
+                            <label class="forge-label-sm">Content</label>
+                            <textarea id="btContent" class="form-input forge-code-editor forge-code-editor--md" spellcheck="false" placeholder="Markdown / HTML content..."></textarea>
+                        </div>
+                        <div class="forge-subfield">
+                            <label class="forge-label-sm">Javascript after content ready</label>
+                            <textarea id="btAfter" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false"></textarea>
+                        </div>
+                        <div class="forge-subfield">
+                            <label class="forge-label-sm">Javascript before content ready</label>
+                            <textarea id="btBefore" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false"></textarea>
+                        </div>
+                        <div class="forge-subfield">
+                            <label class="forge-label-sm">Default content</label>
+                            <textarea id="btDefault" class="form-input forge-code-editor forge-code-editor--sm" spellcheck="false"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- HTML / Text Panel block -->
+                    <div class="forge-content-block" id="block-html-text">
+                        <textarea id="htHtml" class="form-input forge-code-editor" spellcheck="false" placeholder="<div>Seu HTML aqui...</div>"></textarea>
+                    </div>
+
+                    <!-- Business Charts block -->
+                    <div class="forge-content-block" id="block-business-charts">
+                        <textarea id="bcCode" class="form-input forge-code-editor" spellcheck="false" placeholder="// JavaScript code..."></textarea>
+                    </div>
                 </div>
 
                 <div class="forge-field-group">
@@ -119,6 +185,18 @@
     </form>
 
 </div>
+
+{{ code.content|json_script:"forge-edit-content" }}
+<script>
+(function () {
+    var typeVal = document.getElementById('codeTypeSelect').value;
+    var raw = document.getElementById('forge-edit-content');
+    var contentObj = raw ? JSON.parse(raw.textContent) : null;
+    if (window.forgeContentEditor && typeVal) {
+        window.forgeContentEditor.populate(typeVal, contentObj);
+    }
+})();
+</script>
 
 <div class="forge-modal-overlay" id="novaCatModal">
     <div class="forge-modal">

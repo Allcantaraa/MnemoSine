@@ -16,23 +16,17 @@ from .models import Category, CodeEntry, CodeVersion
 def home(request):
     org = request.organization
     category_filter = request.GET.get('category', '').strip()
-
-    total = CodeEntry.objects.filter(organization=org).count()
-    html_graphics_count = CodeEntry.objects.filter(organization=org, type=CodeEntry.Type.HTML_GRAPHICS).count()
-    dashboard_json_count = CodeEntry.objects.filter(organization=org, type=CodeEntry.Type.DASHBOARD_JSON).count()
-    total_interactions = sum(
-        CodeEntry.objects.filter(organization=org).values_list('view_count', flat=True)
-    ) + sum(
-        CodeEntry.objects.filter(organization=org).values_list('copy_count', flat=True)
-    ) + sum(
-        CodeEntry.objects.filter(organization=org).values_list('export_count', flat=True)
-    )
+    type_filter = request.GET.get('type', '').strip()
 
     base_qs = CodeEntry.objects.filter(organization=org).annotate(
         is_favorite=Count('favorited_by', filter=Q(favorited_by=request.user))
     )
     if category_filter:
         base_qs = base_qs.filter(category=category_filter)
+    if type_filter:
+        base_qs = base_qs.filter(type=type_filter)
+
+    total = CodeEntry.objects.filter(organization=org).count()
 
     all_codes = list(base_qs)
     favorites = [c for c in all_codes if c.is_favorite]
@@ -40,14 +34,16 @@ def home(request):
     recent = list(base_qs.order_by('-created_at')[:6])
 
     type_icon_map = {
-        'html_graphics': 'fa-code',
-        'html_text': 'fa-file-lines',
-        'business_text': 'fa-align-left',
-        'dashboard_json': 'fa-table-columns',
-        'sql': 'fa-database',
-        'javascript': 'fa-square-js',
-        'css': 'fa-palette',
-        'svg': 'fa-vector-square',
+        'html_graphics':   'fa-code',
+        'html_text':       'fa-file-lines',
+        'business_text':   'fa-align-left',
+        'business_charts': 'fa-chart-bar',
+        'canvas':          'fa-draw-polygon',
+        'dashboard_json':  'fa-table-columns',
+        'sql':             'fa-database',
+        'javascript':      'fa-square-js',
+        'css':             'fa-palette',
+        'svg':             'fa-vector-square',
     }
     counts_by_type = {
         item['type']: item['count']
@@ -55,6 +51,7 @@ def home(request):
     }
     type_breakdown = [
         {
+            'value': value,
             'label': label,
             'count': counts_by_type.get(value, 0),
             'icon': type_icon_map.get(value, 'fa-file-code'),
@@ -70,6 +67,7 @@ def home(request):
         'recent': recent,
         'categories': _get_categories(org),
         'category_filter': category_filter,
+        'type_filter': type_filter,
     })
 
 
@@ -133,6 +131,16 @@ def novo_codigo(request):
 
         if not name or not code_type or not content_raw:
             messages.error(request, 'Nome, tipo e conteúdo são obrigatórios.')
+            categories = _get_categories(request.organization)
+            return render(request, 'forge/novo_codigo.html', {
+                'type_choices': CodeEntry.Type.choices,
+                'status_choices': CodeEntry.Status.choices,
+                'categories': categories,
+                'form_data': request.POST,
+            })
+
+        if CodeEntry.objects.filter(organization=request.organization, name__iexact=name).exists():
+            messages.error(request, f'Já existe um painel com o nome "{name}" nesta organização.')
             categories = _get_categories(request.organization)
             return render(request, 'forge/novo_codigo.html', {
                 'type_choices': CodeEntry.Type.choices,

@@ -238,12 +238,32 @@
     gap: 0.2rem;
     flex: 1;
     text-align: center;
-    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
 .forge-kpi-type-card:hover {
-    border-color: var(--forge-accent-muted);
+    border-color: var(--forge-accent);
     background: var(--forge-accent-muted);
+}
+
+.forge-kpi-type-card--active {
+    border-color: var(--forge-accent);
+    background: var(--forge-accent-muted);
+    box-shadow: inset 0 0 0 2px var(--forge-accent);
+}
+
+.forge-kpi-total-card {
+    cursor: pointer;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.forge-kpi-total-card:hover {
+    border-color: var(--forge-accent);
+}
+
+.forge-kpi-total-card--active {
+    box-shadow: inset 0 0 0 2px var(--forge-accent);
 }
 
 .forge-kpi-type-icon {
@@ -860,6 +880,70 @@
     font-size: 0.82rem;
     resize: vertical;
     line-height: 1.6;
+}
+
+.forge-code-editor--md {
+    min-height: 140px;
+}
+
+.forge-code-editor--sm {
+    min-height: 90px;
+}
+
+/* ── Content editor blocks ── */
+.forge-content-block {
+    display: none;
+}
+
+.forge-subfield {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+}
+
+.forge-subfield:first-child {
+    margin-top: 0;
+}
+
+.forge-label-sm {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--app-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ── Mode tabs (JSON / Campos) ── */
+.forge-mode-tabs {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--app-border);
+    padding-bottom: 0.5rem;
+}
+
+.forge-mode-tab {
+    background: none;
+    border: 1px solid var(--app-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--app-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.forge-mode-tab:hover {
+    border-color: var(--forge-accent);
+    color: var(--forge-accent);
+}
+
+.forge-mode-tab.active {
+    background: var(--forge-accent);
+    border-color: var(--forge-accent);
+    color: #fff;
 }
 
 .forge-code-hint {
