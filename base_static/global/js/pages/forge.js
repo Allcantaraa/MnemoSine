@@ -221,14 +221,22 @@
         svg:            '<svg xmlns="http://www.w3.org/2000/svg">...</svg>',
     };
 
-    function activateHgMode(mode) {
-        document.querySelectorAll('#hgModeTabs .forge-mode-tab').forEach(function (tab) {
+    // Toggle Campos/JSON panels within a specific block
+    function activateBlockMode(block, mode) {
+        if (!block) return;
+        block.querySelectorAll('.forge-mode-tab').forEach(function (tab) {
             tab.classList.toggle('active', tab.getAttribute('data-mode') === mode);
         });
-        var jsonPanel = document.getElementById('hg-panel-json');
-        var codePanel = document.getElementById('hg-panel-code');
-        if (jsonPanel) jsonPanel.style.display = mode === 'json' ? 'block' : 'none';
-        if (codePanel) codePanel.style.display = mode === 'code' ? 'block' : 'none';
+        var fieldsPanel = block.querySelector('.forge-block-fields');
+        var jsonPanel   = block.querySelector('.forge-block-json');
+        if (fieldsPanel) fieldsPanel.style.display = mode === 'fields' ? 'block' : 'none';
+        if (jsonPanel)   jsonPanel.style.display   = mode === 'json'   ? 'block' : 'none';
+    }
+
+    function getBlockMode(block) {
+        if (!block) return 'fields';
+        var active = block.querySelector('.forge-mode-tab.active');
+        return active ? active.getAttribute('data-mode') : 'fields';
     }
 
     window.forgeContentEditor = {
@@ -256,11 +264,25 @@
             var blockId = BLOCK_MAP[typeVal];
             if (!blockId) return null;
 
+            // Plain JSON-only block (canvas, dashboard_json, sql, etc.)
             if (blockId === 'block-json') {
                 var raw = (document.getElementById('jsonEditor') || {}).value;
                 if (!raw || !raw.trim()) return null;
                 try { return JSON.parse(raw.trim()); } catch (e) { return '__invalid__'; }
             }
+
+            var block = document.getElementById(blockId);
+            var mode  = getBlockMode(block);
+
+            // JSON mode: parse the block's raw JSON textarea
+            if (mode === 'json') {
+                var ta = block && block.querySelector('.forge-block-json textarea');
+                var raw = ta ? ta.value.trim() : '';
+                if (!raw) return null;
+                try { return JSON.parse(raw); } catch (e) { return '__invalid__'; }
+            }
+
+            // Fields mode: assemble from structured inputs
             if (typeVal === 'html_text') {
                 return { html: document.getElementById('htHtml').value };
             }
@@ -276,13 +298,6 @@
                 };
             }
             if (typeVal === 'html_graphics') {
-                var activeTab = document.querySelector('#hgModeTabs .forge-mode-tab.active');
-                var mode = activeTab ? activeTab.getAttribute('data-mode') : 'json';
-                if (mode === 'json') {
-                    var raw = (document.getElementById('hgJsonEditor') || {}).value;
-                    if (!raw || !raw.trim()) return null;
-                    try { return JSON.parse(raw.trim()); } catch (e) { return '__invalid__'; }
-                }
                 return {
                     html:     document.getElementById('hgHtml').value,
                     css:      document.getElementById('hgCss').value,
@@ -298,25 +313,47 @@
             if (!contentObj) return;
             this.switchBlock(typeVal);
 
+            var blockId = BLOCK_MAP[typeVal];
+            var block   = blockId ? document.getElementById(blockId) : null;
+
+            if (blockId === 'block-json') {
+                var el = document.getElementById('jsonEditor');
+                if (el) el.value = JSON.stringify(contentObj, null, 2);
+                return;
+            }
+
+            var putJson = function () {
+                var ta = block && block.querySelector('.forge-block-json textarea');
+                if (ta) ta.value = JSON.stringify(contentObj, null, 2);
+                activateBlockMode(block, 'json');
+            };
+
             if (typeVal === 'html_text') {
-                var el = document.getElementById('htHtml');
-                if (el) el.value = contentObj.html || '';
+                if (contentObj.html !== undefined) {
+                    document.getElementById('htHtml').value = contentObj.html || '';
+                    activateBlockMode(block, 'fields');
+                } else { putJson(); }
                 return;
             }
             if (typeVal === 'business_charts') {
-                var el = document.getElementById('bcCode');
-                if (el) el.value = contentObj.code || '';
+                if (contentObj.code !== undefined) {
+                    document.getElementById('bcCode').value = contentObj.code || '';
+                    activateBlockMode(block, 'fields');
+                } else { putJson(); }
                 return;
             }
             if (typeVal === 'business_text') {
-                var set = function (id, key) {
-                    var el = document.getElementById(id);
-                    if (el) el.value = contentObj[key] || '';
-                };
-                set('btContent', 'content');
-                set('btAfter', 'afterContentReady');
-                set('btBefore', 'beforeContentReady');
-                set('btDefault', 'defaultContent');
+                if (contentObj.content !== undefined || contentObj.afterContentReady !== undefined) {
+                    var set = function (id, key) {
+                        var el = document.getElementById(id);
+                        if (el) el.value = contentObj[key] || '';
+                    };
+                    set('btContent', 'content');
+                    set('btAfter',   'afterContentReady');
+                    set('btBefore',  'beforeContentReady');
+                    set('btDefault', 'defaultContent');
+                    activateBlockMode(block, 'fields');
+                } else { putJson(); }
                 return;
             }
             if (typeVal === 'html_graphics') {
@@ -324,34 +361,28 @@
                     || contentObj.css !== undefined
                     || contentObj.onRender !== undefined;
                 if (hasFields) {
-                    activateHgMode('code');
                     var set = function (id, key) {
                         var el = document.getElementById(id);
                         if (el) el.value = contentObj[key] || '';
                     };
-                    set('hgHtml', 'html');
-                    set('hgCss', 'css');
-                    set('hgRootCss', 'rootCss');
+                    set('hgHtml',     'html');
+                    set('hgCss',      'css');
+                    set('hgRootCss',  'rootCss');
                     set('hgOnRender', 'onRender');
-                    set('hgOnInit', 'onInit');
-                } else {
-                    activateHgMode('json');
-                    var el = document.getElementById('hgJsonEditor');
-                    if (el) el.value = JSON.stringify(contentObj, null, 2);
-                }
+                    set('hgOnInit',   'onInit');
+                    activateBlockMode(block, 'fields');
+                } else { putJson(); }
                 return;
             }
-            // Default: JSON block
-            var el = document.getElementById('jsonEditor');
-            if (el) el.value = JSON.stringify(contentObj, null, 2);
         },
     };
 
-    // Mode tab clicks for HTML Graphics
+    // Tab click — any block
     document.addEventListener('click', function (e) {
-        var tab = e.target.closest('#hgModeTabs .forge-mode-tab');
+        var tab = e.target.closest('.forge-content-block .forge-mode-tab');
         if (!tab) return;
-        activateHgMode(tab.getAttribute('data-mode'));
+        var block = tab.closest('.forge-content-block');
+        activateBlockMode(block, tab.getAttribute('data-mode'));
     });
 
     // Type select → show the right block
@@ -359,15 +390,15 @@
         window.forgeContentEditor.switchBlock(this.value);
     });
 
-    // Initialize on load for the current selected value
+    // Initialize on load
     window.forgeContentEditor.switchBlock(typeSelect.value);
 
-    // Form submit — assemble content JSON into hidden field
+    // Form submit — assemble into hidden field
     var form = contentEditor.closest('form');
     if (form) {
         form.addEventListener('submit', function (e) {
             var typeVal = typeSelect.value;
-            var result = window.forgeContentEditor.assemble(typeVal);
+            var result  = window.forgeContentEditor.assemble(typeVal);
             if (result === '__invalid__') {
                 e.preventDefault();
                 alert('JSON inválido. Verifique o conteúdo digitado.');
