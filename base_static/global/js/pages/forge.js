@@ -192,6 +192,106 @@
     });
 })();
 
+// ── Agent Widget ─────────────────────────────────────────────────────────────
+window.forgeAgentFill = function (el) {
+    var text = el.textContent.replace(/^✦\s*/, '').trim();
+    var input = document.getElementById('forgeAgentInput');
+    if (!input) return;
+    input.value = text;
+    input.style.height = '';
+    input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+    input.focus();
+};
+(function () {
+    var fab      = document.getElementById('forgeAgentFab');
+    var panel    = document.getElementById('forgeAgentPanel');
+    var closeBtn = document.getElementById('forgeAgentClose');
+    var input    = document.getElementById('forgeAgentInput');
+    var sendBtn  = document.getElementById('forgeAgentSend');
+    var msgs     = document.getElementById('forgeAgentMessages');
+    if (!fab || !panel) return;
+
+    var agentUrl = fab.getAttribute('data-url');
+    var isOpen   = false;
+
+    function togglePanel() {
+        isOpen = !isOpen;
+        panel.classList.toggle('open', isOpen);
+        if (isOpen && input) input.focus();
+    }
+
+    fab.addEventListener('click', togglePanel);
+    if (closeBtn) closeBtn.addEventListener('click', function () {
+        isOpen = false;
+        panel.classList.remove('open');
+    });
+
+    function appendMsg(role, text) {
+        var empty = msgs.querySelector('.forge-agent-empty');
+        if (empty) empty.remove();
+        var div = document.createElement('div');
+        div.className = 'forge-agent-msg forge-agent-msg--' + role;
+        var bub = document.createElement('div');
+        bub.className = 'forge-agent-bubble';
+        bub.textContent = text;
+        div.appendChild(bub);
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function showTyping() {
+        var div = document.createElement('div');
+        div.className = 'forge-agent-msg forge-agent-msg--ai';
+        div.innerHTML = '<div class="forge-agent-typing"><span></span><span></span><span></span></div>';
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+        return div;
+    }
+
+    function send() {
+        if (!input) return;
+        var text = input.value.trim();
+        if (!text || sendBtn.disabled) return;
+
+        appendMsg('user', text);
+        input.value = '';
+        input.style.height = '';
+        sendBtn.disabled = true;
+
+        var typing = showTyping();
+        var csrf = (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || '';
+
+        fetch(agentUrl, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf, 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'prompt=' + encodeURIComponent(text),
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            typing.remove();
+            appendMsg('ai', data.reply || 'Sem resposta.');
+            sendBtn.disabled = false;
+            input.focus();
+        })
+        .catch(function () {
+            typing.remove();
+            appendMsg('ai', 'Erro de conexão. Tente novamente.');
+            sendBtn.disabled = false;
+        });
+    }
+
+    if (sendBtn) sendBtn.addEventListener('click', send);
+    if (input) {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+        });
+        input.addEventListener('input', function () {
+            this.style.height = '';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+    }
+})();
+
 // ── Content Editor ───────────────────────────────────────────────────────────
 (function () {
     var typeSelect    = document.getElementById('codeTypeSelect');

@@ -1,0 +1,37 @@
+{% load static %}
+{% url 'forge:agent_chat' as agent_url %}
+<button class="forge-agent-fab" id="forgeAgentFab"
+        data-url="{{ agent_url }}"
+        title="Agente IA — criar painéis com linguagem natural">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
+</button>
+
+<div class="forge-agent-panel" id="forgeAgentPanel">
+    <div class="forge-agent-header">
+        <div class="forge-agent-title">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            Agente FlowPanel
+        </div>
+        <button type="button" class="forge-modal-close" id="forgeAgentClose">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div class="forge-agent-messages" id="forgeAgentMessages">
+        <div class="forge-agent-empty">
+            <p>Olá! Posso te ajudar a <strong>criar painéis</strong> ou <strong>consultar a biblioteca</strong>. Experimente perguntar:</p>
+            <ul class="forge-agent-suggestions">
+                <li onclick="forgeAgentFill(this)">✦ Crie um gauge de CPU com gradiente verde‑vermelho</li>
+                <li onclick="forgeAgentFill(this)">✦ Quais painéis temos na biblioteca?</li>
+                <li onclick="forgeAgentFill(this)">✦ Temos algum painel de latência de rede?</li>
+                <li onclick="forgeAgentFill(this)">✦ Crie um gráfico de barras de uso de disco, categoria Infra</li>
+            </ul>
+        </div>
+    </div>
+    <div class="forge-agent-footer">
+        <textarea class="forge-agent-input" id="forgeAgentInput"
+                  placeholder="Pergunte ou descreva o painel que deseja criar..." rows="1"></textarea>
+        <button type="button" class="forge-agent-send" id="forgeAgentSend">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+</div>

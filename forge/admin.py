@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import CodeEntry, CodeVersion
+from .models import CodeEntry, CodeVersion, AgentLog
 
 
 @admin.register(CodeEntry)
@@ -14,3 +14,18 @@ class CodeEntryAdmin(admin.ModelAdmin):
 class CodeVersionAdmin(admin.ModelAdmin):
     list_display = ('code', 'version', 'created_by', 'created_at')
     list_filter = ('code',)
+
+
+@admin.register(AgentLog)
+class AgentLogAdmin(admin.ModelAdmin):
+    list_display = ('created_at', 'user', 'organization', 'prompt_preview')
+    list_filter = ('organization', 'user')
+    search_fields = ('prompt', 'reply')
+    readonly_fields = ('organization', 'user', 'prompt', 'reply', 'created_at')
+
+    def prompt_preview(self, obj):
+        return obj.prompt[:80] + '…' if len(obj.prompt) > 80 else obj.prompt
+    prompt_preview.short_description = 'Prompt'
+
+    def has_add_permission(self, _request):
+        return False

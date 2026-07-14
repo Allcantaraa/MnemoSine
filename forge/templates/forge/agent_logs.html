@@ -1,0 +1,115 @@
+{% extends "global/base.html" %}
+{% load static %}
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'global/css/pages/forge.css' %}">
+{% endblock %}
+{% block extra_scripts %}
+<script src="{% static 'global/js/pages/forge.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="forge-container">
+
+    <div class="forge-page-header">
+        <div class="header-content">
+            <h1>Logs do Agente</h1>
+            <p class="subtitle">{{ page_obj.paginator.count }} registro{{ page_obj.paginator.count|pluralize }}</p>
+        </div>
+    </div>
+
+    <form method="GET" class="forge-filters-bar">
+        <div class="forge-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+                type="text"
+                name="user"
+                value="{{ user_filter }}"
+                placeholder="Filtrar por usuário..."
+                class="form-input"
+                autocomplete="off"
+            >
+        </div>
+
+        <button type="submit" class="btn-forge-primary forge-btn-buscar">
+            <i class="fa-solid fa-magnifying-glass"></i> Buscar
+        </button>
+
+        {% if user_filter %}
+        <a href="{% url 'forge:agent_logs' %}" class="btn-forge-secondary">
+            <i class="fa-solid fa-xmark"></i> Limpar
+        </a>
+        {% endif %}
+    </form>
+
+    {% if page_obj.object_list %}
+    <div class="forge-table-wrap">
+    <table class="forge-logs-table">
+        <thead>
+            <tr>
+                <th>Data / Hora</th>
+                <th>Usuário</th>
+                <th>Prompt</th>
+                <th>Resposta</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in page_obj %}
+            <tr class="forge-log-row" onclick="this.classList.toggle('expanded')">
+                <td class="forge-log-date" nowrap>
+                    {{ log.created_at|date:"d/m/Y" }}<br>
+                    <span class="forge-log-time">{{ log.created_at|date:"H:i" }}</span>
+                </td>
+                <td class="forge-log-user">
+                    <i class="fa-solid fa-user forge-log-user-icon"></i>
+                    {{ log.user.username|default:"—" }}
+                </td>
+                <td class="forge-log-prompt">
+                    <span class="forge-log-short">{{ log.prompt|truncatechars:80 }}</span>
+                    <span class="forge-log-full">{{ log.prompt }}</span>
+                </td>
+                <td class="forge-log-reply">
+                    <span class="forge-log-short">{{ log.reply|truncatechars:100 }}</span>
+                    <span class="forge-log-full">{{ log.reply }}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="forge-pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if user_filter %}&user={{ user_filter }}{% endif %}"
+           class="btn-forge-secondary forge-btn-sm">
+            <i class="fa-solid fa-chevron-left"></i> Anterior
+        </a>
+        {% endif %}
+        <span class="forge-pagination-info">
+            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if user_filter %}&user={{ user_filter }}{% endif %}"
+           class="btn-forge-secondary forge-btn-sm">
+            Próxima <i class="fa-solid fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="forge-empty-state">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <h3>Nenhum log encontrado</h3>
+        {% if user_filter %}
+        <p>Tente ajustar o filtro ou <a href="{% url 'forge:agent_logs' %}">limpar a busca</a>.</p>
+        {% else %}
+        <p>As conversas com o agente aparecerão aqui.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% include "forge/partials/_agent_widget.html" %}
+{% endblock %}

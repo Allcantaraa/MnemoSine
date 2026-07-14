@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from dashboard.decorators import organization_required, organization_member_or_admin_required
-from .models import Category, CodeEntry, CodeVersion
+from .models import Category, CodeEntry, CodeVersion, AgentLog
 
 
 @login_required
@@ -414,3 +414,42 @@ def toggle_favorite(request, slug):
         code.favorited_by.add(request.user)
         is_favorite = True
     return JsonResponse({'success': True, 'is_favorite': is_favorite})
+
+
+@login_required
+@organization_required
+def agent_logs(request):
+    from django.core.paginator import Paginator
+    qs = AgentLog.objects.filter(organization=request.organization).select_related('user')
+
+    user_filter = request.GET.get('user', '').strip()
+    if user_filter:
+        qs = qs.filter(user__username__icontains=user_filter)
+
+    paginator = Paginator(qs, 25)
+    page_obj = paginator.get_page(request.GET.get('page', 1))
+    return render(request, 'forge/agent_logs.html', {
+        'page_obj': page_obj,
+        'user_filter': user_filter,
+    })
+
+
+@login_required
+@organization_required
+@require_POST
+def agent_chat(request):
+    from .agent import run_agent
+    prompt = request.POST.get('prompt', '').strip()
+    if not prompt:
+        return JsonResponse({'reply': 'Mensagem vazia.'})
+    try:
+        reply = run_agent(prompt, request.organization, request.user)
+        AgentLog.objects.create(
+            organization=request.organization,
+            user=request.user,
+            prompt=prompt,
+            reply=reply,
+        )
+        return JsonResponse({'reply': reply})
+    except Exception as e:
+        return JsonResponse({'reply': f'Erro interno: {e}'}, status=500)

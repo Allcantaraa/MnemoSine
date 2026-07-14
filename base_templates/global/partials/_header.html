@@ -95,6 +95,10 @@
                 <i class="fa-solid fa-layer-group"></i>
                 <span class="nav-label">Biblioteca</span>
             </a>
+            <a href="{% url 'forge:agent_logs' %}" class="nav-link {% if request.resolver_match.url_name == 'agent_logs' %}active{% endif %}">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span class="nav-label">Logs do Agente</span>
+            </a>
 
         {% else %}
 

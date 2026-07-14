@@ -15,4 +15,6 @@ urlpatterns = [
     path('<slug:slug>/editar/', views.editar_codigo, name='editar_codigo'),
     path('<slug:slug>/exportar/', views.exportar, name='exportar'),
     path('<slug:slug>/track/', views.track_action, name='track'),
+    path('agente/chat/', views.agent_chat, name='agent_chat'),
+    path('agente/logs/', views.agent_logs, name='agent_logs'),
 ]
