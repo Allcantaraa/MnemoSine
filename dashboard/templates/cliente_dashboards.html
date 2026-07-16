@@ -227,7 +227,7 @@
                             <button type="button" class="btn-delete" title="Deletar" onclick="openDeleteDashboardModal('{% url 'deletar_dashboard' client_slug dashboard.slug %}', '{{ dashboard.title|escapejs }}')">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
-                            <a href="{% url "baixar_dashboard_json" client_slug dashboard.slug %}" class="btn-download" title="Download JSON"><i class="fa-solid fa-download"></i></a>
+                            <a href="{% url "baixar_dashboard_json" client_slug dashboard.slug %}" class="btn-download" title="Download ZIP"><i class="fa-solid fa-download"></i></a>
                         </div>
                     </div>
                 </div>

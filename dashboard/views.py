@@ -6,7 +6,9 @@ from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.http import FileResponse
 from django.core.paginator import Paginator
+import io
 import os
+import zipfile
 from dashboard.models import Cliente, Dashboard, Categoria, OrganizationMember, DeletionRequest
 from dashboard.forms import ClienteForm, CategoriaForm, DashboardForm
 from dashboard.decorators import organization_required, organization_member_or_admin_required, organization_admin_required
@@ -729,25 +731,35 @@ def deletar_dashboard(request, client_slug, dashboard_slug):
 @login_required
 @organization_required
 def baixar_dashboard_json(request, client_slug, dashboard_slug):
-    """Faz download do arquivo JSON do dashboard."""
+    """Faz download do dashboard como um ZIP com JSON e imagem."""
     org = request.organization
     dashboard = get_object_or_404(Dashboard, slug=dashboard_slug, organization=org, client__slug=client_slug)
-    
-    # Verificar permissão (qualquer membro pode ver)
-    if not dashboard.json:
-        messages.error(request, 'Arquivo JSON não encontrado.')
+
+    if not dashboard.json or not dashboard.image:
+        messages.error(request, 'Arquivo JSON ou imagem do dashboard não encontrado.')
         return redirect('cliente_dashboard', slug=client_slug)
-    
-    # Obter o caminho do arquivo
-    file_path = dashboard.json.path
-    
-    if os.path.exists(file_path):
-        response = FileResponse(open(file_path, 'rb'), content_type='application/json')
-        response['Content-Disposition'] = f'attachment; filename="{dashboard.title}-{dashboard.slug}.json"'
-        return response
-    else:
+
+    json_path = dashboard.json.path
+    image_path = dashboard.image.path
+
+    if not os.path.exists(json_path):
         messages.error(request, 'Arquivo JSON não encontrado no servidor.')
         return redirect('cliente_dashboard', slug=client_slug)
+
+    if not os.path.exists(image_path):
+        messages.error(request, 'Imagem do dashboard não encontrada no servidor.')
+        return redirect('cliente_dashboard', slug=client_slug)
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', compression=zipfile.ZIP_DEFLATED) as zip_file:
+        zip_file.write(json_path, arcname='dashboard.json')
+        image_name = os.path.basename(image_path)
+        zip_file.write(image_path, arcname=image_name)
+
+    zip_buffer.seek(0)
+    response = FileResponse(zip_buffer, content_type='application/zip')
+    response['Content-Disposition'] = f'attachment; filename="{dashboard.title}-{dashboard.slug}.zip"'
+    return response
 
 
 @login_required
